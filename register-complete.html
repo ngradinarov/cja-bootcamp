@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Password — AcmeHealth</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data-layer.js"></script>
+  <script src="js/personalization.js"></script>
+  <script src="https://assets.adobedtm.com/dca8f73c45d4/5200617fa907/launch-a7b11588ffe5-development.min.js" async></script>
+</head>
+<body>
+
+  <div class="utility-bar">
+    <div class="container">
+      <a href="#">Español</a><a href="#">Accessibility</a><a href="#">Contact Us</a><a href="admin-filegenerator.html">File Generator</a><a href="login.html">Sign In</a>
+    </div>
+  </div>
+
+  <header>
+    <div class="container">
+      <a href="index.html" class="logo"><div class="logo-icon">A</div> AcmeHealth</a>
+      <nav>
+        <a href="index.html">Home</a><a href="plans.html">Plans</a><a href="doctors.html">Find a Doctor</a><a href="pharmacy.html">Pharmacy</a><a href="appointments.html">Appointments</a>
+      </nav>
+      <a href="login.html" class="header-cta">Member Sign In</a>
+    </div>
+  </header>
+
+  <section class="section" style="padding: 80px 0; background: var(--gray-100); min-height: 70vh; display: flex; align-items: center;">
+    <div class="container">
+
+      <!-- Progress indicator -->
+      <div style="max-width: 480px; margin: 0 auto 32px;">
+        <div style="display: flex; align-items: center; gap: 0;">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--green-500); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700;">✓</div>
+            <span style="font-size: 0.75rem; color: var(--green-500); font-weight: 600;">Your Email</span>
+          </div>
+          <div style="flex: 1; height: 2px; background: var(--blue-700); margin: 0 8px; margin-bottom: 20px;"></div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--blue-700); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700;">2</div>
+            <span style="font-size: 0.75rem; font-weight: 600; color: var(--blue-700);">Create Password</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card" style="max-width: 480px;">
+        <h2>Create Your Password</h2>
+        <p class="subtitle" id="step2-subtitle">Step 2 of 2 — Almost done!</p>
+
+        <form id="register-complete-form" data-track-action="registration-complete-submit" data-track-section="registration">
+          <div class="form-group">
+            <label for="reg-email-display">Email Address</label>
+            <input type="email" id="reg-email-display" readonly
+              style="background: var(--gray-100); color: var(--gray-400); cursor: default;"
+              data-track-action="registration-field" data-track-detail="email-confirmed">
+          </div>
+          <div class="form-group">
+            <label for="reg-password">Password</label>
+            <input type="password" id="reg-password" placeholder="Create a password" required
+              data-track-action="registration-field" data-track-detail="password">
+          </div>
+          <div class="form-group">
+            <label for="reg-password-confirm">Confirm Password</label>
+            <input type="password" id="reg-password-confirm" placeholder="Re-enter your password" required
+              data-track-action="registration-field" data-track-detail="password-confirm">
+          </div>
+
+          <div id="reg-error" style="display: none; color: var(--red-500); font-size: 0.875rem; margin-bottom: 12px;"></div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; text-align: center; margin-top: 8px;"
+            data-track-action="registration-complete-submit">
+            Create Account
+          </button>
+        </form>
+
+        <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--gray-200); text-align: center;">
+          <p style="font-size: 0.9rem; color: var(--gray-400);">
+            <a href="register-start.html" data-track-action="registration-back-to-step1">← Back</a>
+            &nbsp;&nbsp;·&nbsp;&nbsp;
+            Already have an account? <a href="login.html" data-track-action="registration-switch-to-login">Sign in</a>
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div><h4>AcmeHealth</h4><a href="plans.html">Plans & Coverage</a><a href="doctors.html">Find a Doctor</a><a href="pharmacy.html">Pharmacy</a><a href="appointments.html">Appointments</a></div>
+        <div><h4>Members</h4><a href="login.html">Sign In</a><a href="#">ID Cards</a><a href="#">Claims</a><a href="#">Benefits</a></div>
+        <div><h4>Support</h4><a href="#">Contact Us</a><a href="#">FAQs</a><a href="#">Billing</a><a href="#">Grievances</a></div>
+        <div><h4>About</h4><a href="#">Our Mission</a><a href="#">Careers</a><a href="#">Newsroom</a><a href="#">Community Health</a></div>
+      </div>
+      <div class="footer-bottom">&copy; 2026 AcmeHealth. Demo site for Adobe testing.</div>
+    </div>
+  </footer>
+
+  <script src="js/site.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Retrieve email from step 1; redirect back if missing
+      var email = sessionStorage.getItem('reg_email') || '';
+      if (!email) {
+        window.location.href = 'register-start.html';
+        return;
+      }
+
+      var emailDisplay = document.getElementById('reg-email-display');
+      if (emailDisplay) emailDisplay.value = email;
+
+      var form = document.getElementById('register-complete-form');
+      if (!form) return;
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        var password = document.getElementById('reg-password').value;
+        var confirm  = document.getElementById('reg-password-confirm').value;
+        var errEl    = document.getElementById('reg-error');
+
+        if (password !== confirm) {
+          errEl.textContent = 'Passwords do not match. Please try again.';
+          errEl.style.display = 'block';
+          return;
+        }
+        errEl.style.display = 'none';
+
+        // Create demo session — use file-generator persona data if available,
+        // otherwise derive deterministically from the email hash.
+        function hashEmail(str) {
+          var h = 0;
+          for (var i = 0; i < str.length; i++) { h = ((h << 5) - h) + str.charCodeAt(i); h = h & h; }
+          return h;
+        }
+
+        var name, memberId, guid, plan, region;
+
+        var savedPersonas = [];
+        try { savedPersonas = JSON.parse(localStorage.getItem('ah_personas') || '[]'); } catch(e) {}
+        var savedPersona = savedPersonas.find(function(p) { return p.email === email; });
+
+        if (savedPersona) {
+          name     = savedPersona.name;
+          guid     = savedPersona.guid;
+          memberId = savedPersona.memberId || ('AH-' + savedPersona.guid);
+          plan     = savedPersona.plan   || 'Silver';
+          region   = savedPersona.region || 'Northern California';
+        } else {
+          var RANDOM_NAMES = [
+            'Sarah Mitchell', 'David Park', 'Rachel Torres', 'Marcus Chen',
+            'Emily Novak', 'Jason Rivera', 'Lisa Patel', 'Kevin O\'Brien',
+            'Amanda Foster', 'Brian Nakamura', 'Nicole Adams', 'Ryan Gupta'
+          ];
+          var hash = hashEmail(email);
+          name     = RANDOM_NAMES[Math.abs(hash) % RANDOM_NAMES.length];
+          guid     = '99' + String((Math.abs(hash) % 800000) + 100000).padStart(6, '0');
+          memberId = 'AH-' + guid;
+          plan     = 'Silver';
+          region   = 'Northern California';
+        }
+
+        var session = {
+          name:      name,
+          email:     email,
+          memberId:  memberId,
+          plan:      plan,
+          region:    region,
+          guid:      guid,
+          loginTime: new Date().toISOString()
+        };
+        localStorage.setItem('ah_session', JSON.stringify(session));
+        window.acmehealth = window.acmehealth || {};
+        window.acmehealth.member = session;
+        window.acmehealth.isAuthenticated = true;
+
+        // Clear step-1 data
+        sessionStorage.removeItem('reg_email');
+
+        window.adobeDataLayer = window.adobeDataLayer || [];
+        window.adobeDataLayer.push({ eventType: 'registration-complete' });
+
+        // Defer user login event to next page so the beacon isn't interrupted by navigation
+        sessionStorage.setItem('ah_pending_login_event', JSON.stringify({
+          memberId: session.memberId, name: session.name, email: session.email,
+          guid: session.guid, plan: session.plan, region: session.region, authState: 'authenticated'
+        }));
+
+        console.log('[AcmeHealth] EDDL event fired: registration-complete');
+
+        var btn = form.querySelector('button[type="submit"]');
+        if (btn) {
+          btn.textContent = 'Account Created!';
+          btn.style.background = '#2E7D32';
+        }
+
+        setTimeout(function () {
+          window.location.href = 'dashboard.html';
+        }, 700);
+      });
+    });
+  </script>
+
+</body>
+</html>

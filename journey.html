@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NMW Journey Simulator — AcmeHealth</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/site.js" defer></script>
+  <style>
+    body { background: #f4f5f7; }
+    .sim-wrap { max-width: 1420px; margin: 0 auto; padding: 0 24px 80px; }
+
+    /* Steps */
+    .sim-step { padding: 28px 0; border-bottom: 1px solid #e2e8f0; }
+    .sim-step:last-child { border-bottom: none; }
+    .step-hd { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 20px; }
+    .step-num { width: 32px; height: 32px; border-radius: 50%; background: #005fcc; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+    .step-title { font-size: 18px; font-weight: 700; color: #1a1a1a; line-height: 1.3; }
+    .step-desc { font-size: 13px; color: #64748b; margin-top: 3px; }
+
+    /* Persona bar */
+    .persona-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .persona-chip { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px 6px 7px; border-radius: 999px; border: 2px solid var(--pc, #cbd5e1); background: #fff; cursor: pointer; font-size: .84rem; font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,.07); transition: box-shadow .15s; }
+    .persona-chip:hover { box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+    .persona-chip.active { background: color-mix(in srgb, var(--pc) 9%, #fff); }
+    .p-av { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .62rem; font-weight: 800; color: #fff; flex-shrink: 0; }
+    .p-cnt { font-size: .72rem; color: #94a3b8; margin-left: 2px; }
+    .p-rm { background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 11px; padding: 0 0 0 4px; margin-top: 0; }
+    .p-rm:hover { color: #ef4444; }
+    .btn-add-p { display: inline-flex; align-items: center; gap: 5px; padding: 7px 16px; border-radius: 999px; background: #005fcc; color: #fff; border: none; cursor: pointer; font-size: .84rem; font-weight: 700; transition: background .15s; margin-top: 0; white-space: nowrap; }
+    .btn-add-p:hover { background: #004da5; }
+    .btn-cookie-hint { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px; background: transparent; color: #94a3b8; border: 1.5px dashed #cbd5e1; font-size: .8rem; font-weight: 500; white-space: nowrap; cursor: default; }
+
+    /* Journey map — KPStudio12 visual */
+    .journey-container { overflow-x: auto; padding: 4px 2px 16px; }
+    .journey-flow { display: flex; align-items: flex-start; gap: 16px; min-width: 1100px; }
+    .journey-zone { background-color: #fcfdff; border: 1px solid #e1e1e1; border-top: 3px solid #005fcc; border-radius: 8px; padding: 12px 15px; display: flex; flex-direction: column; gap: 12px; }
+    .journey-zone-header { font-size: 12px; font-weight: 700; color: #005fcc; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; border-bottom: 1px solid #eef2f9; padding-bottom: 8px; white-space: nowrap; }
+    .journey-zone-content { display: flex; gap: 12px; align-items: flex-start; }
+
+    .journey-node { background: #fff; border-radius: 6px; padding: 8px 10px; box-shadow: 0 2px 6px rgba(0,0,0,.06); border: 1px solid #e1e1e1; transition: all .2s; min-width: 95px; max-width: 105px; position: relative; border-left: 3px solid #005fcc; user-select: none; }
+    .journey-node:hover { box-shadow: 0 4px 12px rgba(0,95,204,.15); transform: translateY(-2px); }
+    .journey-node-header { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; cursor: pointer; }
+    .journey-node-icon { font-size: 12px; flex-shrink: 0; }
+    .journey-node-title { font-weight: 600; font-size: 10px; color: #333; line-height: 1.3; }
+    .journey-node-hint { font-size: 8px; color: #94a3b8; margin-top: 2px; font-style: italic; }
+
+    /* Metric badges — individually selectable */
+    .journey-node-metrics { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 6px; padding-top: 6px; border-top: 1px dashed #e0e0e0; }
+    .metric-badge { display: inline-flex; align-items: center; padding: 3px 6px; border-radius: 4px; font-size: 8px; font-weight: 700; background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; cursor: pointer; transition: all .15s; }
+    .metric-badge:hover { background: #e2e8f0; color: #374151; }
+    .metric-badge.msel { background: var(--nc, #3B82F6); color: #fff; border-color: var(--nc, #3B82F6); }
+
+    /* Silo left-border colors */
+    .journey-node.email, .journey-node.engagement-stream { border-left-color: #E34F26; }
+    .journey-node.survey-section { border-left-color: #8E44AD; }
+    .journey-node.registration, .journey-node.gmw { border-left-color: #2E7D32; }
+    .journey-node.enrollment { border-left-color: #546E7A; }
+    .journey-node.callcenter { border-left-color: #EF6C00; }
+
+    /* Node selected state (any metric active) */
+    .journey-node.sel { outline: 2.5px solid var(--nc, #3B82F6); outline-offset: 1px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--nc, #3B82F6) 14%, transparent); }
+    .node-check { position: absolute; top: -7px; right: -7px; width: 16px; height: 16px; border-radius: 50%; background: var(--nc, #3B82F6); color: #fff; font-size: 9px; display: none; align-items: center; justify-content: center; font-weight: 900; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+    .journey-node.sel .node-check { display: flex; }
+
+    /* Stacked cards */
+    .stacked-cards-container { position: relative; padding-top: 8px; padding-left: 8px; cursor: pointer; }
+    .stacked-card-back { position: absolute; width: 95px; height: 70px; background: #fff; border-radius: 6px; border: 1px solid #e1e1e1; border-left: 3px solid #005fcc; }
+    .stacked-card-3 { top: 0; left: 0; z-index: 1; opacity: 0.5; }
+    .stacked-card-2 { top: 4px; left: 4px; z-index: 2; opacity: 0.7; }
+    .stacked-cards-label { font-size: 8px; color: #999; text-align: center; margin-top: 6px; font-style: italic; }
+    .expand-hint { font-size: 8px; color: #005fcc; margin-top: 3px; font-style: italic; }
+
+    .registration-column { display: flex; flex-direction: column; gap: 6px; }
+    .nudge-group { display: flex; flex-direction: column; gap: 4px; margin-left: 16px; position: relative; }
+    .nudge-group::before { content: ''; position: absolute; left: -10px; top: 0; bottom: 0; width: 2px; background: #e0e0e0; border-radius: 2px; }
+    .nudge-group .journey-node { min-width: 90px; max-width: 100px; }
+    .nudge-label { font-size: 8px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; margin-left: 16px; }
+    .survey-sections-group { display: flex; flex-direction: column; gap: 4px; }
+    .survey-sections-group .journey-node { min-width: 90px; max-width: 100px; }
+    .collapse-link { font-size: 10px; color: #005fcc; cursor: pointer; font-weight: 600; text-align: right; margin-bottom: 2px; }
+    .collapse-link:hover { text-decoration: underline; }
+
+    /* Footer */
+    .map-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; padding: 12px 18px; background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .sel-summary { font-size: 13px; color: #64748b; }
+    .sel-summary strong { color: #1a1a1a; }
+    .btn-generate { display: inline-block; padding: 10px 22px; background: #005fcc; color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background .15s; text-decoration: none; }
+    .btn-generate:hover { background: #004da5; color: #fff; }
+    .btn-generate.disabled { background: #94a3b8; pointer-events: none; }
+    .btn-export { display: inline-block; padding: 10px 18px; background: #fff; color: #374151; border: 1.5px solid #d1d5db; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color .15s, color .15s; text-decoration: none; }
+    .btn-export:hover { border-color: #005fcc; color: #005fcc; }
+
+
+    /* Region tag on persona chip */
+    .p-region-tag { font-size: .65rem; font-family: monospace; color: #94a3b8; background: #f1f5f9; border-radius: 3px; padding: 1px 5px; margin: 0 2px; }
+
+    /* Modal region select */
+    .modal-field select { width: 100%; border: 1.5px solid #d1d5db; border-radius: 7px; padding: 9px 12px; font-size: 14px; box-sizing: border-box; background: #fff; color: #1a1a1a; }
+    .modal-field select:focus { border-color: #005fcc; outline: none; }
+    .mrn-preview { font-family: monospace; font-size: 12px; color: #64748b; padding: 9px 12px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 7px; letter-spacing: .02em; }
+
+    /* Modal */
+    .modal-ov { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 9000; display: none; align-items: center; justify-content: center; }
+    .modal-ov.open { display: flex; }
+    .modal-box { background: #fff; border-radius: 14px; padding: 32px; width: 380px; max-width: 94vw; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
+    .modal-title { font-size: 20px; font-weight: 800; color: #1a1a1a; margin: 0 0 22px; }
+    .modal-field { margin-bottom: 18px; }
+    .modal-field label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    .modal-field input { width: 100%; border: 1.5px solid #d1d5db; border-radius: 7px; padding: 9px 12px; font-size: 14px; box-sizing: border-box; margin-top: 0; }
+    .modal-field input:focus { border-color: #005fcc; outline: none; }
+    .swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+    .swatch { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: transform .1s; }
+    .swatch.chosen { border-color: #1a1a1a; transform: scale(1.15); }
+    .modal-actions { display: flex; gap: 10px; margin-top: 6px; }
+    .modal-actions button { flex: 1; padding: 11px; border-radius: 7px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; margin-top: 0; }
+    .btn-cancel { background: #f1f5f9; color: #374151; }
+    .btn-save { background: #005fcc; color: #fff; }
+    .btn-save:hover { background: #004da5; }
+    .view-toggle { display:flex; gap:6px; margin-bottom:14px; }
+    .view-btn { display:inline-flex; align-items:center; padding:7px 18px; border-radius:6px; border:1.5px solid #cbd5e1; background:#fff; color:#64748b; font-size:.82rem; font-weight:700; cursor:pointer; transition:all .15s; }
+    .view-btn.active { background:#005fcc; color:#fff; border-color:#005fcc; }
+    .view-btn:hover:not(.active) { border-color:#005fcc; color:#005fcc; }
+    #journey-path-view { display:none; overflow-x:auto; padding:8px 0; }
+  </style>
+</head>
+<body>
+
+  <div class="utility-bar">
+    <div class="container">
+      <div style="display:flex;align-items:center;gap:20px;font-size:12px;">
+        <span>📞 1-800-555-0100</span>
+        <span>|</span>
+        <a href="login.html">Member Sign In</a>
+        <a href="#">Español</a>
+        <a href="#">Find a Location</a>
+      </div>
+    </div>
+  </div>
+  <header>
+    <div class="container">
+      <a href="index.html" class="logo"><div class="logo-icon">A</div> AcmeHealth</a>
+      <nav>
+        <a href="plans.html">Plans</a>
+        <a href="doctors.html">Doctors</a>
+        <a href="pharmacy.html">Pharmacy</a>
+        <a href="appointments.html">Appointments</a>
+        <a href="journey.html" class="active">Journey Simulator</a>
+      </nav>
+      <a href="dashboard.html" class="header-cta">My Dashboard</a>
+    </div>
+  </header>
+
+  <div class="sim-wrap">
+
+    <!-- ── STEP 1: PERSONAS ── -->
+    <div class="sim-step">
+      <div class="step-hd">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">Testing Personas</div>
+          <div class="step-desc">Create a persona to simulate a member journey. Select one to make it active — its selections are highlighted on the map.</div>
+        </div>
+      </div>
+      <div class="persona-bar" id="personaBar">
+        <button class="btn-add-p" onclick="openModal()">+ Add Persona</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: JOURNEY MAP ── -->
+    <div class="sim-step">
+      <div class="step-hd">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Select Journey Touchpoints</div>
+          <div class="step-desc" id="step2desc">Select a persona above, then click individual metrics on each node to include them in that persona's journey.</div>
+        </div>
+      </div>
+
+      <div id="journey-map-view" class="journey-container">
+        <div class="journey-flow">
+
+          <!-- ZONE 1: Enrollment & Registration -->
+          <div class="journey-zone">
+            <div class="journey-zone-header">Enrollment &amp; Registration</div>
+            <div class="journey-zone-content">
+
+              <!-- Enrollment -->
+              <div class="journey-node enrollment" data-node="enroll">
+                <div class="node-check">✓</div>
+                <div class="journey-node-header" onclick="toggleAll('enroll')">
+                  <span class="journey-node-icon">🏥</span><div class="journey-node-title">Enrollment</div>
+                </div>
+                <div class="journey-node-metrics">
+                  <span class="metric-badge" data-metric="record" onclick="toggleMetric(event,'enroll','record')">Enrollments</span>
+                </div>
+              </div>
+
+              <div class="registration-column">
+                <!-- One-Step Registration Email -->
+                <div class="journey-node email" data-node="reg-email">
+                  <div class="node-check">✓</div>
+                  <div class="journey-node-header" onclick="toggleAll('reg-email')">
+                    <span class="journey-node-icon">✉️</span><div class="journey-node-title">One-Step Registration</div>
+                  </div>
+                  <div class="journey-node-metrics">
+                    <span class="metric-badge" data-metric="sent"    onclick="toggleMetric(event,'reg-email','sent')">Send</span>
+                    <span class="metric-badge" data-metric="opened"  onclick="toggleMetric(event,'reg-email','opened')">Open</span>
+                    <span class="metric-badge" data-metric="clicked" onclick="toggleMetric(event,'reg-email','clicked')">Click</span>
+                  </div>
+                </div>
+
+                <div class="nudge-label">If not registered</div>
+                <div class="nudge-group">
+                  <!-- Collapsed stack -->
+                  <div id="regStack" class="stacked-cards-container">
+                    <div class="stacked-card-back stacked-card-3" style="border-left-color:#E34F26"></div>
+                    <div class="stacked-card-back stacked-card-2" style="border-left-color:#E34F26"></div>
+                    <div class="journey-node email" style="margin:0;position:relative;z-index:10;" onclick="expandStack('reg')">
+                      <div class="journey-node-header"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudges 1–5</div></div>
+                      <div class="journey-node-metrics"><span class="metric-badge">Send</span><span class="metric-badge">Open</span><span class="metric-badge">Click</span></div>
+                      <div class="expand-hint">click to expand</div>
+                    </div>
+                    <div class="stacked-cards-label">5 Nudges</div>
+                  </div>
+                  <!-- Expanded -->
+                  <div id="regExpanded" style="display:none;flex-direction:column;gap:4px;">
+                    <div class="collapse-link" onclick="collapseStack('reg')">▲ Collapse</div>
+                    <div class="journey-node email" data-node="reg-nudge-1"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('reg-nudge-1')"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge #1</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="sent" onclick="toggleMetric(event,'reg-nudge-1','sent')">Send</span><span class="metric-badge" data-metric="opened" onclick="toggleMetric(event,'reg-nudge-1','opened')">Open</span><span class="metric-badge" data-metric="clicked" onclick="toggleMetric(event,'reg-nudge-1','clicked')">Click</span></div></div>
+                    <div class="journey-node email" data-node="reg-nudge-2"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('reg-nudge-2')"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge #2</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="sent" onclick="toggleMetric(event,'reg-nudge-2','sent')">Send</span><span class="metric-badge" data-metric="opened" onclick="toggleMetric(event,'reg-nudge-2','opened')">Open</span><span class="metric-badge" data-metric="clicked" onclick="toggleMetric(event,'reg-nudge-2','clicked')">Click</span></div></div>
+                    <div class="journey-node email" data-node="reg-nudge-3"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('reg-nudge-3')"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge #3</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="sent" onclick="toggleMetric(event,'reg-nudge-3','sent')">Send</span><span class="metric-badge" data-metric="opened" onclick="toggleMetric(event,'reg-nudge-3','opened')">Open</span><span class="metric-badge" data-metric="clicked" onclick="toggleMetric(event,'reg-nudge-3','clicked')">Click</span></div></div>
+                    <div class="journey-node email" data-node="reg-nudge-4"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('reg-nudge-4')"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge #4</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="sent" onclick="toggleMetric(event,'reg-nudge-4','sent')">Send</span><span class="metric-badge" data-metric="opened" onclick="toggleMetric(event,'reg-nudge-4','opened')">Open</span><span class="metric-badge" data-metric="clicked" onclick="toggleMetric(event,'reg-nudge-4','clicked')">Click</span></div></div>
+                    <div class="journey-node email" data-node="reg-nudge-5"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('reg-nudge-5')"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge #5</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="sent" onclick="toggleMetric(event,'reg-nudge-5','sent')">Send</span><span class="metric-badge" data-metric="opened" onclick="toggleMetric(event,'reg-nudge-5','opened')">Open</span><span class="metric-badge" data-metric="clicked" onclick="toggleMetric(event,'reg-nudge-5','clicked')">Click</span></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Web Registration -->
+              <div class="registration-column">
+                <div class="journey-node registration" data-node="reg">
+                  <div class="node-check">✓</div>
+                  <div class="journey-node-header" onclick="toggleAll('reg')">
+                    <span class="journey-node-icon">✅</span><div class="journey-node-title">Web Registration</div>
+                  </div>
+                  <div class="journey-node-metrics">
+                    <span class="metric-badge" data-metric="start"    onclick="toggleMetric(event,'reg','start')">Start</span>
+                    <span class="metric-badge" data-metric="complete" onclick="toggleMetric(event,'reg','complete')">Complete</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div><!-- /zone1 -->
+
+          <!-- ZONE 2: Understanding the Member -->
+          <div class="journey-zone">
+            <div class="journey-zone-header">Understanding the Member</div>
+            <div class="journey-zone-content">
+
+              <div class="registration-column">
+                <!-- Health Interest Survey Email -->
+                <div class="journey-node email" data-node="survey-email">
+                  <div class="node-check">✓</div>
+                  <div class="journey-node-header" onclick="toggleAll('survey-email')">
+                    <span class="journey-node-icon">✉️</span><div class="journey-node-title">Health Interest Survey</div>
+                  </div>
+                  <div class="journey-node-metrics">
+                    <span class="metric-badge" data-metric="sent"    onclick="toggleMetric(event,'survey-email','sent')">Send</span>
+                    <span class="metric-badge" data-metric="opened"  onclick="toggleMetric(event,'survey-email','opened')">Open</span>
+                    <span class="metric-badge" data-metric="clicked" onclick="toggleMetric(event,'survey-email','clicked')">Click</span>
+                  </div>
+                </div>
+                <div class="nudge-label">If not completed</div>
+                <div class="nudge-group">
+                  <div id="survStack" class="stacked-cards-container">
+                    <div class="stacked-card-back stacked-card-3" style="border-left-color:#E34F26"></div>
+                    <div class="stacked-card-back stacked-card-2" style="border-left-color:#E34F26"></div>
+                    <div class="journey-node email" style="margin:0;position:relative;z-index:10;" onclick="expandStack('surv')">
+                      <div class="journey-node-header"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudges 1–3</div></div>
+                      <div class="journey-node-metrics"><span class="metric-badge">Send</span><span class="metric-badge">Open</span><span class="metric-badge">Click</span></div>
+                      <div class="expand-hint">click to expand</div>
+                    </div>
+                    <div class="stacked-cards-label">3 Nudges</div>
+                  </div>
+                  <div id="survExpanded" style="display:none;flex-direction:column;gap:4px;">
+                    <div class="collapse-link" onclick="collapseStack('surv')">▲ Collapse</div>
+                    <div class="journey-node email" data-node="survey-nudge-1"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('survey-nudge-1')"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge #1</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="sent" onclick="toggleMetric(event,'survey-nudge-1','sent')">Send</span><span class="metric-badge" data-metric="opened" onclick="toggleMetric(event,'survey-nudge-1','opened')">Open</span><span class="metric-badge" data-metric="clicked" onclick="toggleMetric(event,'survey-nudge-1','clicked')">Click</span></div></div>
+                    <div class="journey-node email" data-node="survey-nudge-2"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('survey-nudge-2')"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge #2</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="sent" onclick="toggleMetric(event,'survey-nudge-2','sent')">Send</span><span class="metric-badge" data-metric="opened" onclick="toggleMetric(event,'survey-nudge-2','opened')">Open</span><span class="metric-badge" data-metric="clicked" onclick="toggleMetric(event,'survey-nudge-2','clicked')">Click</span></div></div>
+                    <div class="journey-node email" data-node="survey-nudge-3"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('survey-nudge-3')"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge #3</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="sent" onclick="toggleMetric(event,'survey-nudge-3','sent')">Send</span><span class="metric-badge" data-metric="opened" onclick="toggleMetric(event,'survey-nudge-3','opened')">Open</span><span class="metric-badge" data-metric="clicked" onclick="toggleMetric(event,'survey-nudge-3','clicked')">Click</span></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ushur Sections -->
+              <div class="registration-column">
+                <div class="survey-sections-group">
+                  <div id="ushurStack" class="stacked-cards-container">
+                    <div class="stacked-card-back stacked-card-3" style="border-left-color:#8E44AD"></div>
+                    <div class="stacked-card-back stacked-card-2" style="border-left-color:#8E44AD"></div>
+                    <div class="journey-node survey-section" style="margin:0;position:relative;z-index:10;" onclick="expandStack('ushur')">
+                      <div class="journey-node-header"><span class="journey-node-icon">📋</span><div class="journey-node-title">Ushur Sections</div></div>
+                      <div class="journey-node-metrics"><span class="metric-badge">Start</span><span class="metric-badge">Complete</span></div>
+                      <div class="expand-hint">click to expand</div>
+                    </div>
+                    <div class="stacked-cards-label">4 Sections</div>
+                  </div>
+                  <div id="ushurExpanded" style="display:none;flex-direction:column;gap:4px;">
+                    <div class="collapse-link" onclick="collapseStack('ushur')">▲ Collapse</div>
+                    <div class="journey-node survey-section" data-node="ushur-ben"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('ushur-ben')"><span class="journey-node-icon">🛡️</span><div class="journey-node-title">Benefits</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="start" onclick="toggleMetric(event,'ushur-ben','start')">Start</span><span class="metric-badge" data-metric="complete" onclick="toggleMetric(event,'ushur-ben','complete')">Complete</span></div></div>
+                    <div class="journey-node survey-section" data-node="ushur-care"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('ushur-care')"><span class="journey-node-icon">🩺</span><div class="journey-node-title">Care Topics</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="start" onclick="toggleMetric(event,'ushur-care','start')">Start</span><span class="metric-badge" data-metric="complete" onclick="toggleMetric(event,'ushur-care','complete')">Complete</span></div></div>
+                    <div class="journey-node survey-section" data-node="ushur-soc"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('ushur-soc')"><span class="journey-node-icon">🤝</span><div class="journey-node-title">Social Health</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="start" onclick="toggleMetric(event,'ushur-soc','start')">Start</span><span class="metric-badge" data-metric="complete" onclick="toggleMetric(event,'ushur-soc','complete')">Complete</span></div></div>
+                    <div class="journey-node survey-section" data-node="ushur-mod"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('ushur-mod')"><span class="journey-node-icon">🏥</span><div class="journey-node-title">Care Modalities</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="start" onclick="toggleMetric(event,'ushur-mod','start')">Start</span><span class="metric-badge" data-metric="complete" onclick="toggleMetric(event,'ushur-mod','complete')">Complete</span></div></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div><!-- /zone2 -->
+
+          <!-- ZONE 3: Guided Member Welcome -->
+          <div class="journey-zone">
+            <div class="journey-zone-header">Guided Member Welcome</div>
+            <div class="journey-zone-content">
+              <div class="survey-sections-group">
+                <div id="gmwStack" class="stacked-cards-container">
+                  <div class="stacked-card-back stacked-card-3" style="border-left-color:#2E7D32"></div>
+                  <div class="stacked-card-back stacked-card-2" style="border-left-color:#2E7D32"></div>
+                  <div class="journey-node gmw" style="margin:0;position:relative;z-index:10;" onclick="expandStack('gmw')">
+                    <div class="journey-node-header"><span class="journey-node-icon">📇</span><div class="journey-node-title">GMW Steps</div></div>
+                    <div class="journey-node-metrics"><span class="metric-badge">Start</span><span class="metric-badge">Complete</span></div>
+                    <div class="expand-hint">click to expand</div>
+                  </div>
+                  <div class="stacked-cards-label">7 Steps</div>
+                </div>
+                <div id="gmwExpanded" style="display:none;flex-direction:column;gap:4px;">
+                  <div class="collapse-link" onclick="collapseStack('gmw')">▲ Collapse</div>
+                  <div class="journey-node gmw" data-node="gmw-ci"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('gmw-ci')"><span class="journey-node-icon">📇</span><div class="journey-node-title">Contact Info</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="start" onclick="toggleMetric(event,'gmw-ci','start')">Start</span><span class="metric-badge" data-metric="complete" onclick="toggleMetric(event,'gmw-ci','complete')">Complete</span></div></div>
+                  <div class="journey-node gmw" data-node="gmw-dic"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('gmw-dic')"><span class="journey-node-icon">💳</span><div class="journey-node-title">ID Card</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="start" onclick="toggleMetric(event,'gmw-dic','start')">Start</span><span class="metric-badge" data-metric="complete" onclick="toggleMetric(event,'gmw-dic','complete')">Complete</span></div></div>
+                  <div class="journey-node gmw" data-node="gmw-ben"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('gmw-ben')"><span class="journey-node-icon">📋</span><div class="journey-node-title">Benefits</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="start" onclick="toggleMetric(event,'gmw-ben','start')">Start</span><span class="metric-badge" data-metric="complete" onclick="toggleMetric(event,'gmw-ben','complete')">Complete</span></div></div>
+                  <div class="journey-node gmw" data-node="gmw-pcp"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('gmw-pcp')"><span class="journey-node-icon">👨‍⚕️</span><div class="journey-node-title">Select PCP</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="start" onclick="toggleMetric(event,'gmw-pcp','start')">Start</span><span class="metric-badge" data-metric="complete" onclick="toggleMetric(event,'gmw-pcp','complete')">Complete</span></div></div>
+                  <div class="journey-node gmw" data-node="gmw-rx"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('gmw-rx')"><span class="journey-node-icon">💊</span><div class="journey-node-title">Transfer Rx</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="start" onclick="toggleMetric(event,'gmw-rx','start')">Start</span><span class="metric-badge" data-metric="complete" onclick="toggleMetric(event,'gmw-rx','complete')">Complete</span></div></div>
+                  <div class="journey-node gmw" data-node="gmw-hn"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('gmw-hn')"><span class="journey-node-icon">❤️</span><div class="journey-node-title">Health Needs</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="start" onclick="toggleMetric(event,'gmw-hn','start')">Start</span><span class="metric-badge" data-metric="complete" onclick="toggleMetric(event,'gmw-hn','complete')">Complete</span></div></div>
+                  <div class="journey-node gmw" data-node="gmw-sv"><div class="node-check">✓</div><div class="journey-node-header" onclick="toggleAll('gmw-sv')"><span class="journey-node-icon">📅</span><div class="journey-node-title">Schedule Visit</div></div><div class="journey-node-metrics"><span class="metric-badge" data-metric="start" onclick="toggleMetric(event,'gmw-sv','start')">Start</span><span class="metric-badge" data-metric="complete" onclick="toggleMetric(event,'gmw-sv','complete')">Complete</span></div></div>
+                </div>
+              </div>
+
+              <!-- Call Center -->
+              <div class="journey-node callcenter" data-node="callcenter">
+                <div class="node-check">✓</div>
+                <div class="journey-node-header" onclick="toggleAll('callcenter')">
+                  <span class="journey-node-icon">📞</span><div class="journey-node-title">Call Center</div>
+                </div>
+                <div class="journey-node-metrics">
+                  <span class="metric-badge" data-metric="calls" onclick="toggleMetric(event,'callcenter','calls')">Calls Received</span>
+                </div>
+              </div>
+            </div>
+          </div><!-- /zone3 -->
+
+          <!-- ZONE 4: Engagement Streams -->
+          <div class="journey-zone">
+            <div class="journey-zone-header">Engagement Streams</div>
+            <div class="journey-zone-content">
+              <div class="registration-column">
+                <div class="journey-node engagement-stream" data-node="campaigns">
+                  <div class="node-check">✓</div>
+                  <div class="journey-node-header" onclick="toggleAll('campaigns')">
+                    <span class="journey-node-icon">📧</span><div class="journey-node-title">Campaigns</div>
+                  </div>
+                  <div class="journey-node-metrics">
+                    <span class="metric-badge" data-metric="sent"    onclick="toggleMetric(event,'campaigns','sent')">Send</span>
+                    <span class="metric-badge" data-metric="opened"  onclick="toggleMetric(event,'campaigns','opened')">Open</span>
+                    <span class="metric-badge" data-metric="clicked" onclick="toggleMetric(event,'campaigns','clicked')">Click</span>
+                  </div>
+                  <div class="journey-node-hint">Multiple streams</div>
+                </div>
+              </div>
+            </div>
+          </div><!-- /zone4 -->
+
+        </div>
+      </div><!-- /journey-map-view -->
+      <div id="journey-path-view"></div>
+
+      <div class="map-footer">
+        <div class="sel-summary">
+          <strong id="selCount">0</strong> interactions selected for <strong id="selName">—</strong>
+        </div>
+        <button class="btn-export" onclick="exportSummary()">↓ Save Summary</button>
+        <a id="btnGenerate" class="btn-generate disabled" href="admin-filegenerator.html" target="_blank" onclick="handleGenerate(event)">Generate Data for Selected Steps →</a>
+      </div>
+    </div><!-- /step2 -->
+
+
+  </div><!-- /sim-wrap -->
+
+  <!-- Add Persona Modal -->
+  <div class="modal-ov" id="modal">
+    <div class="modal-box">
+      <div class="modal-title">Add Testing Persona</div>
+      <div class="modal-field">
+        <label>Name</label>
+        <input type="text" id="pName" placeholder="e.g. Maria, new enrollee" autocomplete="off">
+      </div>
+      <div class="modal-field">
+        <label>Color</label>
+        <div class="swatches" id="swatches"></div>
+      </div>
+      <div class="modal-field">
+        <label>Region</label>
+        <select id="pRegion" onchange="updateMrnPreview()">
+          <option value="CN">CN — Northern California</option>
+          <option value="CS">CS — Southern California</option>
+          <option value="MA">MA — Mid-Atlantic</option>
+          <option value="CO">CO — Colorado</option>
+          <option value="HI">HI — Hawaii</option>
+          <option value="NW">NW — Northwest</option>
+          <option value="GA">GA — Georgia</option>
+          <option value="NV">NV — Nevada</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label style="color:#94a3b8;">Region MRN Prefix</label>
+        <div class="mrn-preview" id="pMrnPreview">—</div>
+      </div>
+      <div class="modal-field" style="margin-top:2px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;color:#64748b;">
+          <input type="checkbox" id="pNoGuid" style="width:15px;height:15px;accent-color:#f59e0b;cursor:pointer;">
+          <span>No GUID <span style="font-weight:400;font-size:0.8rem;color:#94a3b8;">(member not digitally registered)</span></span>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-save" onclick="savePersona()">Add Persona</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // ── Storage key ──
+  const SK = 'ah_journey_v3';
+  const PALETTE = ['#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6','#EC4899','#06B6D4','#84CC16'];
+
+  const REGION_DISPLAY = { CN: 'Northern California', CS: 'Southern California', MA: 'Mid-Atlantic', CO: 'Colorado', HI: 'Hawaii', NW: 'Northwest', GA: 'Georgia', NV: 'Nevada' };
+  const REGION_PLAN    = { CN: 'Silver', CS: 'Silver', MA: 'Signature HMO', CO: 'Deductible HMO', HI: 'Traditional HMO', NW: 'Silver', GA: 'Silver', NV: 'Silver' };
+
+  // ── Name pools (same as admin-filegenerator) ──
+  const FIRST_NAMES = ['Alex','Maria','James','Sandra','Robert','Jennifer','Michael','Lisa','David','Sarah','Kevin','Emily','Brian','Rachel','Jason','Angela','Chris','Melissa','Daniel','Ashley','Matthew','Jessica','Andrew','Amanda','Carlos','Priya','Wei','Fatima','Omar','Elena','Marcus','Nadia','Tyler','Aisha','Jordan','Yuki','Diego','Camille','Patrick','Lakshmi','Nathan','Simone','Derek','Ingrid','Marcus','Tanya','Samuel','Vivian','Anthony','Grace','Eric','Sophia','Trevor','Aaliyah','Ryan','Mei','Sean','Zara','Logan','Iris','Brandon','Nina','Austin','Leila'];
+  const LAST_NAMES  = ['Johnson','Garcia','Chen','Williams','Torres','Martinez','Brown','Davis','Wilson','Anderson','Taylor','Thomas','Jackson','White','Harris','Lewis','Robinson','Walker','Hall','Allen','Nguyen','Patel','Kim','Rodriguez','Hernandez','Lopez','Gonzalez','Perez','Wright','Scott','Green','Adams','Baker','Nelson','Carter','Mitchell','Perez','Roberts','Turner','Phillips','Campbell','Parker','Evans','Edwards','Collins','Stewart','Sanchez','Morris','Rogers','Reed','Cook','Morgan','Bell','Murphy','Bailey','Rivera','Cooper','Richardson','Cox','Howard'];
+  function randName() {
+    return FIRST_NAMES[Math.floor(Math.random()*FIRST_NAMES.length)] + ' ' + LAST_NAMES[Math.floor(Math.random()*LAST_NAMES.length)];
+  }
+
+  // All selectable metrics per node (used by toggleAll)
+  const NODE_METRICS = {
+    'enroll':         ['record'],
+    'reg-email':      ['sent','opened','clicked'],
+    'reg-nudge-1':    ['sent','opened','clicked'],
+    'reg-nudge-2':    ['sent','opened','clicked'],
+    'reg-nudge-3':    ['sent','opened','clicked'],
+    'reg-nudge-4':    ['sent','opened','clicked'],
+    'reg-nudge-5':    ['sent','opened','clicked'],
+    'reg':            ['start','complete'],
+    'survey-email':   ['sent','opened','clicked'],
+    'survey-nudge-1': ['sent','opened','clicked'],
+    'survey-nudge-2': ['sent','opened','clicked'],
+    'survey-nudge-3': ['sent','opened','clicked'],
+    'ushur-ben':      ['start','complete'],
+    'ushur-care':     ['start','complete'],
+    'ushur-soc':      ['start','complete'],
+    'ushur-mod':      ['start','complete'],
+    'gmw-ci':         ['start','complete'],
+    'gmw-dic':        ['start','complete'],
+    'gmw-ben':        ['start','complete'],
+    'gmw-pcp':        ['start','complete'],
+    'gmw-rx':         ['start','complete'],
+    'gmw-hn':         ['start','complete'],
+    'gmw-sv':         ['start','complete'],
+    'callcenter':     ['calls'],
+    'campaigns':      ['sent','opened','clicked'],
+  };
+
+  // ── State ──
+  let personas = [];
+  let activeId = null;
+  let chosenColor = PALETTE[0];
+
+  function save() {
+    localStorage.setItem(SK, JSON.stringify(
+      personas.map(p => ({ ...p, selectedItems: [...p.selectedItems] }))
+    ));
+  }
+  function load() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(SK) || '[]');
+      personas = raw.map(p => ({ ...p, selectedItems: new Set(p.selectedItems || []) }));
+      if (personas.length) activeId = personas[0].id;
+    } catch { personas = []; }
+  }
+  function active() { return personas.find(p => p.id === activeId) || null; }
+
+  // ── Item key: "nodeId:metric" ──
+  function itemKey(nid, metric) { return nid + ':' + metric; }
+  function nodeHasAny(p, nid)  { return p && [...p.selectedItems].some(k => k.startsWith(nid + ':')); }
+
+  // ── Toggle single metric ──
+  function toggleMetric(e, nid, metric) {
+    e.stopPropagation();
+    const p = active();
+    if (!p) { alert('Select or create a persona first (Step 1).'); return; }
+    const k = itemKey(nid, metric);
+    p.selectedItems.has(k) ? p.selectedItems.delete(k) : p.selectedItems.add(k);
+    save(); renderPersonas(); renderMap();
+  }
+
+  // ── Toggle ALL metrics for a node (click on title/header) ──
+  function toggleAll(nid) {
+    const p = active();
+    if (!p) { alert('Select or create a persona first (Step 1).'); return; }
+    const metrics = NODE_METRICS[nid] || [];
+    const allSelected = metrics.every(m => p.selectedItems.has(itemKey(nid, m)));
+    if (allSelected) metrics.forEach(m => p.selectedItems.delete(itemKey(nid, m)));
+    else             metrics.forEach(m => p.selectedItems.add(itemKey(nid, m)));
+    save(); renderPersonas(); renderMap();
+  }
+
+  // ── Stack expand / collapse ──
+  function expandStack(key) {
+    document.getElementById(key+'Stack').style.display = 'none';
+    document.getElementById(key+'Expanded').style.display = 'flex';
+  }
+  function collapseStack(key) {
+    document.getElementById(key+'Stack').style.display = 'block';
+    document.getElementById(key+'Expanded').style.display = 'none';
+  }
+
+  // ── Render map: node outlines + metric badge colors ──
+  function renderMap() {
+    const p = active();
+    const color = p ? p.color : '#005fcc';
+
+    document.querySelectorAll('.journey-node[data-node]').forEach(el => {
+      const nid = el.dataset.node;
+      el.style.setProperty('--nc', color);
+      el.classList.toggle('sel', !!nodeHasAny(p, nid));
+
+      el.querySelectorAll('.metric-badge[data-metric]').forEach(badge => {
+        badge.style.setProperty('--nc', color);
+        badge.classList.toggle('msel', !!(p && p.selectedItems.has(itemKey(nid, badge.dataset.metric))));
+      });
+    });
+
+    const totalItems = p ? p.selectedItems.size : 0;
+    document.getElementById('selCount').textContent = totalItems;
+    document.getElementById('selName').textContent  = p ? p.name : '—';
+
+    const btn = document.getElementById('btnGenerate');
+    if (totalItems > 0 && p) btn.classList.remove('disabled');
+    else btn.classList.add('disabled');
+
+    document.getElementById('step2desc').textContent = p
+      ? `Active persona: ${p.name}. Click individual metric badges to select interactions, or click a node title to select all.`
+      : 'Select a persona above, then click individual metrics on each node to include them in that persona\'s journey.';
+
+    if (currentView === 'path') renderPathView();
+  }
+
+  // ── Persona chips ──
+  function renderPersonas() {
+    const bar    = document.getElementById('personaBar');
+    const addBtn = bar.querySelector('.btn-add-p, .btn-cookie-hint');
+    bar.querySelectorAll('.persona-chip').forEach(c => c.remove());
+    personas.forEach(p => {
+      const chip = document.createElement('div');
+      chip.className = 'persona-chip' + (p.id === activeId ? ' active' : '');
+      chip.style.setProperty('--pc', p.color);
+      chip.innerHTML =
+        `<div class="p-av" style="background:${p.color}">${p.initials}</div>` +
+        `${p.name}<span class="p-region-tag">${p.region || ''}</span>` +
+        (p.noGuid ? `<span class="p-region-tag" style="background:rgba(245,158,11,.13);color:#f59e0b;border-color:rgba(245,158,11,.35);">no GUID</span>` : '') +
+        `<span class="p-cnt">(${p.selectedItems.size})</span>` +
+        `<button class="p-rm" title="Remove" onclick="removePersona('${p.id}',event)">✕</button>`;
+      chip.addEventListener('click', e => {
+        if (e.target.classList.contains('p-rm')) return;
+        activeId = p.id;
+        renderPersonas(); renderMap();
+      });
+      bar.insertBefore(chip, addBtn);
+    });
+    if (personas.length > 0) {
+      addBtn.className = 'btn-cookie-hint';
+      addBtn.textContent = '🍪 Clear cookies to test a new persona';
+      addBtn.onclick = null;
+    } else {
+      addBtn.className = 'btn-add-p';
+      addBtn.textContent = '+ Add Persona';
+      addBtn.onclick = function() { openModal(); };
+    }
+  }
+
+  function removePersona(id, e) {
+    e.stopPropagation();
+    if (!confirm('Remove this persona and all their selections?')) return;
+    const removed = personas.find(p => p.id === id);
+    personas = personas.filter(p => p.id !== id);
+    if (activeId === id) activeId = personas[0]?.id || null;
+    save(); renderPersonas(); renderMap();
+    if (removed && !removed.noGuid) {
+      const slug  = removed.name.toLowerCase().replace(/[^a-z ]/g,'').replace(/\s+/g,'.');
+      const email = slug + '@testmail.com';
+      try {
+        const existing = JSON.parse(localStorage.getItem('ah_personas') || '[]');
+        localStorage.setItem('ah_personas', JSON.stringify(existing.filter(p => p.email !== email)));
+      } catch(e) {}
+    }
+  }
+
+  // ── GUID + Seed helpers ──
+  function makeGuid(email) {
+    var e = (email || '').toLowerCase().trim(), h = 0;
+    for (var i = 0; i < e.length; i++) { h = ((h << 5) - h) + e.charCodeAt(i); h = h & h; }
+    return '99' + String((Math.abs(h) % 800000) + 100000).padStart(6, '0');
+  }
+  function hashStr(s) {
+    var h = 0;
+    for (var i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h = h & h; }
+    return Math.abs(h);
+  }
+  const REGION_LIST_SEED = ['CN','MA','CO','HI','CS','NW','GA','NV'];
+  const REGION_PHONES_SEED = { CN:['510','925','415','650'], MA:['301','240','703'], CO:['303','720'], HI:['808'], CS:['213','310','323','562'], NW:['503','971','206','425'], GA:['404','678','770'], NV:['702','725'] };
+  const MRN_SUFFIX_MAP = { CN:'11', CS:'00', MA:'XX', CO:'XX', HI:'XX', NW:'XX', GA:'XX', NV:'XX' };
+  function deriveRegion(name)  { return REGION_LIST_SEED[hashStr(name) % REGION_LIST_SEED.length]; }
+  function deriveMrnPrefix(name, region) {
+    const seq = (hashStr(name) % 800000) + 100000;
+    return region + '-9' + String(seq).padStart(7, '0') + '-' + (MRN_SUFFIX_MAP[region] || 'XX');
+  }
+  function updateMrnPreview() {
+    const name = (document.getElementById('pName').value || '').trim();
+    const region = document.getElementById('pRegion').value || 'CN';
+    const el = document.getElementById('pMrnPreview');
+    if (el) el.textContent = name ? deriveMrnPrefix(name, region) : '—';
+  }
+  function deriveDob(name) {
+    const h = hashStr(name);
+    return (1960 + h % 41) + '-' + String((h % 12) + 1).padStart(2,'0') + '-' + String((h % 28) + 1).padStart(2,'0');
+  }
+  function derivePhone(name, region) {
+    const h = hashStr(name), codes = REGION_PHONES_SEED[region] || ['555'];
+    return codes[h % codes.length] + String(1000000 + h % 9000000).slice(0, 7);
+  }
+  function buildSeed() {
+    const seed = {
+      timestamp: new Date().toISOString(),
+      personas: personas.map(p => {
+        const slug   = p.name.toLowerCase().replace(/[^a-z ]/g,'').replace(/\s+/g,'.');
+        const email  = slug + '@testmail.com';
+        const region = p.region || deriveRegion(p.name);
+        return { name: p.name, email, guid: p.noGuid ? null : makeGuid(email), region,
+          noGuid: p.noGuid || false,
+          dob: deriveDob(p.name), phone: derivePhone(p.name, region),
+          enrollDate: new Date().toISOString().slice(0,10),
+          selectedItems: [...p.selectedItems] };
+      })
+    };
+    localStorage.setItem('ah_journey_seed', JSON.stringify(seed));
+  }
+  function handleGenerate(e) {
+    const btn = document.getElementById('btnGenerate');
+    if (btn.classList.contains('disabled')) { e.preventDefault(); return; }
+    buildSeed();
+  }
+
+  // ── Modal ──
+  function openModal() {
+    const name = randName();
+    document.getElementById('pName').value = name;
+    const region = deriveRegion(name);
+    document.getElementById('pRegion').value = region;
+    document.getElementById('pNoGuid').checked = false;
+    updateMrnPreview();
+    chosenColor = PALETTE[personas.length % PALETTE.length];
+    renderSwatches();
+    document.getElementById('modal').classList.add('open');
+    setTimeout(() => { const inp = document.getElementById('pName'); inp.focus(); inp.select(); }, 80);
+  }
+  function closeModal() { document.getElementById('modal').classList.remove('open'); }
+  function renderSwatches() {
+    document.getElementById('swatches').innerHTML = PALETTE.map(c =>
+      `<div class="swatch${c===chosenColor?' chosen':''}" style="background:${c}" onclick="pickColor('${c}')"></div>`
+    ).join('');
+  }
+  function pickColor(c) { chosenColor = c; renderSwatches(); }
+  function savePersona() {
+    const name = document.getElementById('pName').value.trim();
+    if (!name) { alert('Please enter a name.'); return; }
+    const region = document.getElementById('pRegion').value || 'CN';
+    const noGuid = document.getElementById('pNoGuid').checked;
+    const initials = name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    const id = 'p' + Date.now();
+    personas.push({ id, name, initials, color: chosenColor, region, noGuid, selectedItems: new Set() });
+    activeId = id;
+    save(); closeModal(); renderPersonas(); renderMap();
+    syncToAhPersonas(name, region, noGuid);
+  }
+
+  // Writes persona to ah_personas so it's immediately usable for login on other demo pages.
+  function syncToAhPersonas(name, region, noGuid) {
+    if (noGuid) return;
+    const slug  = name.toLowerCase().replace(/[^a-z ]/g,'').replace(/\s+/g,'.');
+    const email = slug + '@testmail.com';
+    const guid  = makeGuid(email);
+    const entry = {
+      guid,
+      email,
+      name,
+      memberId: 'AH-' + guid,
+      plan:   REGION_PLAN[region]    || 'Silver',
+      region: REGION_DISPLAY[region] || region
+    };
+    try {
+      const existing = JSON.parse(localStorage.getItem('ah_personas') || '[]');
+      const idx = existing.findIndex(e => e.email === email);
+      if (idx >= 0) existing[idx] = entry; else existing.unshift(entry);
+      localStorage.setItem('ah_personas', JSON.stringify(existing));
+    } catch(e) {}
+  }
+
+  // ── Export summary ──
+  function exportSummary() {
+    if (personas.length === 0) { alert('No personas to export.'); return; }
+    const NODE_LABELS = {
+      'enroll':'Enrollment',
+      'reg-email':'One-Step Registration Email',
+      'reg-nudge-1':'Registration Nudge #1','reg-nudge-2':'Registration Nudge #2',
+      'reg-nudge-3':'Registration Nudge #3','reg-nudge-4':'Registration Nudge #4',
+      'reg-nudge-5':'Registration Nudge #5',
+      'reg':'Web Registration',
+      'survey-email':'Health Interest Survey Email',
+      'survey-nudge-1':'Survey Nudge #1','survey-nudge-2':'Survey Nudge #2','survey-nudge-3':'Survey Nudge #3',
+      'ushur-ben':'Ushur: Benefits','ushur-care':'Ushur: Care Topics',
+      'ushur-soc':'Ushur: Social Health','ushur-mod':'Ushur: Care Modalities',
+      'gmw-ci':'GMW: Contact Info','gmw-dic':'GMW: ID Card',
+      'gmw-ben':'GMW: Benefits','gmw-pcp':'GMW: Select PCP',
+      'gmw-rx':'GMW: Transfer Rx','gmw-hn':'GMW: Health Needs','gmw-sv':'GMW: Schedule Visit',
+      'callcenter':'Call Center',
+      'campaigns':'Engagement Campaigns'
+    };
+    const METRIC_LABELS = { sent:'Send', opened:'Open', clicked:'Click', record:'Enrollments', start:'Start', complete:'Complete', calls:'Calls Received', duration:'Duration', csat:'Satisfaction Rating' };
+    const date = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+
+    // Load real seq numbers from admin-filegenerator state so MRN matches.
+    // Index by both email (exact, preferred) and name (fallback for personas whose
+    // email was auto-generated by admin-filegenerator in a different format/domain).
+    const fgSeqByEmail = {};
+    const fgSeqByName  = {};
+    try {
+      const fgState = JSON.parse(localStorage.getItem('ah_fg_state') || 'null');
+      if (fgState && fgState.personas) {
+        fgState.personas.forEach(fp => {
+          if (fp.email && fp.seq) fgSeqByEmail[fp.email.toLowerCase().trim()] = fp.seq;
+          if (fp.name  && fp.seq) fgSeqByName[fp.name.toLowerCase().trim()]   = fp.seq;
+        });
+      }
+    } catch(e) {}
+    const resolveMrn = (name, region, email) => {
+      const seq = fgSeqByEmail[email] || fgSeqByName[name.toLowerCase().trim()];
+      return seq
+        ? region + '-9' + String(seq).padStart(7, '0') + '-' + (MRN_SUFFIX_MAP[region] || 'XX')
+        : deriveMrnPrefix(name, region);
+    };
+
+    const cards = personas.map(p => {
+      const region = p.region || deriveRegion(p.name);
+      const slug   = p.name.toLowerCase().replace(/[^a-z ]/g,'').replace(/\s+/g,'.');
+      const email  = slug + '@testmail.com';
+      const guid   = p.noGuid ? null : makeGuid(email);
+      const mrn    = resolveMrn(p.name, region, email);
+
+      // Group selections by node, preserving journey order
+      const nodeOrder = Object.keys(NODE_LABELS);
+      const byNode = {};
+      p.selectedItems.forEach(key => {
+        const colon = key.lastIndexOf(':');
+        const nid = key.slice(0, colon), metric = key.slice(colon + 1);
+        (byNode[nid] = byNode[nid] || []).push(metric);
+      });
+
+      const rows = nodeOrder.filter(nid => byNode[nid]).map(nid => {
+        const tags = byNode[nid].map(m =>
+          `<span style="display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;background:${p.color}22;color:${p.color};border:1px solid ${p.color}55;margin:1px 2px;">${METRIC_LABELS[m] || m}</span>`
+        ).join('');
+        return `<tr>
+          <td style="padding:6px 12px;font-size:12px;color:#334155;border-bottom:1px solid #f1f5f9;white-space:nowrap;">${NODE_LABELS[nid]}</td>
+          <td style="padding:6px 12px;border-bottom:1px solid #f1f5f9;">${tags}</td>
+        </tr>`;
+      }).join('');
+
+      const tableOrEmpty = rows
+        ? `<table style="width:100%;border-collapse:collapse;">
+            <thead><tr>
+              <th style="padding:7px 12px;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;text-align:left;background:#fff;border-bottom:1px solid #e2e8f0;">Touchpoint</th>
+              <th style="padding:7px 12px;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;text-align:left;background:#fff;border-bottom:1px solid #e2e8f0;">Metrics Selected</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>`
+        : `<div style="padding:12px 20px;font-size:12px;color:#94a3b8;background:#fff;">No interactions selected</div>`;
+
+      return `<div style="margin-bottom:28px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;font-family:system-ui,-apple-system,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.06);">
+        <div style="background:${p.color};padding:14px 20px;display:flex;align-items:center;gap:12px;">
+          <div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:14px;flex-shrink:0;">${p.initials}</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:16px;color:#fff;">${p.name}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.75);">${p.selectedItems.size} interaction${p.selectedItems.size !== 1 ? 's' : ''} selected</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+          <div style="padding:10px 16px;border-right:1px solid #e2e8f0;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:3px;">Region</div><div style="font-size:12px;font-family:monospace;color:#334155;">${region}</div></div>
+          <div style="padding:10px 16px;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:3px;">MRN Prefix</div><div style="font-size:12px;font-family:monospace;color:#334155;">${mrn}</div></div>
+          <div style="padding:10px 16px;border-right:1px solid #e2e8f0;border-top:1px solid #e2e8f0;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:3px;">Email</div><div style="font-size:12px;font-family:monospace;color:#334155;">${email}</div></div>
+          <div style="padding:10px 16px;border-top:1px solid #e2e8f0;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:3px;">GUID</div><div style="font-size:12px;font-family:monospace;color:${p.noGuid ? '#f59e0b' : '#334155'};">${p.noGuid ? '⚠ Not assigned' : guid}</div></div>
+        </div>
+        ${tableOrEmpty}
+      </div>`;
+    }).join('');
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NMW Journey Summary — AcmeHealth — ${date}</title>
+  <style>body{margin:0;padding:32px;background:#f4f5f7;font-family:system-ui,-apple-system,sans-serif;}@media print{body{background:#fff;padding:16px;}}</style>
+</head>
+<body>
+  <div style="max-width:760px;margin:0 auto;">
+    <div style="margin-bottom:28px;padding-bottom:20px;border-bottom:2px solid #e2e8f0;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#94a3b8;margin-bottom:4px;">AcmeHealth · NMW Journey Simulator</div>
+      <h1 style="margin:0 0 4px;font-size:24px;color:#1a1a1a;font-weight:800;">Journey Test Summary</h1>
+      <div style="font-size:13px;color:#64748b;">Generated ${date} &nbsp;·&nbsp; ${personas.length} persona${personas.length !== 1 ? 's' : ''}</div>
+    </div>
+    ${cards}
+  </div>
+</body>
+</html>`;
+
+    const blob = new Blob([html], { type: 'text/html' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    const fileParts = personas.map(p => {
+      const region = p.region || deriveRegion(p.name);
+      const slug   = p.name.toLowerCase().replace(/[^a-z ]/g,'').replace(/\s+/g,'.');
+      const email  = slug + '@testmail.com';
+      return p.name.replace(/\s+/g, '') + '_' + resolveMrn(p.name, region, email);
+    }).join('__');
+    a.href = url;
+    a.download = 'nmw-journey_' + fileParts + '_' + new Date().toISOString().slice(0,10) + '.html';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+  }
+
+  // ── Path View ──
+  let currentView = 'map';
+
+  const ZONE_NODES = [
+    ['enroll','reg-email','reg-nudge-1','reg-nudge-2','reg-nudge-3','reg-nudge-4','reg-nudge-5','reg'],
+    ['survey-email','survey-nudge-1','survey-nudge-2','survey-nudge-3','ushur-ben','ushur-care','ushur-soc','ushur-mod'],
+    ['gmw-ci','gmw-dic','gmw-ben','gmw-pcp','gmw-rx','gmw-hn','gmw-sv','callcenter'],
+    ['campaigns']
+  ];
+  const ZONE_LABELS = ['Enrollment & Registration', 'Understanding the Member', 'Guided Member Welcome', 'Engagement Streams'];
+
+  function setView(v) {
+    currentView = v;
+    document.getElementById('btnMapView').classList.toggle('active', v === 'map');
+    document.getElementById('btnPathView').classList.toggle('active', v === 'path');
+    document.getElementById('journey-map-view').style.display  = v === 'map'  ? '' : 'none';
+    document.getElementById('journey-path-view').style.display = v === 'path' ? 'block' : 'none';
+    if (v === 'path') renderPathView();
+  }
+
+  function renderPathView() {
+    const container = document.getElementById('journey-path-view');
+    const p = active();
+
+    if (!p || p.selectedItems.size === 0) {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:#94a3b8;font-size:14px;">Select a persona and choose interactions to see the path view.</div>';
+      return;
+    }
+
+    const color = p.color || '#005fcc';
+
+    // Zones with at least one selected node
+    const activZones = ZONE_NODES
+      .map((ids, zi) => ({ zi, label: ZONE_LABELS[zi], nodes: ids.filter(nid => nodeHasAny(p, nid)) }))
+      .filter(z => z.nodes.length > 0);
+
+    if (!activZones.length) {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:#94a3b8;font-size:14px;">No nodes selected.</div>';
+      return;
+    }
+
+    const COL_W = 160, COL_GAP = 80, BOX_H = 40, BOX_GAP = 10, HEADER_H = 32, PAD = 24;
+    const nCols  = activZones.length;
+    const maxNodes = Math.max(...activZones.map(z => z.nodes.length));
+    const totalW = PAD * 2 + nCols * COL_W + (nCols - 1) * COL_GAP;
+    const totalH = PAD * 2 + HEADER_H + maxNodes * (BOX_H + BOX_GAP);
+
+    // Column layout
+    const cols = activZones.map((z, ci) => {
+      const x = PAD + ci * (COL_W + COL_GAP);
+      const colH = z.nodes.length * (BOX_H + BOX_GAP) - BOX_GAP;
+      const startY = PAD + HEADER_H + ((maxNodes * (BOX_H + BOX_GAP) - BOX_GAP) - colH) / 2;
+      const nodeYs = z.nodes.map((_, ni) => startY + ni * (BOX_H + BOX_GAP));
+      return { ...z, x, nodeYs };
+    });
+
+    // S-curve connectors between adjacent columns (fan: each left node → each right node)
+    let paths = '';
+    for (let ci = 0; ci < cols.length - 1; ci++) {
+      const L = cols[ci], R = cols[ci + 1];
+      const x1 = L.x + COL_W, x2 = R.x, cx = (x1 + x2) / 2;
+      L.nodeYs.forEach(ly => {
+        R.nodeYs.forEach(ry => {
+          const y1 = ly + BOX_H / 2, y2 = ry + BOX_H / 2;
+          paths += `<path d="M${x1} ${y1} C${cx} ${y1},${cx} ${y2},${x2} ${y2}" fill="none" stroke="${color}" stroke-width="1.8" stroke-opacity="0.3"/>`;
+        });
+      });
+    }
+
+    // Node boxes (foreignObject for text truncation + flex layout)
+    let boxes = '';
+    cols.forEach(col => {
+      // Zone header
+      boxes += `<foreignObject x="${col.x}" y="${PAD}" width="${COL_W}" height="${HEADER_H}">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#64748b;text-align:center;padding-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${col.label}</div>
+      </foreignObject>`;
+      col.nodes.forEach((nid, ni) => {
+        const domTitle = document.querySelector(`.journey-node[data-node="${nid}"] .journey-node-title`);
+        const label = domTitle ? domTitle.textContent : nid;
+        const metrics = [];
+        p.selectedItems.forEach(key => { if (key.startsWith(nid + ':')) metrics.push(key.split(':')[1]); });
+        const y = col.nodeYs[ni];
+        boxes += `<foreignObject x="${col.x}" y="${y}" width="${COL_W}" height="${BOX_H}">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="background:#fff;border:2px solid ${color};border-radius:7px;height:${BOX_H}px;display:flex;flex-direction:column;justify-content:center;padding:0 9px;box-sizing:border-box;">
+            <div style="font-size:11px;font-weight:700;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${label}</div>
+            ${metrics.length ? `<div style="font-size:9px;color:${color};margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${metrics.join(' · ')}</div>` : ''}
+          </div>
+        </foreignObject>`;
+      });
+    });
+
+    container.innerHTML = `<svg width="${totalW}" height="${totalH}" style="display:block;font-family:inherit;min-width:${totalW}px;">${paths}${boxes}</svg>`;
+  }
+
+  // ── Boot ──
+  document.addEventListener('DOMContentLoaded', () => {
+    load();
+    // Re-sync all existing personas to ah_personas on load (fixes stale entries).
+    personas.forEach(p => { if (!p.noGuid) syncToAhPersonas(p.name, p.region, p.noGuid); });
+    renderPersonas();
+    renderMap();
+    document.getElementById('modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal')) closeModal();
+    });
+    document.getElementById('pName').addEventListener('keydown', e => {
+      if (e.key === 'Enter') savePersona();
+    });
+    document.getElementById('pName').addEventListener('input', updateMrnPreview);
+  });
+  </script>
+</body>
+</html>

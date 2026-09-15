@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Dashboard — AcmeHealth</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data-layer.js"></script>
+  <script src="js/personalization.js"></script>
+  <script src="https://assets.adobedtm.com/dca8f73c45d4/5200617fa907/launch-a7b11588ffe5-development.min.js" async></script>
+</head>
+<body>
+
+  <div class="utility-bar">
+    <div class="container">
+      <a href="#">Español</a><a href="#">Accessibility</a><a href="#">Contact Us</a><a href="#" data-action="logout">Sign Out</a>
+      <a href="admin.html">Admin</a>
+      <a href="admin-filegenerator.html">File Generator</a>
+    </div>
+  </div>
+
+  <header>
+    <div class="container">
+      <a href="index.html" class="logo"><div class="logo-icon">A</div> AcmeHealth</a>
+      <nav>
+        <a href="index.html">Home</a><a href="plans.html">Plans</a><a href="doctors.html">Find a Doctor</a><a href="pharmacy.html">Pharmacy</a><a href="appointments.html">Appointments</a>
+      </nav>
+      <a href="dashboard.html" class="header-cta" id="header-member-name">My Dashboard</a>
+    </div>
+  </header>
+
+  <!-- Welcome Banner -->
+  <section class="hero" style="padding: 40px 0;">
+    <div class="container">
+      <h1 id="welcome-heading">Welcome back!</h1>
+      <p id="member-meta">Loading member info...</p>
+    </div>
+  </section>
+
+  <!-- Guided Member Welcome -->
+  <section id="gmw-section" style="background: var(--blue-100); padding: 36px 0; border-bottom: 3px solid #c7dff0;">
+    <div class="container">
+
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+        <div>
+          <h2 style="color: var(--blue-900); margin-bottom: 4px;">Get Started with Your Plan</h2>
+          <p style="color: var(--gray-700); font-size: 0.95rem;">Complete these steps to make the most of your AcmeHealth membership.</p>
+        </div>
+        <div style="text-align: right; flex-shrink: 0; margin-left: 24px;">
+          <div id="gmw-progress-label" style="font-size: 0.9rem; font-weight: 700; color: var(--blue-700);">0 of 7 complete</div>
+          <button id="gmw-dismiss" style="display: none; font-size: 0.8rem; color: var(--gray-400); background: none; border: none; cursor: pointer; margin-top: 4px; padding: 0; text-decoration: underline;">Dismiss</button>
+        </div>
+      </div>
+
+      <div style="background: white; border-radius: 6px; height: 10px; margin-bottom: 28px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+        <div id="gmw-progress-bar" style="background: var(--green-500); border-radius: 6px; height: 100%; width: 0%; transition: width 0.5s ease;"></div>
+      </div>
+
+      <div class="gmw-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+
+        <div class="gmw-card" data-gmw-key="contact-info" data-gmw-start="gmw-contact-info-start" data-gmw-complete="gmw-contact-info-complete">
+          <div class="gmw-icon">📋</div>
+          <div class="gmw-title">Contact Info</div>
+          <div class="gmw-desc">Verify your address, phone, and email on file.</div>
+          <div class="gmw-actions">
+            <button class="btn btn-primary gmw-btn-start" style="font-size:0.8rem;padding:8px 16px;width:100%;">Start</button>
+            <button class="btn btn-outline gmw-btn-complete" style="font-size:0.8rem;padding:8px 16px;width:100%;display:none;">Mark Complete</button>
+            <div class="gmw-done-badge" style="display:none;">✓ Complete</div>
+          </div>
+        </div>
+
+        <div class="gmw-card" data-gmw-key="digital-id-card" data-gmw-start="gmw-digital-id-card-start" data-gmw-complete="gmw-digital-id-card-complete">
+          <div class="gmw-icon">🪪</div>
+          <div class="gmw-title">Digital ID Card</div>
+          <div class="gmw-desc">Access and save your digital member ID card.</div>
+          <div class="gmw-actions">
+            <button class="btn btn-primary gmw-btn-start" style="font-size:0.8rem;padding:8px 16px;width:100%;">Start</button>
+            <button class="btn btn-outline gmw-btn-complete" style="font-size:0.8rem;padding:8px 16px;width:100%;display:none;">Mark Complete</button>
+            <div class="gmw-done-badge" style="display:none;">✓ Complete</div>
+          </div>
+        </div>
+
+        <div class="gmw-card" data-gmw-key="benefits" data-gmw-start="gmw-benefits-start" data-gmw-complete="gmw-benefits-complete">
+          <div class="gmw-icon">🛡️</div>
+          <div class="gmw-title">Benefits</div>
+          <div class="gmw-desc">Review your coverage, copays, and benefits.</div>
+          <div class="gmw-actions">
+            <button class="btn btn-primary gmw-btn-start" style="font-size:0.8rem;padding:8px 16px;width:100%;">Start</button>
+            <button class="btn btn-outline gmw-btn-complete" style="font-size:0.8rem;padding:8px 16px;width:100%;display:none;">Mark Complete</button>
+            <div class="gmw-done-badge" style="display:none;">✓ Complete</div>
+          </div>
+        </div>
+
+        <div class="gmw-card" data-gmw-key="select-pcp" data-gmw-start="gmw-select-pcp-start" data-gmw-complete="gmw-select-pcp-complete">
+          <div class="gmw-icon">🩺</div>
+          <div class="gmw-title">Select PCP</div>
+          <div class="gmw-desc">Choose your primary care physician.</div>
+          <div class="gmw-actions">
+            <button class="btn btn-primary gmw-btn-start" style="font-size:0.8rem;padding:8px 16px;width:100%;">Start</button>
+            <button class="btn btn-outline gmw-btn-complete" style="font-size:0.8rem;padding:8px 16px;width:100%;display:none;">Mark Complete</button>
+            <div class="gmw-done-badge" style="display:none;">✓ Complete</div>
+          </div>
+        </div>
+
+        <div class="gmw-card" data-gmw-key="transfer-rx" data-gmw-start="gmw-transfer-rx-start" data-gmw-complete="gmw-transfer-rx-complete">
+          <div class="gmw-icon">💊</div>
+          <div class="gmw-title">Transfer Rx</div>
+          <div class="gmw-desc">Transfer your prescriptions to AcmeHealth Pharmacy.</div>
+          <div class="gmw-actions">
+            <button class="btn btn-primary gmw-btn-start" style="font-size:0.8rem;padding:8px 16px;width:100%;">Start</button>
+            <button class="btn btn-outline gmw-btn-complete" style="font-size:0.8rem;padding:8px 16px;width:100%;display:none;">Mark Complete</button>
+            <div class="gmw-done-badge" style="display:none;">✓ Complete</div>
+          </div>
+        </div>
+
+        <div class="gmw-card" data-gmw-key="health-needs" data-gmw-start="gmw-health-needs-start" data-gmw-complete="gmw-health-needs-complete">
+          <div class="gmw-icon">❤️</div>
+          <div class="gmw-title">Health Needs</div>
+          <div class="gmw-desc">Complete your personal health needs assessment.</div>
+          <div class="gmw-actions">
+            <button class="btn btn-primary gmw-btn-start" style="font-size:0.8rem;padding:8px 16px;width:100%;">Start</button>
+            <button class="btn btn-outline gmw-btn-complete" style="font-size:0.8rem;padding:8px 16px;width:100%;display:none;">Mark Complete</button>
+            <div class="gmw-done-badge" style="display:none;">✓ Complete</div>
+          </div>
+        </div>
+
+        <div class="gmw-card" data-gmw-key="schedule-visit" data-gmw-start="gmw-schedule-visit-start" data-gmw-complete="gmw-schedule-visit-complete">
+          <div class="gmw-icon">📅</div>
+          <div class="gmw-title">Schedule Visit</div>
+          <div class="gmw-desc">Book your first appointment with your PCP.</div>
+          <div class="gmw-actions">
+            <button class="btn btn-primary gmw-btn-start" style="font-size:0.8rem;padding:8px 16px;width:100%;">Start</button>
+            <button class="btn btn-outline gmw-btn-complete" style="font-size:0.8rem;padding:8px 16px;width:100%;display:none;">Mark Complete</button>
+            <div class="gmw-done-badge" style="display:none;">✓ Complete</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Dashboard Grid -->
+  <section class="section">
+    <div class="container">
+
+      <!-- Quick Actions -->
+      <div class="links-grid" style="margin-bottom: 48px;">
+        <a href="appointments.html" class="link-card" data-track-action="dashboard-action" data-track-section="dashboard" data-track-detail="schedule">
+          <div class="icon">📅</div>
+          <h3>Schedule Visit</h3>
+          <p>Book a new appointment</p>
+        </a>
+        <a href="pharmacy.html" class="link-card" data-track-action="dashboard-action" data-track-section="dashboard" data-track-detail="refill">
+          <div class="icon">💊</div>
+          <h3>Refill Rx</h3>
+          <p>Manage prescriptions</p>
+        </a>
+        <a href="#" class="link-card" data-track-action="dashboard-action" data-track-section="dashboard" data-track-detail="messages">
+          <div class="icon">✉️</div>
+          <h3>Messages</h3>
+          <p>Contact your care team</p>
+        </a>
+        <a href="#" class="link-card" data-track-action="dashboard-action" data-track-section="dashboard" data-track-detail="test-results">
+          <div class="icon">🔬</div>
+          <h3>Test Results</h3>
+          <p>View lab & imaging results</p>
+        </a>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 32px;">
+
+        <!-- Left Column -->
+        <div>
+          <!-- Upcoming Appointments -->
+          <h2 style="margin-bottom: 16px;">Upcoming Appointments</h2>
+          <div style="display: grid; gap: 12px; margin-bottom: 40px;">
+            <div class="doctor-card" data-track-action="dashboard-appointment" data-track-detail="upcoming-1">
+              <div class="doctor-avatar">👩‍⚕️</div>
+              <div class="doctor-info" style="flex: 1;">
+                <h3>Dr. Sarah Chen, MD</h3>
+                <div class="specialty">Annual Physical Exam</div>
+                <div class="location">📅 May 15, 2026 at 10:30 AM</div>
+                <div style="font-size: 0.85rem; color: var(--gray-400);">📍 Oakland Medical Center</div>
+              </div>
+              <a href="appointments.html" class="btn btn-outline" style="font-size: 0.85rem; padding: 8px 16px; align-self: center;">Manage</a>
+            </div>
+            <div class="doctor-card" data-track-action="dashboard-appointment" data-track-detail="upcoming-2">
+              <div class="doctor-avatar">👨‍⚕️</div>
+              <div class="doctor-info" style="flex: 1;">
+                <h3>Dr. Miguel Martinez, MD</h3>
+                <div class="specialty">Cardiology Follow-Up</div>
+                <div class="location">📅 May 22, 2026 at 2:00 PM — Video Visit</div>
+                <div style="font-size: 0.85rem; color: var(--gray-400);">💻 Telehealth</div>
+              </div>
+              <a href="#" class="btn btn-primary" style="font-size: 0.85rem; padding: 8px 16px; align-self: center;" data-track-action="telehealth-join">Join</a>
+            </div>
+          </div>
+
+          <!-- Recent Claims -->
+          <h2 style="margin-bottom: 16px;">Recent Claims</h2>
+          <table class="data-table" style="background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06);">
+            <thead>
+              <tr><th>Date</th><th>Service</th><th>Provider</th><th>Billed</th><th>You Owe</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Apr 22, 2026</td><td>Lab Work</td><td>Oakland Lab</td><td>$245.00</td><td>$0.00</td>
+                <td><span style="color: var(--green-500); font-weight: 600;">Paid</span></td>
+              </tr>
+              <tr>
+                <td>Apr 10, 2026</td><td>Specialist Visit</td><td>Dr. Martinez</td><td>$350.00</td><td>$55.00</td>
+                <td><span style="color: var(--orange-500); font-weight: 600;">Pending</span></td>
+              </tr>
+              <tr>
+                <td>Mar 28, 2026</td><td>Primary Care</td><td>Dr. Chen</td><td>$180.00</td><td>$30.00</td>
+                <td><span style="color: var(--green-500); font-weight: 600;">Paid</span></td>
+              </tr>
+              <tr>
+                <td>Mar 15, 2026</td><td>Prescription</td><td>AcmeHealth Pharmacy</td><td>$120.00</td><td>$10.00</td>
+                <td><span style="color: var(--green-500); font-weight: 600;">Paid</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div>
+          <!-- Member Card -->
+          <div style="background: linear-gradient(135deg, var(--blue-900), var(--blue-700)); border-radius: 12px; padding: 28px; color: white; margin-bottom: 24px;">
+            <div style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 4px;">MEMBER ID</div>
+            <div style="font-size: 1.2rem; font-weight: 700; margin-bottom: 16px;" id="card-member-id">HF-10000001</div>
+            <div style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 4px;">NAME</div>
+            <div style="font-weight: 600; margin-bottom: 16px;" id="card-member-name">Demo Member</div>
+            <div style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 4px;">PLAN</div>
+            <div style="font-weight: 600; margin-bottom: 16px;" id="card-member-plan">Silver</div>
+            <div style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 4px;">REGION</div>
+            <div id="card-member-region">Northern California</div>
+          </div>
+
+          <!-- Coverage Summary -->
+          <div style="background: var(--white); border-radius: 12px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 24px;">
+            <h3 style="color: var(--blue-900); margin-bottom: 16px;">Coverage Summary</h3>
+            <div style="margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
+                <span>Deductible</span><span style="font-weight: 600;">$1,240 / $3,000</span>
+              </div>
+              <div style="background: var(--gray-200); border-radius: 4px; height: 8px;">
+                <div style="background: var(--blue-500); border-radius: 4px; height: 100%; width: 41%;"></div>
+              </div>
+            </div>
+            <div style="margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
+                <span>Out-of-Pocket Max</span><span style="font-weight: 600;">$2,100 / $7,500</span>
+              </div>
+              <div style="background: var(--gray-200); border-radius: 4px; height: 8px;">
+                <div style="background: var(--green-500); border-radius: 4px; height: 100%; width: 28%;"></div>
+              </div>
+            </div>
+            <a href="plans.html" style="font-size: 0.85rem;" data-track-action="dashboard-coverage-detail">View full benefits →</a>
+          </div>
+
+          <!-- Prescriptions -->
+          <div style="background: var(--white); border-radius: 12px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);">
+            <h3 style="color: var(--blue-900); margin-bottom: 16px;">Prescriptions</h3>
+            <div style="display: grid; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="status-dot ready" style="width: 10px; height: 10px; border-radius: 50; flex-shrink: 0;"></div>
+                <div style="flex: 1; font-size: 0.9rem;">
+                  <strong>Lisinopril 10mg</strong>
+                  <div style="color: var(--green-500); font-size: 0.8rem;">Ready for pickup</div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="status-dot refill" style="width: 10px; height: 10px; border-radius: 50; flex-shrink: 0;"></div>
+                <div style="flex: 1; font-size: 0.9rem;">
+                  <strong>Atorvastatin 20mg</strong>
+                  <div style="color: var(--blue-500); font-size: 0.8rem;">Refill available</div>
+                </div>
+              </div>
+            </div>
+            <a href="pharmacy.html" style="font-size: 0.85rem; display: block; margin-top: 12px;" data-track-action="dashboard-pharmacy">Manage prescriptions →</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div><h4>AcmeHealth</h4><a href="plans.html">Plans & Coverage</a><a href="doctors.html">Find a Doctor</a><a href="pharmacy.html">Pharmacy</a><a href="appointments.html">Appointments</a></div>
+        <div><h4>Members</h4><a href="login.html">Sign In</a><a href="#">ID Cards</a><a href="#">Claims</a><a href="#">Benefits</a></div>
+        <div><h4>Support</h4><a href="#">Contact Us</a><a href="#">FAQs</a><a href="#">Billing</a><a href="#">Grievances</a></div>
+        <div><h4>About</h4><a href="#">Our Mission</a><a href="#">Careers</a><a href="#">Newsroom</a><a href="#">Community Health</a></div>
+      </div>
+      <div class="footer-bottom">&copy; 2026 AcmeHealth. Demo site for Adobe testing.</div>
+    </div>
+  </footer>
+
+  <script src="js/site.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // --- Auth check & member info ---
+      var session = JSON.parse(localStorage.getItem('ah_session') || 'null');
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+      document.getElementById('welcome-heading').textContent = 'Welcome back, ' + session.name.split(' ')[0] + '!';
+      document.getElementById('member-meta').textContent =
+        'Member ID: ' + session.memberId + '  •  Plan: ' + session.plan + '  •  Region: ' + session.region;
+      document.getElementById('header-member-name').textContent = session.name;
+      document.getElementById('card-member-id').textContent = session.memberId;
+      document.getElementById('card-member-name').textContent = session.name;
+      document.getElementById('card-member-plan').textContent = session.plan;
+      document.getElementById('card-member-region').textContent = session.region;
+
+      // --- Guided Member Welcome ---
+      var GMW_TOTAL = 7;
+      var GMW_STORAGE_KEY = 'gmw_state_' + (session.memberId || 'demo');
+      var gmwState = {};
+
+      try { gmwState = JSON.parse(sessionStorage.getItem(GMW_STORAGE_KEY) || '{}'); } catch (e) {}
+
+      // Hide if previously dismissed
+      if (sessionStorage.getItem('gmw_dismissed')) {
+        document.getElementById('gmw-section').style.display = 'none';
+        return;
+      }
+
+      function saveGmwState() {
+        sessionStorage.setItem(GMW_STORAGE_KEY, JSON.stringify(gmwState));
+      }
+
+      function updateProgress() {
+        var completed = Object.keys(gmwState).filter(function (k) { return gmwState[k] === 'complete'; }).length;
+        var pct = Math.round((completed / GMW_TOTAL) * 100);
+        document.getElementById('gmw-progress-bar').style.width = pct + '%';
+        document.getElementById('gmw-progress-label').textContent = completed + ' of ' + GMW_TOTAL + ' complete';
+        if (completed === GMW_TOTAL) {
+          document.getElementById('gmw-dismiss').style.display = 'inline-block';
+        }
+      }
+
+      function applyCardState(card, state) {
+        var startBtn    = card.querySelector('.gmw-btn-start');
+        var completeBtn = card.querySelector('.gmw-btn-complete');
+        var doneBadge   = card.querySelector('.gmw-done-badge');
+        card.classList.remove('is-started', 'is-complete');
+        if (state === 'started') {
+          startBtn.style.display    = 'none';
+          completeBtn.style.display = 'block';
+          doneBadge.style.display   = 'none';
+          card.classList.add('is-started');
+        } else if (state === 'complete') {
+          startBtn.style.display    = 'none';
+          completeBtn.style.display = 'none';
+          doneBadge.style.display   = 'block';
+          card.classList.add('is-complete');
+        }
+      }
+
+      function pushEddl(eventType) {
+        window.adobeDataLayer = window.adobeDataLayer || [];
+        window.adobeDataLayer.push({ eventType: eventType });
+        console.log('[AcmeHealth] EDDL:', eventType);
+      }
+
+      // Restore persisted state
+      document.querySelectorAll('.gmw-card').forEach(function (card) {
+        var key = card.dataset.gmwKey;
+        if (gmwState[key]) applyCardState(card, gmwState[key]);
+      });
+      updateProgress();
+
+      // Start buttons
+      document.querySelectorAll('.gmw-btn-start').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var card = this.closest('.gmw-card');
+          var key  = card.dataset.gmwKey;
+          gmwState[key] = 'started';
+          saveGmwState();
+          applyCardState(card, 'started');
+          pushEddl(card.dataset.gmwStart);
+        });
+      });
+
+      // Complete buttons
+      document.querySelectorAll('.gmw-btn-complete').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var card = this.closest('.gmw-card');
+          var key  = card.dataset.gmwKey;
+          gmwState[key] = 'complete';
+          saveGmwState();
+          applyCardState(card, 'complete');
+          updateProgress();
+          pushEddl(card.dataset.gmwComplete);
+        });
+      });
+
+      // Dismiss (visible once all 7 complete)
+      document.getElementById('gmw-dismiss').addEventListener('click', function () {
+        document.getElementById('gmw-section').style.display = 'none';
+        sessionStorage.setItem('gmw_dismissed', '1');
+      });
+    });
+  </script>
+</body>
+</html>

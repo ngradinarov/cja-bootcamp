@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Data Journey Studio</title>
+  <script src="https://assets.adobedtm.com/e72b4113c11a/da0be414ff2e/launch-155adcd04905-development.min.js" async></script>
+  
+  <style>
+    /* --- CORE & LAYOUT --- */
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f4f5f7; margin: 0; padding: 40px; color: #333; padding-bottom: 80px; }
+    h1 { margin-bottom: 25px; font-size: 28px; font-weight: 700; color: #1a1a1a; }
+    h2 { margin-top: 0; }
+    h3 { margin-top: 0; color: #1565c0; }
+    
+    /* --- TOP TABS --- */
+    .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 25px; flex-wrap: wrap; }
+    .tab { padding: 12px 24px; cursor: pointer; font-weight: 600; background: #e9e9e9; border-top-left-radius: 8px; border-top-right-radius: 8px; margin-right: 4px; margin-bottom: 4px; color: #555; transition: all 0.2s ease; }
+    .tab:hover { background: #e0e0e0; color: #333; }
+    .tab.active { background: #fff; border: 2px solid #ddd; border-bottom: 2px solid #fff; margin-bottom: -2px; color: #005fcc; position: relative; z-index: 10; }
+    .tabContent { display: none; animation: fadeIn 0.3s ease; }
+    .tabContent.active { display: block; }
+    
+    /* --- SUB TABS (New) --- */
+    .sub-tabs { display: flex; gap: 5px; margin-bottom: 25px; border-bottom: 1px solid #e0e0e0; padding-bottom: 0; }
+    .sub-tab { padding: 10px 18px; cursor: pointer; font-size: 13px; font-weight: 500; color: #666; border-bottom: 3px solid transparent; transition: all 0.2s ease; }
+    .sub-tab:hover { color: #333; background: rgba(0,0,0,0.02); border-radius: 4px 4px 0 0; }
+    .sub-tab.active { color: #005fcc; border-bottom-color: #005fcc; font-weight: 700; }
+    .subTabContent { display: none; animation: fadeIn 0.3s ease; }
+    .subTabContent.active { display: block; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* --- CARDS & FORMS --- */
+    .card { background: #fff; padding: 25px 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); max-width: 1400px; border: 1px solid #eee; margin-bottom: 30px; }
+    .split-view { display: flex; gap: 20px; align-items: flex-start; }
+    .split-view > * { flex: 1; width: 50%; }
+    
+    label { font-weight: 600; margin-top: 15px; display: block; font-size: 14px; color: #444; }
+    input, select { width: 100%; margin-top: 6px; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box; transition: border 0.2s; }
+    input:focus, select:focus { border-color: #005fcc; outline: none; }
+    
+    button { margin-top: 20px; padding: 12px 18px; background: #005fcc; border: none; color: white; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600; transition: background 0.2s; }
+    button:hover { background: #004da5; }
+    button.small { padding: 10px 15px; font-size: 13px; margin-top: 0; }
+    button.secondary { background: #555; }
+    
+    /* --- COMPONENT: ROLODEX --- */
+    .rolodex-card { background: #fff; border: 1px solid #e1e1e1; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); padding: 25px; border-top: 5px solid #005fcc; position: relative; }
+    .rolodex-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+    .rolodex-avatar { width: 50px; height: 50px; background: #e3f2fd; color: #005fcc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    .rolodex-name { font-size: 18px; font-weight: 700; color: #333; line-height: 1.2; }
+    .rolodex-subtitle { font-size: 12px; color: #777; text-transform: uppercase; margin-top: 4px; }
+    .rolodex-body { display: flex; flex-direction: column; gap: 16px; }
+    .rolodex-item { font-size: 13px; }
+    .rolodex-label { font-weight: 700; color: #888; display: block; margin-bottom: 4px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .rolodex-value { color: #222; word-break: break-word; font-size: 14px; font-weight: 500; }
+    .refresh-icon { position: absolute; top: 12px; right: 12px; width: 22px; height: 22px; cursor: pointer; opacity: 0.35; transition: opacity 0.2s, transform 0.3s; }
+    .refresh-icon:hover { opacity: 0.7; transform: rotate(180deg); }
+    .refresh-icon svg { width: 100%; height: 100%; fill: #555; }
+
+    /* --- COMPONENT: OUTREACH BLOCKS --- */
+    .action-groups-container { display: flex; flex-direction: column; gap: 16px; max-width: 800px; }
+    .outreach-block { background: #fff; border: 1px solid #e1e1e1; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+    .outreach-row { display: flex; align-items: center; padding: 16px 20px; gap: 16px; }
+    .outreach-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .outreach-icon.confirmation { background: #e8f5e9; }
+    .outreach-icon.nudge1 { background: #e3f2fd; }
+    .outreach-icon.nudge2 { background: #fff3e0; }
+    .outreach-icon.nudge3 { background: #fce4ec; }
+    .outreach-icon.nudge4 { background: #f3e5f5; }
+    .outreach-icon.nudge5 { background: #e0f2f1; }
+    .outreach-title { font-weight: 600; font-size: 15px; color: #333; flex: 1; min-width: 0; }
+    .outreach-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .outreach-action-btn { padding: 8px 14px; font-size: 12px; font-weight: 600; margin: 0; background: #005fcc; border-radius: 6px; white-space: nowrap; display: flex; align-items: center; gap: 5px; min-width: 85px; justify-content: center; border: none; color: white; cursor: pointer; }
+    .outreach-action-btn:hover { background: #004da5; }
+    .outreach-action-btn.fired { background: #28a745; }
+    .outreach-action-btn .btn-icon { font-size: 13px; }
+
+    /* --- COMPONENT: JOURNEY VISUALIZATION --- */
+    .journey-container { padding: 20px 10px; overflow-x: auto; }
+    .journey-flow { display: flex; align-items: flex-start; gap: 16px; min-width: 1100px; position: relative; }
+    .journey-zone { background-color: #fcfdff; border: 1px solid #e1e1e1; border-top: 3px solid #005fcc; border-radius: 8px; padding: 12px 15px; display: flex; flex-direction: column; gap: 12px; position: relative; }
+    .journey-zone-header { font-size: 12px; font-weight: 700; color: #005fcc; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; border-bottom: 1px solid #eef2f9; padding-bottom: 8px; white-space: nowrap; }
+    .journey-zone-content { display: flex; gap: 12px; align-items: flex-start; }
+
+    .journey-node { background: #fff; border-radius: 6px; padding: 8px 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border: 1px solid #e1e1e1; cursor: pointer; transition: all 0.2s ease; min-width: 95px; max-width: 105px; position: relative; border-left: 3px solid #005fcc; }
+    .journey-node:hover { box-shadow: 0 4px 12px rgba(0,95,204,0.15); border-color: #005fcc; transform: translateY(-2px); }
+    .journey-node-header { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
+    .journey-node-icon { font-size: 12px; flex-shrink: 0; color: #666; }
+    .journey-node-title { font-weight: 600; font-size: 10px; color: #333; line-height: 1.2; }
+    .journey-node-hint { font-size: 8px; color: #005fcc; margin-top: 4px; opacity: 0; transition: opacity 0.2s; }
+    .journey-node:hover .journey-node-hint { opacity: 1; }
+    .journey-node-metrics { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 6px; padding-top: 6px; border-top: 1px dashed #e0e0e0; }
+    
+    .metric-badge { display: inline-flex; align-items: center; gap: 2px; padding: 2px 4px; border-radius: 3px; font-size: 8px; font-weight: 600; background: #f5f5f5; color: #666; border: 1px solid #e8e8e8; }
+    .metric-badge svg { width: 8px; height: 8px; opacity: 0.7; }
+    .metric-badge.more { background: transparent; border: none; color: #999; padding: 2px; }
+
+    .stacked-cards-container { position: relative; padding-top: 8px; padding-left: 8px; cursor: pointer; }
+    .stacked-card-back { position: absolute; width: 95px; height: 70px; background: #fff; border-radius: 6px; border: 1px solid #e1e1e1; border-left: 3px solid #005fcc; }
+    .stacked-card-3 { top: 0; left: 0; z-index: 1; opacity: 0.5; }
+    .stacked-card-2 { top: 4px; left: 4px; z-index: 2; opacity: 0.7; }
+    .stacked-cards-label { font-size: 8px; color: #999; text-align: center; margin-top: 6px; font-style: italic; }
+
+    .registration-column { display: flex; flex-direction: column; gap: 6px; }
+    .nudge-group { display: flex; flex-direction: column; gap: 4px; margin-left: 16px; position: relative; }
+    .nudge-group::before { content: ''; position: absolute; left: -10px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, #e0e0e0 0%, #e0e0e0 100%); border-radius: 2px; }
+    .nudge-group .journey-node { min-width: 90px; max-width: 100px; }
+    .nudge-label { font-size: 8px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; margin-left: 16px; }
+    .survey-sections-group { display: flex; flex-direction: column; gap: 4px; }
+    .survey-sections-group .journey-node { min-width: 90px; max-width: 100px; }
+
+    /* Journey Context Banner */
+    .journey-context-banner { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 1px solid #dee2e6; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
+    .journey-context-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+    .journey-context-icon.enrollment, .journey-context-icon.confirmation { background: #e8f5e9; }
+    .journey-context-icon.registration { background: #e3f2fd; }
+    .journey-context-icon.understanding { background: #e0f7fa; }
+    .journey-context-icon.gmw { background: #f3e5f5; }
+    .journey-context-icon.engagement { background: #fff3e0; }
+    .journey-context-text h3 { margin: 0 0 4px 0; font-size: 14px; font-weight: 700; color: #333; }
+    .journey-context-text p { margin: 0; font-size: 12px; color: #666; }
+    .journey-context-step { margin-left: auto; background: #fff; border: 1px solid #ddd; border-radius: 20px; padding: 6px 14px; font-size: 11px; font-weight: 600; color: #005fcc; cursor: pointer; transition: all 0.2s ease; }
+    
+    /* --- JSON OUTPUT --- */
+    .json-wrapper { position: relative; margin-top: 0; }
+    #jsonOutput, #kpJsonOutput { width: 100%; height: 300px; background: #2d2d2d; color: #76ff03; font-family: monospace; padding: 15px; border-radius: 6px; white-space: pre; overflow: auto; resize: vertical; border: 1px solid #ccc; }
+    .copy-btn { position: absolute; top: 10px; right: 25px; background: #005fcc; border: none; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; margin: 0; }
+    .copy-btn:hover { background: #004da5; }
+    .download-btn { margin-top: 0; display: inline-block; width: auto; background: #27ae60; color:white; border:none; padding:10px 15px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; }
+    .download-btn:hover { background: #219150; }
+
+    /* --- DATA DICTIONARY (BRD) STYLES --- */
+    table { border-collapse: collapse; margin-top: 30px; width: 100%; max-width: 1100px; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    th, td { border-bottom: 1px solid #eee; padding: 12px 15px; text-align: left; font-size: 13px; }
+    th { background: #f9f9f9; font-weight: 700; color: #555; }
+    td.code-cell { font-family: monospace; font-size: 12px; color: #666; }
+    .iconCell { font-size: 18px; width: 40px; text-align: center; }
+
+    .badge { padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-right: 4px; display: inline-block; }
+    .badge.metric { background: #e3f2fd; color: #0d47a1; }
+    .badge.dim { background: #f3e5f5; color: #7b1fa2; }
+    .badge.identity { background: #fff3e0; color: #e65100; }
+    .badge.tag { background: #f5f5f5; border: 1px solid #ddd; font-weight: 400; border-radius: 12px; font-size: 12px; margin: 0; }
+    
+    .report-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .report-table th { padding: 10px; border-bottom: 2px solid #ddd; background: #f9fafb; text-align: left; vertical-align: top; }
+    .report-table td { padding: 8px; border-bottom: 1px solid #eee; }
+    .report-badge { display: inline-block; margin-top: 5px; font-size: 9px; padding: 1px 4px; border-radius: 2px; }
+
+    /* --- DATA SOURCE TOGGLE --- */
+    #dataSourceControlPanel { position: fixed; bottom: 20px; left: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+    .ds-toggle-btn { background: #333; color: #fff; border: none; padding: 10px 16px; border-radius: 30px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; }
+    .ds-toggle-btn:hover { background: #000; transform: scale(1.05); }
+    .ds-toggle-btn .toggle-status { width: 10px; height: 10px; border-radius: 50%; background: #666; transition: background 0.3s; }
+    .ds-toggle-btn.active { background: #e74c3c; }
+    .ds-toggle-btn.active .toggle-status { background: #fff; box-shadow: 0 0 5px rgba(255,255,255,0.8); }
+    
+    .ds-legend { background: rgba(255,255,255,0.95); border: 1px solid #ccc; padding: 12px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none; flex-direction: column; gap: 6px; font-size: 11px; animation: slideUp 0.3s ease; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .ds-legend-title { font-weight: 800; text-transform: uppercase; font-size: 10px; color: #444; margin-bottom: 4px; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+    .ds-legend-item { display: flex; align-items: center; gap: 8px; }
+    .ds-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+    /* SILO MODE COLORS */
+    body.silo-mode .journey-node.email, body.silo-mode .journey-node.engagement-stream { border-left-color: #E34F26 !important; }
+    body.silo-mode .stacked-cards-container .stacked-card-back { border-left-color: #E34F26 !important; }
+    body.silo-mode #ushurStack .stacked-card-back, body.silo-mode .journey-node.survey-section { border-left-color: #8E44AD !important; }
+    body.silo-mode #gmwStack .stacked-card-back, body.silo-mode .journey-node.registration, body.silo-mode .journey-node.gmw { border-left-color: #2E7D32 !important; }
+    body.silo-mode .journey-node.enrollment { border-left-color: #546E7A !important; }
+    
+    body.silo-mode .journey-node::after { content: attr(data-source-label); position: absolute; top: -6px; right: -4px; font-size: 8px; font-weight: 800; color: #fff; padding: 2px 4px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index: 10; text-transform: uppercase; }
+    body.silo-mode .journey-node.enrollment::after { content: "MemDB"; background: #546E7A; }
+    body.silo-mode .journey-node.email::after, body.silo-mode .journey-node.engagement-stream::after { content: "Marketo"; background: #E34F26; }
+    body.silo-mode .journey-node.registration::after, body.silo-mode .journey-node.gmw::after { content: "CJA"; background: #2E7D32; }
+    body.silo-mode .journey-node.survey-section::after { content: "Ushur"; background: #8E44AD; }
+  </style>
+</head>
+<body>
+
+  <h1>Data Journey Studio</h1>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="nmwjourney">NMW Journey</div>
+    <div class="tab" data-tab="brd">BRD & Data Dictionary</div>
+    <div class="tab" data-tab="dataGen">Synthetic Data Generator</div>
+  </div>
+
+  <div id="nmwjourney" class="tabContent active">
+    <div class="card" style="max-width: 1400px;">
+      <h2 style="margin-top:0">New Member Welcome Journey</h2>
+      <div class="journey-container">
+        <div class="journey-flow">
+
+          <div class="journey-zone">
+             <div class="journey-zone-header">Enrollment & Registration</div>
+             <div class="journey-zone-content">
+                <div class="journey-node enrollment" onclick="navigateToTab('kpmember')" title="Click to fire enrollment data">
+                  <div class="journey-node-header"><span class="journey-node-icon">🏥</span><div class="journey-node-title">Enrollment</div></div>
+                  <div class="journey-node-metrics"><span class="metric-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Enrollments</span></div>
+                  <div class="journey-node-hint">→ Enrollment</div>
+                </div>
+
+                <div class="journey-node email" onclick="navigateToTab('kpnmw')" title="Click to fire confirmation emails">
+                  <div class="journey-node-header"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Enrollment Confirmation</div></div>
+                  <div class="journey-node-metrics"><span class="metric-badge">Send</span><span class="metric-badge">Open</span><span class="metric-badge">Click</span></div>
+                  <div class="journey-node-hint">→ NMW tab</div>
+                </div>
+
+                <div class="registration-column">
+                  <div class="journey-node email" onclick="navigateToTab('kpnmw')" title="Click to fire registration emails">
+                    <div class="journey-node-header"><span class="journey-node-icon">✉️</span><div class="journey-node-title">One-Step Registration</div></div>
+                    <div class="journey-node-metrics"><span class="metric-badge">Send</span><span class="metric-badge">Open</span><span class="metric-badge">Click</span></div>
+                    <div class="journey-node-hint">→ NMW tab</div>
+                  </div>
+
+                  <div class="nudge-label">If not registered</div>
+                  <div class="nudge-group">
+                    <div id="regNudgeStack" class="stacked-cards-container" onclick="toggleRegNudges(true)">
+                      <div class="stacked-card-back stacked-card-3"></div><div class="stacked-card-back stacked-card-2"></div>
+                      <div class="journey-node email" style="margin:0; position: relative; z-index: 10;">
+                        <div class="journey-node-header"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge 1-5</div></div>
+                        <div class="journey-node-metrics"><span class="metric-badge">Send</span><span class="metric-badge">Open</span><span class="metric-badge">Click</span></div>
+                        <div class="journey-node-hint" style="opacity:1; color:#005fcc; margin-top:3px;">Click to expand</div>
+                      </div>
+                      <div class="stacked-cards-label">5 Nudges</div>
+                    </div>
+                    <div id="regNudgeExpanded" style="display:none; flex-direction: column; gap: 4px;">
+                      <div style="text-align: right; margin-bottom: 2px;"><span style="font-size: 10px; color: #005fcc; cursor: pointer; font-weight: 600; text-decoration: underline;" onclick="toggleRegNudges(false)">▼ Collapse</span></div>
+                      <div class="journey-node email" onclick="navigateToTab('kpnmw')"><div class="journey-node-header"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge #1</div></div><div class="journey-node-metrics"><span class="metric-badge">Send</span><span class="metric-badge">Open</span><span class="metric-badge">Click</span></div><div class="journey-node-hint">→ NMW tab</div></div>
+                      <div class="journey-node email" onclick="navigateToTab('kpnmw')"><div class="journey-node-header"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge #2</div></div><div class="journey-node-metrics"><span class="metric-badge">Send</span><span class="metric-badge">Open</span><span class="metric-badge">Click</span></div><div class="journey-node-hint">→ NMW tab</div></div>
+                      <div class="journey-node email" onclick="navigateToTab('kpnmw')"><div class="journey-node-header"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge #3</div></div><div class="journey-node-metrics"><span class="metric-badge">Send</span><span class="metric-badge">Open</span><span class="metric-badge">Click</span></div><div class="journey-node-hint">→ NMW tab</div></div>
+                      <div class="journey-node email" onclick="navigateToTab('kpnmw')"><div class="journey-node-header"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge #4</div></div><div class="journey-node-metrics"><span class="metric-badge">Send</span><span class="metric-badge">Open</span><span class="metric-badge">Click</span></div><div class="journey-node-hint">→ NMW tab</div></div>
+                      <div class="journey-node email" onclick="navigateToTab('kpnmw')"><div class="journey-node-header"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge #5</div></div><div class="journey-node-metrics"><span class="metric-badge">Send</span><span class="metric-badge">Open</span><span class="metric-badge">Click</span></div><div class="journey-node-hint">→ NMW tab</div></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="journey-node registration" style="align-self: flex-start; margin-top: 0;" onclick="navigateToTab('kpnmw')">
+                  <div class="journey-node-header"><span class="journey-node-icon">✅</span><div class="journey-node-title">KP.org Registration</div></div>
+                  <div class="journey-node-metrics"><span class="metric-badge">Start</span><span class="metric-badge">Complete</span></div>
+                </div>
+             </div>
+          </div>
+
+          <div class="journey-zone">
+            <div class="journey-zone-header">Understanding the Member</div>
+            <div class="journey-zone-content">
+              <div class="registration-column">
+                <div class="journey-node email" onclick="navigateToTab('understanding')">
+                  <div class="journey-node-header"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Health Interest Survey</div></div>
+                  <div class="journey-node-metrics"><span class="metric-badge">Send</span><span class="metric-badge">Open</span></div>
+                  <div class="journey-node-hint">→ Understanding</div>
+                </div>
+                <div class="nudge-label">If not completed</div>
+                <div class="nudge-group">
+                  <div id="surveyNudgeStack" class="stacked-cards-container" onclick="toggleSurveyNudges(true)">
+                    <div class="stacked-card-back stacked-card-3"></div><div class="stacked-card-back stacked-card-2"></div>
+                    <div class="journey-node email" style="margin:0; position: relative; z-index: 10;">
+                      <div class="journey-node-header"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge 1-3</div></div>
+                      <div class="journey-node-metrics"><span class="metric-badge">Send</span><span class="metric-badge">Open</span><span class="metric-badge">Click</span></div>
+                      <div class="journey-node-hint" style="opacity:1; color:#005fcc; margin-top:3px;">Click to expand</div>
+                    </div>
+                    <div class="stacked-cards-label">3 Nudges</div>
+                  </div>
+                  <div id="surveyNudgeExpanded" style="display:none; flex-direction: column; gap: 4px;">
+                    <div style="text-align: right; margin-bottom: 2px;"><span style="font-size: 10px; color: #005fcc; cursor: pointer; font-weight: 600; text-decoration: underline;" onclick="toggleSurveyNudges(false)">▼ Collapse</span></div>
+                    <div class="journey-node email" onclick="navigateToTab('understanding')"><div class="journey-node-header"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge #1</div></div><div class="journey-node-metrics"><span class="metric-badge">Send</span><span class="metric-badge">Open</span><span class="metric-badge">Click</span></div><div class="journey-node-hint">→ Understanding</div></div>
+                    <div class="journey-node email" onclick="navigateToTab('understanding')"><div class="journey-node-header"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge #2</div></div><div class="journey-node-metrics"><span class="metric-badge">Send</span><span class="metric-badge">Open</span><span class="metric-badge">Click</span></div><div class="journey-node-hint">→ Understanding</div></div>
+                    <div class="journey-node email" onclick="navigateToTab('understanding')"><div class="journey-node-header"><span class="journey-node-icon">✉️</span><div class="journey-node-title">Nudge #3</div></div><div class="journey-node-metrics"><span class="metric-badge">Send</span><span class="metric-badge">Open</span><span class="metric-badge">Click</span></div><div class="journey-node-hint">→ Understanding</div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="registration-column">
+                <div class="survey-sections-group">
+                  <div id="ushurStack" class="stacked-cards-container" onclick="toggleUshur(true)">
+                    <div class="stacked-card-back stacked-card-3"></div><div class="stacked-card-back stacked-card-2"></div>
+                    <div class="journey-node survey-section" style="margin:0; position: relative; z-index: 10;">
+                      <div class="journey-node-header"><span class="journey-node-icon">📋</span><div class="journey-node-title">Ushur</div></div>
+                      <div class="journey-node-metrics"><span class="metric-badge">Start</span><span class="metric-badge">Complete</span></div>
+                      <div class="journey-node-hint" style="opacity:1; color:#005fcc; margin-top:3px;">Click to expand</div>
+                    </div>
+                    <div class="stacked-cards-label">4 Sections</div>
+                  </div>
+                  <div id="ushurExpanded" style="display:none; flex-direction: column; gap: 4px;">
+                    <div style="text-align: right; margin-bottom: 2px;"><span style="font-size: 10px; color: #005fcc; cursor: pointer; font-weight: 600; text-decoration: underline;" onclick="toggleUshur(false)">▼ Collapse</span></div>
+                    <div class="journey-node survey-section" onclick="navigateToTab('understanding')"><div class="journey-node-header"><span class="journey-node-icon">🛡️</span><div class="journey-node-title">Benefits</div></div><div class="journey-node-metrics"><span class="metric-badge">Start</span><span class="metric-badge">Complete</span></div><div class="journey-node-hint">→ Understanding</div></div>
+                    <div class="journey-node survey-section" onclick="navigateToTab('understanding')"><div class="journey-node-header"><span class="journey-node-icon">🩺</span><div class="journey-node-title">Care Topics</div></div><div class="journey-node-metrics"><span class="metric-badge">Start</span><span class="metric-badge">Complete</span></div><div class="journey-node-hint">→ Understanding</div></div>
+                    <div class="journey-node survey-section" onclick="navigateToTab('understanding')"><div class="journey-node-header"><span class="journey-node-icon">🤝</span><div class="journey-node-title">Social Health</div></div><div class="journey-node-metrics"><span class="metric-badge">Start</span><span class="metric-badge">Complete</span></div><div class="journey-node-hint">→ Understanding</div></div>
+                    <div class="journey-node survey-section" onclick="navigateToTab('understanding')"><div class="journey-node-header"><span class="journey-node-icon">🏥</span><div class="journey-node-title">Care Modalities</div></div><div class="journey-node-metrics"><span class="metric-badge">Start</span><span class="metric-badge">Complete</span></div><div class="journey-node-hint">→ Understanding</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="journey-zone">
+            <div class="journey-zone-header">Guided Member Welcome</div>
+            <div class="journey-zone-content">
+              <div class="registration-column">
+                <div class="survey-sections-group">
+                  <div id="gmwStack" class="stacked-cards-container" onclick="toggleGmw(true)">
+                    <div class="stacked-card-back stacked-card-3"></div><div class="stacked-card-back stacked-card-2"></div>
+                    <div class="journey-node gmw" style="margin:0; position: relative; z-index: 10;">
+                      <div class="journey-node-header"><span class="journey-node-icon">📇</span><div class="journey-node-title">GMW</div></div>
+                      <div class="journey-node-metrics"><span class="metric-badge">Start</span><span class="metric-badge">Complete</span></div>
+                      <div class="journey-node-hint" style="opacity:1; color:#005fcc; margin-top:3px;">Click to expand</div>
+                    </div>
+                    <div class="stacked-cards-label">7 Steps</div>
+                  </div>
+                  <div id="gmwExpanded" style="display:none; flex-direction: column; gap: 4px;">
+                    <div style="text-align: right; margin-bottom: 2px;"><span style="font-size: 10px; color: #005fcc; cursor: pointer; font-weight: 600; text-decoration: underline;" onclick="toggleGmw(false)">▼ Collapse</span></div>
+                    <div class="journey-node gmw" onclick="navigateToTab('gmw')"><div class="journey-node-header"><span class="journey-node-icon">📇</span><div class="journey-node-title">Contact Info</div></div><div class="journey-node-metrics"><span class="metric-badge">Start</span><span class="metric-badge">Complete</span></div><div class="journey-node-hint">→ GMW</div></div>
+                    <div class="journey-node gmw" onclick="navigateToTab('gmw')"><div class="journey-node-header"><span class="journey-node-icon">💳</span><div class="journey-node-title">ID Card</div></div><div class="journey-node-metrics"><span class="metric-badge">Start</span><span class="metric-badge">Complete</span></div><div class="journey-node-hint">→ GMW</div></div>
+                    <div class="journey-node gmw" onclick="navigateToTab('gmw')"><div class="journey-node-header"><span class="journey-node-icon">📋</span><div class="journey-node-title">Benefits</div></div><div class="journey-node-metrics"><span class="metric-badge">Start</span><span class="metric-badge">Complete</span></div><div class="journey-node-hint">→ GMW</div></div>
+                    <div class="journey-node gmw" onclick="navigateToTab('gmw')"><div class="journey-node-header"><span class="journey-node-icon">👨‍⚕️</span><div class="journey-node-title">Select PCP</div></div><div class="journey-node-metrics"><span class="metric-badge">Start</span><span class="metric-badge">Complete</span></div><div class="journey-node-hint">→ GMW</div></div>
+                    <div class="journey-node gmw" onclick="navigateToTab('gmw')"><div class="journey-node-header"><span class="journey-node-icon">💊</span><div class="journey-node-title">Transfer Rx</div></div><div class="journey-node-metrics"><span class="metric-badge">Start</span><span class="metric-badge">Complete</span></div><div class="journey-node-hint">→ GMW</div></div>
+                    <div class="journey-node gmw" onclick="navigateToTab('gmw')"><div class="journey-node-header"><span class="journey-node-icon">❤️</span><div class="journey-node-title">Health Needs</div></div><div class="journey-node-metrics"><span class="metric-badge">Start</span><span class="metric-badge">Complete</span></div><div class="journey-node-hint">→ GMW</div></div>
+                    <div class="journey-node gmw" onclick="navigateToTab('gmw')"><div class="journey-node-header"><span class="journey-node-icon">📅</span><div class="journey-node-title">Schedule Visit</div></div><div class="journey-node-metrics"><span class="metric-badge">Start</span><span class="metric-badge">Complete</span></div><div class="journey-node-hint">→ GMW</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="journey-zone">
+            <div class="journey-zone-header">Engagement Streams</div>
+            <div class="journey-zone-content">
+              <div class="registration-column">
+                <div class="stacked-cards-container">
+                  <div class="stacked-card-back stacked-card-3"></div><div class="stacked-card-back stacked-card-2"></div>
+                  <div class="journey-node engagement-stream" style="margin:0; position: relative; z-index: 10;" onclick="navigateToTab('engagement')" title="Click to fire engagement stream events">
+                    <div class="journey-node-header"><span class="journey-node-icon">📧</span><div class="journey-node-title">Campaigns</div></div>
+                    <div class="journey-node-metrics"><span class="metric-badge">Send</span><span class="metric-badge">Open</span></div>
+                    <div class="journey-node-hint">→ Engagement</div>
+                  </div>
+                  <div class="stacked-cards-label">Multiple streams</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="dataGen" class="tabContent">
+    
+    <div class="sub-tabs">
+      <div class="sub-tab active" data-subtab="kpmember">Enrollment</div>
+      <div class="sub-tab" data-subtab="kpnmw">Confirmation & Registration</div>
+      <div class="sub-tab" data-subtab="understanding">Understanding the Member</div>
+      <div class="sub-tab" data-subtab="gmw">Guided Member Welcome</div>
+      <div class="sub-tab" data-subtab="engagement">Engagement Streams</div>
+    </div>
+
+    <div id="kpmember" class="subTabContent active">
+      <div class="card max-w-1400">
+        <div class="journey-context-banner">
+          <div class="journey-context-icon enrollment">🏥</div>
+          <div class="journey-context-text"><h3>Enrollment Step</h3><p>Fire enrollment event to begin the New Member Welcome journey</p></div>
+          <div class="journey-context-step">Step 1 of 8</div>
+        </div>
+
+        <h2 style="margin-top:0">Member Profile Generator</h2>
+        <p style="color:#666; font-size:14px; margin-bottom:25px;">Generate a synthetic member profile for testing.</p>
+        
+        <div class="split-view">
+          <div class="rolodex-card">
+              <div class="refresh-icon" id="btnRegenKpMember" title="Regenerate Member">
+                <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+              </div>
+              <div class="rolodex-header">
+                  <div class="rolodex-avatar">🏥</div>
+                  <div><div class="rolodex-name" id="kpMemName">Generating...</div><div class="rolodex-subtitle">Health Plan Member</div></div>
+              </div>
+              <div class="rolodex-body">
+                  <div class="rolodex-item"><span class="rolodex-label">Member GUID</span><div class="rolodex-value" id="kpMemGuid" style="font-family:monospace; font-size:12px;">—</div></div>
+                  <div class="rolodex-item"><span class="rolodex-label">Email</span><div class="rolodex-value" id="kpMemEmail">—</div></div>
+                   <div class="rolodex-item"><span class="rolodex-label">Phone</span><div class="rolodex-value" id="kpMemPhone">—</div></div>
+                  <div class="rolodex-item"><span class="rolodex-label">Birth Year</span><div class="rolodex-value" id="kpMemBirthYear">—</div></div>
+                  <div class="rolodex-item"><span class="rolodex-label">Service Area</span><div class="rolodex-value" id="kpMemArea">—</div></div>
+                  <div class="rolodex-item"><span class="rolodex-label">Plan Number</span><div class="rolodex-value" id="kpMemPlan">—</div></div>
+              </div>
+              <div style="text-align:center; margin-top:30px;"><button id="fireKpMemberButton" style="width:100%">Fire AEP Event</button></div>
+          </div>
+
+          <div>
+              <div class="json-wrapper">
+               <button id="copyKpJsonBtn" class="copy-btn">Copy</button>
+               <textarea id="kpJsonOutput" placeholder="JSON will appear here..."></textarea>
+             </div>
+              <div style="display:flex; gap:10px; margin-top:10px;">
+               <button id="downloadKpJsonBtn" class="download-btn small">Download JSON</button>
+               <button id="uploadKpJsonBtn" class="download-btn small secondary">Upload Profile</button>
+               <input type="file" id="jsonFileInput" accept=".json" style="display: none;" />
+             </div>
+          </div>
+        </div>
+      </div>
+      <div id="kpMemberEventTableContainer"></div>
+    </div>
+
+    <div id="kpnmw" class="subTabContent">
+      <div class="card">
+        <div class="journey-context-banner">
+          <div class="journey-context-icon registration">✉️</div>
+          <div class="journey-context-text"><h3>Confirmation & Registration Steps</h3><p>Fire email/SMS events for the NMW journey (confirmation, registration, and nudges)</p></div>
+          <div class="journey-context-step">Steps 2-4 of 8</div>
+        </div>
+        <h2 style="margin-top:0">NMW Confirmation & Registration Events</h2>
+        <div class="action-groups-container">
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon confirmation">📋</div><div class="outreach-title">Enrollment Confirmation Email</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="enrollment confirmation email sent"><span class="btn-icon">📤</span> Send</button><button class="outreach-action-btn" data-event="enrollment confirmation email opened"><span class="btn-icon">👁️</span> Open</button><button class="outreach-action-btn" data-event="enrollment confirmation email clicked"><span class="btn-icon">🖱️</span> Click</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon nudge1">✉️</div><div class="outreach-title">One-Step Registration Email</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="one-step registration email sent"><span class="btn-icon">📤</span> Send</button><button class="outreach-action-btn" data-event="one-step registration email opened"><span class="btn-icon">👁️</span> Open</button><button class="outreach-action-btn" data-event="one-step registration email clicked"><span class="btn-icon">🖱️</span> Click</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon nudge1">1️⃣</div><div class="outreach-title">Registration Nudge #1</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="one-step registration #1 sent"><span class="btn-icon">📤</span> Send</button><button class="outreach-action-btn" data-event="one-step registration #1 opened"><span class="btn-icon">👁️</span> Open</button><button class="outreach-action-btn" data-event="one-step registration #1 clicked"><span class="btn-icon">🖱️</span> Click</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon nudge2">2️⃣</div><div class="outreach-title">Registration Nudge #2</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="one-step registration #2 sent"><span class="btn-icon">📤</span> Send</button><button class="outreach-action-btn" data-event="one-step registration #2 opened"><span class="btn-icon">👁️</span> Open</button><button class="outreach-action-btn" data-event="one-step registration #2 clicked"><span class="btn-icon">🖱️</span> Click</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon nudge3">3️⃣</div><div class="outreach-title">Registration Nudge #3</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="one-step registration #3 sent"><span class="btn-icon">📤</span> Send</button><button class="outreach-action-btn" data-event="one-step registration #3 opened"><span class="btn-icon">👁️</span> Open</button><button class="outreach-action-btn" data-event="one-step registration #3 clicked"><span class="btn-icon">🖱️</span> Click</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon nudge4">4️⃣</div><div class="outreach-title">Registration Nudge #4</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="one-step registration #4 sent"><span class="btn-icon">📤</span> Send</button><button class="outreach-action-btn" data-event="one-step registration #4 opened"><span class="btn-icon">👁️</span> Open</button><button class="outreach-action-btn" data-event="one-step registration #4 clicked"><span class="btn-icon">🖱️</span> Click</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon nudge5">5️⃣</div><div class="outreach-title">Registration Nudge #5</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="one-step registration #5 sent"><span class="btn-icon">📤</span> Send</button><button class="outreach-action-btn" data-event="one-step registration #5 opened"><span class="btn-icon">👁️</span> Open</button><button class="outreach-action-btn" data-event="one-step registration #5 clicked"><span class="btn-icon">🖱️</span> Click</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon confirmation">✅</div><div class="outreach-title">KP.org Registration</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="kp.org registration start"><span class="btn-icon">▶️</span> Start</button><button class="outreach-action-btn" data-event="kp.org registration complete"><span class="btn-icon">✅</span> Complete</button></div></div></div>
+        </div>
+      </div>
+      <div id="nmwEventTableContainer"></div>
+    </div>
+
+    <div id="understanding" class="subTabContent">
+      <div class="card">
+        <div class="journey-context-banner">
+          <div class="journey-context-icon understanding">📋</div>
+          <div class="journey-context-text"><h3>Understanding the Member Steps</h3><p>Fire survey and Ushur events for the NMW journey.</p></div>
+          <div class="journey-context-step">Steps 5-6 of 8</div>
+        </div>
+        <h2 style="margin-top:0">Understanding the Member Events</h2>
+        <div class="action-groups-container">
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon confirmation">✉️</div><div class="outreach-title">Health Interest Survey Email</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="health interest survey email sent"><span class="btn-icon">📤</span> Send</button><button class="outreach-action-btn" data-event="health interest survey email opened"><span class="btn-icon">👁️</span> Open</button><button class="outreach-action-btn" data-event="health interest survey email clicked"><span class="btn-icon">🖱️</span> Click</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon nudge1">1️⃣</div><div class="outreach-title">Survey Nudge #1</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="survey nudge #1 sent"><span class="btn-icon">📤</span> Send</button><button class="outreach-action-btn" data-event="survey nudge #1 opened"><span class="btn-icon">👁️</span> Open</button><button class="outreach-action-btn" data-event="survey nudge #1 clicked"><span class="btn-icon">🖱️</span> Click</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon nudge2">2️⃣</div><div class="outreach-title">Survey Nudge #2</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="survey nudge #2 sent"><span class="btn-icon">📤</span> Send</button><button class="outreach-action-btn" data-event="survey nudge #2 opened"><span class="btn-icon">👁️</span> Open</button><button class="outreach-action-btn" data-event="survey nudge #2 clicked"><span class="btn-icon">🖱️</span> Click</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon nudge3">3️⃣</div><div class="outreach-title">Survey Nudge #3</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="survey nudge #3 sent"><span class="btn-icon">📤</span> Send</button><button class="outreach-action-btn" data-event="survey nudge #3 opened"><span class="btn-icon">👁️</span> Open</button><button class="outreach-action-btn" data-event="survey nudge #3 clicked"><span class="btn-icon">🖱️</span> Click</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon confirmation">🛡️</div><div class="outreach-title">Ushur: Benefits</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="ushur benefits start"><span class="btn-icon">▶️</span> Start</button><button class="outreach-action-btn" data-event="ushur benefits complete"><span class="btn-icon">✅</span> Complete</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon confirmation">🩺</div><div class="outreach-title">Ushur: Care Topics</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="ushur care topics start"><span class="btn-icon">▶️</span> Start</button><button class="outreach-action-btn" data-event="ushur care topics complete"><span class="btn-icon">✅</span> Complete</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon confirmation">🤝</div><div class="outreach-title">Ushur: Social Health</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="ushur social health start"><span class="btn-icon">▶️</span> Start</button><button class="outreach-action-btn" data-event="ushur social health complete"><span class="btn-icon">✅</span> Complete</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon confirmation">🏥</div><div class="outreach-title">Ushur: Care Modalities</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="ushur care modalities start"><span class="btn-icon">▶️</span> Start</button><button class="outreach-action-btn" data-event="ushur care modalities complete"><span class="btn-icon">✅</span> Complete</button></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="gmw" class="subTabContent">
+      <div class="card">
+        <div class="journey-context-banner">
+          <div class="journey-context-icon gmw">📇</div>
+          <div class="journey-context-text"><h3>Guided Member Welcome Steps</h3><p>Fire Guided Member Welcome (GMW) events for the NMW journey.</p></div>
+          <div class="journey-context-step">Step 7 of 8</div>
+        </div>
+        <h2 style="margin-top:0">Guided Member Welcome Events</h2>
+        <div class="action-groups-container">
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon confirmation">📇</div><div class="outreach-title">GMW: Contact Info</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="gmw contact info start"><span class="btn-icon">▶️</span> Start</button><button class="outreach-action-btn" data-event="gmw contact info complete"><span class="btn-icon">✅</span> Complete</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon confirmation">💳</div><div class="outreach-title">GMW: Digital ID Card</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="gmw digital id start"><span class="btn-icon">▶️</span> Start</button><button class="outreach-action-btn" data-event="gmw digital id complete"><span class="btn-icon">✅</span> Complete</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon confirmation">📋</div><div class="outreach-title">GMW: Benefits</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="gmw benefits start"><span class="btn-icon">▶️</span> Start</button><button class="outreach-action-btn" data-event="gmw benefits complete"><span class="btn-icon">✅</span> Complete</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon confirmation">👨‍⚕️</div><div class="outreach-title">GMW: Select PCP</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="gmw select pcp start"><span class="btn-icon">▶️</span> Start</button><button class="outreach-action-btn" data-event="gmw select pcp complete"><span class="btn-icon">✅</span> Complete</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon confirmation">💊</div><div class="outreach-title">GMW: Transfer Rx</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="gmw transfer rx start"><span class="btn-icon">▶️</span> Start</button><button class="outreach-action-btn" data-event="gmw transfer rx complete"><span class="btn-icon">✅</span> Complete</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon confirmation">❤️</div><div class="outreach-title">GMW: Health Needs</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="gmw health needs start"><span class="btn-icon">▶️</span> Start</button><button class="outreach-action-btn" data-event="gmw health needs complete"><span class="btn-icon">✅</span> Complete</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon confirmation">📅</div><div class="outreach-title">GMW: Schedule Visit</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="gmw schedule visit start"><span class="btn-icon">▶️</span> Start</button><button class="outreach-action-btn" data-event="gmw schedule visit complete"><span class="btn-icon">✅</span> Complete</button></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="engagement" class="subTabContent">
+      <div class="card">
+        <div class="journey-context-banner">
+          <div class="journey-context-icon engagement">📧</div>
+          <div class="journey-context-text"><h3>Engagement Stream Steps</h3><p>Fire engagement email campaigns for the NMW journey.</p></div>
+          <div class="journey-context-step">Step 8 of 8</div>
+        </div>
+        <h2 style="margin-top:0">Engagement Stream Events</h2>
+        <div class="action-groups-container">
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon confirmation">📧</div><div class="outreach-title">Engagement Stream X</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="engagement stream x email sent"><span class="btn-icon">📤</span> Send</button><button class="outreach-action-btn" data-event="engagement stream x email opened"><span class="btn-icon">👁️</span> Open</button><button class="outreach-action-btn" data-event="engagement stream x email clicked"><span class="btn-icon">🖱️</span> Click</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon confirmation">📧</div><div class="outreach-title">Engagement Stream Y</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="engagement stream y email sent"><span class="btn-icon">📤</span> Send</button><button class="outreach-action-btn" data-event="engagement stream y email opened"><span class="btn-icon">👁️</span> Open</button><button class="outreach-action-btn" data-event="engagement stream y email clicked"><span class="btn-icon">🖱️</span> Click</button></div></div></div>
+          <div class="outreach-block"><div class="outreach-row"><div class="outreach-icon confirmation">📧</div><div class="outreach-title">Engagement Stream Z</div><div class="outreach-actions"><button class="outreach-action-btn" data-event="engagement stream z email sent"><span class="btn-icon">📤</span> Send</button><button class="outreach-action-btn" data-event="engagement stream z email opened"><span class="btn-icon">👁️</span> Open</button><button class="outreach-action-btn" data-event="engagement stream z email clicked"><span class="btn-icon">🖱️</span> Click</button></div></div></div>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+
+  <div id="brd" class="tabContent">
+    <div class="card" style="max-width: 1400px;">
+      
+      <div class="journey-context-banner">
+        <div class="journey-context-icon understanding" style="background: #e1bee7; color: #4a148c;">📚</div>
+        <div class="journey-context-text"><h3>Data Dictionary & Business Requirements</h3><p>Reference guide for all metrics, dimensions, and data sources tracked in the NMW Journey.</p></div>
+        <div class="journey-context-step" style="cursor: pointer; background: #fff; color: #1565c0; border: 1px solid #1565c0;" onclick="exportBrdToCsv()">📥 Export CSV</div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+        <h2 style="margin:0">Metric & Dimension Definitions</h2>
+        <input type="text" id="brdSearch" placeholder="Search definitions..." style="width: 300px; margin-top:0;" onkeyup="filterTable()">
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table id="brdTable">
+          <thead>
+            <tr><th style="width: 20%;">Name</th><th style="width: 35%;">Definition</th><th style="width: 15%;">Data Source</th><th style="width: 10%;">Type</th><th style="width: 20%;">Additional Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Member Enrollments</td><td>Tracks the total count of new member enrollments to evaluate the starting point of the New Member Welcome Journey</td><td class="code-cell">KPxP: PERSON,MEMBERSHIP</td><td><span class="badge metric">METRIC</span></td><td>Original data source Member DB. Batch data.</td></tr>
+            <tr><td>Email Sends</td><td>The total volume of emails deployed to the target audience via Marketo platform.</td><td class="code-cell">KPxP: TARGET_HISTORY</td><td><span class="badge metric">METRIC</span></td><td>Original data source is Marketo. Batch data.</td></tr>
+            <tr><td>Email Deliveries</td><td>The count of emails successfully reaching the recipient's server without being rejected, used to gauge list reach.</td><td class="code-cell">KPxP: INTERACTIONS</td><td><span class="badge metric">METRIC</span></td><td>Original data source is Marketo. Batch data.</td></tr>
+            <tr><td>Email Opens</td><td>The number of confirmed times recipients opened the email, serving as a primary indicator of subject line effectiveness and initial engagement.</td><td class="code-cell">KPxP: INTERACTIONS</td><td><span class="badge metric">METRIC</span></td><td>Original data source is Marketo. Batch data.</td></tr>
+            <tr><td>Email Bounces</td><td>The aggregate count of emails rejected by recipient servers (sum of Hard and Soft bounces), indicating data hygiene issues or invalid addresses.</td><td class="code-cell">KPxP: INTERACTIONS</td><td><span class="badge metric">METRIC</span></td><td>Original data source is Marketo. Batch data.</td></tr>
+            <tr><td>Email Clicks</td><td>The number of recorded user interactions (clicks) on links within the email body, measuring content relevance.</td><td class="code-cell">KPxP: INTERACTIONS</td><td><span class="badge metric">METRIC</span></td><td>Original data source is Marketo. Batch data.</td></tr>
+            <tr><td>Email Unsubscribes</td><td>The count of recipients who explicitly opted out of future communications, used to monitor list retention and dissatisfaction.</td><td class="code-cell">KPxP: INTERACTIONS</td><td><span class="badge metric">METRIC</span></td><td>Original data source is Marketo. Batch data.</td></tr>
+            <tr><td>Email Delivery Rate</td><td>The percentage of sent emails that were successfully delivered, serving as a key indicator of sender reputation and list quality.</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>Email Open Rate</td><td>The ratio of opened emails to delivered emails, measuring the effectiveness of the subject line and send timing.</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>Email Bounce Rate</td><td>The percentage of total sent emails that failed to deliver, used to flag potential technical or data quality problems.</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>Email Click Rate</td><td>The ratio of clicks to delivered emails, providing a direct measure of how effectively the email content drives action.</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>Email Unsubscribe Rate</td><td>The percentage of recipients who opted out relative to the total delivered emails, used to assess negative engagement.</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>SMS Sends</td><td>The total number of SMS messages dispatched to devices via the mPulse platform.</td><td class="code-cell">KPxP: TARGET_HISTORY</td><td><span class="badge metric">METRIC</span></td><td>Original data source is mPulse. Batch data.</td></tr>
+            <tr><td>SMS Deliveries</td><td>The count of SMS messages successfully transmitted to and received by the recipient's device.</td><td class="code-cell">KPxP: INTERACTIONS</td><td><span class="badge metric">METRIC</span></td><td>Original data source is mPulse. Batch data.</td></tr>
+            <tr><td>SMS Clicks</td><td>The number of times users tapped on links included within the SMS message.</td><td class="code-cell">KPxP: INTERACTIONS</td><td><span class="badge metric">METRIC</span></td><td>Original data source is mPulse. Batch data.</td></tr>
+            <tr><td>SMS Unsubscribes</td><td>The count of users who requested to opt-out of SMS notifications.</td><td class="code-cell">KPxP: INTERACTIONS</td><td><span class="badge metric">METRIC</span></td><td>Original data source is mPulse. Batch data.</td></tr>
+            <tr><td>SMS Delivery Rate</td><td>The percentage of sent SMS messages that were successfully delivered to the device.</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>SMS Click Rate</td><td>The ratio of clicks to delivered SMS messages, measuring the immediate engagement of the text campaign.</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>SMS Unsubscribe Rate</td><td>The rate at which users opt-out of SMS communications relative to successful deliveries.</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>IVR metrics</td><td>No IVR metrics are applicable in the context of New Member Welcome</td><td class="code-cell"></td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>KP.org Registrations Starts</td><td>Total initiation count for registrations, tracked to evaluate initial web interest.</td><td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge metric">METRIC</span></td><td>Real time data.</td></tr>
+            <tr><td>KP.org Registrations Completes</td><td>The count of users who successfully completed the registration process on the kp.org website.</td><td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge metric">METRIC</span></td><td>Real time data.</td></tr>
+            <tr><td>KP.org Registrations Rate</td><td>The percentage of users who completed the registration process after starting it (calculated as Registration Completes / Registration Starts).</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>HIS Benefits Starts</td><td>The number of times members initiated the "Benefits" section of the Health Interest Survey.</td><td class="code-cell">KPxP: USHUR_ONBOARDING_DATA</td><td><span class="badge metric">METRIC</span></td><td>Original data source is Ushur. Batch data.</td></tr>
+            <tr><td>HIS Benefits Completes</td><td>The number of times members successfully finished the "Benefits" section of the Health Interest Survey.</td><td class="code-cell">KPxP: USHUR_ONBOARDING_DATA</td><td><span class="badge metric">METRIC</span></td><td>Original data source is Ushur. Batch data.</td></tr>
+            <tr><td>HIS Benefits Completion Rate</td><td>The percentage of members who finished the Benefits section after starting it (calculated as Benefits Completes / Benefits Starts).</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>HIS Care Topics Starts</td><td>The number of times members initiated the "Care Topics" section of the Health Interest Survey.</td><td class="code-cell">KPxP: USHUR_ONBOARDING_DATA</td><td><span class="badge metric">METRIC</span></td><td>Original data source is Ushur. Batch data.</td></tr>
+            <tr><td>HIS Care Topics Completes</td><td>The number of times members successfully finished the "Care Topics" section of the Health Interest Survey.</td><td class="code-cell">KPxP: USHUR_ONBOARDING_DATA</td><td><span class="badge metric">METRIC</span></td><td>Original data source is Ushur. Batch data.</td></tr>
+            <tr><td>HIS Care Topics Completion Rate</td><td>The percentage of members who finished the Care Topics section after starting it (calculated as Care Topics Completes / Care Topics Starts).</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>HIS Social Health Starts</td><td>The number of times members initiated the "Social Health" section of the Health Interest Survey.</td><td class="code-cell">KPxP: USHUR_ONBOARDING_DATA</td><td><span class="badge metric">METRIC</span></td><td>Original data source is Ushur. Batch data.</td></tr>
+            <tr><td>HIS Social Health Completes</td><td>The number of times members successfully finished the "Social Health" section of the Health Interest Survey.</td><td class="code-cell">KPxP: USHUR_ONBOARDING_DATA</td><td><span class="badge metric">METRIC</span></td><td>Original data source is Ushur. Batch data.</td></tr>
+            <tr><td>HIS Social Health Completion Rate</td><td>The percentage of members who finished the Social Health section after starting it (calculated as Social Health Completes / Social Health Starts).</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>HIS Care Modalities Starts</td><td>The number of times members initiated the "Care Modalities" section of the Health Interest Survey.</td><td class="code-cell">KPxP: USHUR_ONBOARDING_DATA</td><td><span class="badge metric">METRIC</span></td><td>Original data source is Ushur. Batch data.</td></tr>
+            <tr><td>HIS Care Modalities Completes</td><td>The number of times members successfully finished the "Care Modalities" section of the Health Interest Survey.</td><td class="code-cell">KPxP: USHUR_ONBOARDING_DATA</td><td><span class="badge metric">METRIC</span></td><td>Original data source is Ushur. Batch data.</td></tr>
+            <tr><td>HIS Care Modalities Completion Rate</td><td>The percentage of members who finished the Care Modalities section after starting it (calculated as Care Modalities Completes / Care Modalities Starts).</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>GMW Contact Info Starts</td><td>The number of times members initiated the "Contact Info" update section of the Guided Member Welcome.</td><td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge metric">METRIC</span></td><td>Real time data.</td></tr>
+            <tr><td>GMW Contact Info Completes</td><td>The number of times members successfully finished updating their "Contact Info" in the Guided Member Welcome.</td><td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge metric">METRIC</span></td><td>Real time data.</td></tr>
+            <tr><td>GMW Contact Info Completion Rate</td><td>The percentage of members who finished the Contact Info section after starting it (calculated as Contact Info Completes / Contact Info Starts).</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>GMW Digital ID Card Starts</td><td>The number of times members initiated the "Digital ID Card" section of the Guided Member Welcome.</td><td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge metric">METRIC</span></td><td>Real time data.</td></tr>
+            <tr><td>GMW Digital ID Card Completes</td><td>The number of times members successfully finished the "Digital ID Card" section.</td><td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge metric">METRIC</span></td><td>Real time data.</td></tr>
+            <tr><td>GMW Digital ID Card Completion Rate</td><td>The percentage of members who finished the Digital ID Card section after starting it (calculated as Digital ID Card Completes / Digital ID Card Starts).</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>GMW Benefits Starts</td><td>The number of times members initiated the "Benefits" overview section of the Guided Member Welcome.</td><td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge metric">METRIC</span></td><td>Real time data.</td></tr>
+            <tr><td>GMW Benefits Completes</td><td>The number of times members successfully finished the "Benefits" overview section.</td><td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge metric">METRIC</span></td><td>Real time data.</td></tr>
+            <tr><td>GMW Benefits Completion Rate</td><td>The percentage of members who finished the Benefits section after starting it (calculated as Benefits Completes / Benefits Starts).</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>GMW Select PCP Starts</td><td>The number of times members initiated the "Select Primary Care Physician" section.</td><td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge metric">METRIC</span></td><td>Real time data.</td></tr>
+            <tr><td>GMW Select PCP Completes</td><td>The number of times members successfully finished selecting a Primary Care Physician.</td><td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge metric">METRIC</span></td><td>Real time data.</td></tr>
+            <tr><td>GMW Select PCP Completion Rate</td><td>The percentage of members who finished the PCP selection section after starting it (calculated as Select PCP Completes / Select PCP Starts).</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>GMW Transfer Rx Starts</td><td>The number of times members initiated the "Transfer Prescription" section.</td><td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge metric">METRIC</span></td><td>Real time data.</td></tr>
+            <tr><td>GMW Transfer Rx Completes</td><td>The number of times members successfully finished the "Transfer Prescription" section.</td><td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge metric">METRIC</span></td><td>Real time data.</td></tr>
+            <tr><td>GMW Transfer Rx Completion Rate</td><td>The percentage of members who finished the Transfer Rx section after starting it (calculated as Transfer Rx Completes / Transfer Rx Starts).</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>GMW Health Needs Starts</td><td>The number of times members initiated the "Health Needs" assessment section.</td><td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge metric">METRIC</span></td><td>Real time data.</td></tr>
+            <tr><td>GMW Health Needs Completes</td><td>The number of times members successfully finished the "Health Needs" assessment section.</td><td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge metric">METRIC</span></td><td>Real time data.</td></tr>
+            <tr><td>GMW Health Needs Completion Rate</td><td>The percentage of members who finished the Health Needs section after starting it (calculated as Health Needs Completes / Health Needs Starts).</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            <tr><td>GMW Schedule Visit Starts</td><td>The number of times members initiated the "Schedule Visit" section.</td><td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge metric">METRIC</span></td><td>Real time data.</td></tr>
+            <tr><td>GMW Schedule Visit Completes</td><td>The number of times members successfully finished scheduling a visit.</td><td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge metric">METRIC</span></td><td>Real time data.</td></tr>
+            <tr><td>GMW Schedule Visit Completion Rate</td><td>The percentage of members who finished the Schedule Visit section after starting it (calculated as Schedule Visit Completes / Schedule Visit Starts).</td><td class="code-cell">N/A: Calculated Metric</td><td><span class="badge metric">METRIC</span></td><td></td></tr>
+            
+            <tr><td>Region</td><td>The member's region of membership.</td><td class="code-cell">KPxP: MEMBERSHIP</td><td><span class="badge dim">DIMENSION</span></td><td>Original data source Member DB. Batch data.</td></tr>
+            <tr><td>Service Area</td><td>The member's service area.</td><td class="code-cell">KPxP: MEMBERSHIP</td><td><span class="badge dim">DIMENSION</span></td><td>Original data source Member DB. Batch data.</td></tr>
+            <tr><td>Member Plan Type</td><td>The plan the member has enrolled in.</td><td class="code-cell">KPxP: MEMBERSHIP</td><td><span class="badge dim">DIMENSION</span></td><td>Original data source Member DB. Batch data.</td></tr>
+            <tr><td>Member Line of Business</td><td>The line of business the member is assigned to.</td><td class="code-cell">KPxP: MEMBERSHIP</td><td><span class="badge dim">DIMENSION</span></td><td>Original data source Member DB. Batch data.</td></tr>
+            <tr><td>Member Age</td><td>The age of the member.</td><td class="code-cell">KPxP: MEMBERSHIP</td><td><span class="badge dim">DIMENSION</span></td><td>Original data source Member DB. Batch data.</td></tr>
+            <tr><td>CID-based Campaign Dimensions</td>
+              <td>Dimensions derived from the CID tracking parameter structure: <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;"><span class="badge tag">Channel</span><span class="badge tag">Audience</span><span class="badge tag">Region</span><span class="badge tag">Name</span><span class="badge tag">Partner</span><span class="badge tag">Business Objective</span><span class="badge tag">Tactic</span></div></td>
+              <td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge dim">DIMENSION</span></td><td></td></tr>
+            <tr><td>Cadence Sequence</td><td>Captures the ordinal position of the communication within the broader campaign journey (e.g., 1st Nudge, 2nd Reminder), facilitating funnel analysis across the outreach timeline.</td><td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge dim">DIMENSION</span></td><td>This is a new requirement for an update to the campaign taxonomy. Evaluate how to best update query parameter structure</td></tr>
+            <tr><td>Standard WebSDK Dimensions</td>
+              <td>Standard traffic dimensions available in CJA: <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;"><span class="badge tag">Date</span><span class="badge tag">Hour</span><span class="badge tag">Minute</span><span class="badge tag">Page Name</span><span class="badge tag">URL</span><span class="badge tag">Screen Size</span><span class="badge tag">Browser Info</span></div></td>
+              <td class="code-cell">CJA: WebSDK Tags</td><td><span class="badge dim">DIMENSION</span></td><td></td></tr>
+            <tr><td>TACTIC_ID</td><td>This field is currently used to provide additional meta data about the specific marketing outreach.</td><td class="code-cell">KPxP: INTERACTIONS, TARGET_HISTORY</td><td><span class="badge dim">DIMENSION</span></td><td></td></tr>
+            <tr><td>GUID</td><td>The GUID associated with a member profile</td><td class="code-cell">KPxP: MEMBERSHIP</td><td><span class="badge dim">DIMENSION</span><span class="badge identity">IDENTITY</span></td><td></td></tr>
+            <tr><td>DIGITALID</td><td>The DIGITALID associated with a member. Derived through the IDR solution in KPxP (Zone 1)</td><td class="code-cell">KPxP: MEMBERSHIP</td><td><span class="badge dim">DIMENSION</span><span class="badge identity">IDENTITY</span></td><td></td></tr>
+            <tr><td>PhoneNumber</td><td>The phone number associated with a member profile.</td><td class="code-cell"></td><td><span class="badge dim">DIMENSION</span><span class="badge identity">IDENTITY</span></td><td>Not needed for NMW use case. Discuss need in the context of additional CJA Prime use cases.</td></tr>
+            <tr><td>Email</td><td>The email associated with a member profile.</td><td class="code-cell"></td><td><span class="badge dim">DIMENSION</span><span class="badge identity">IDENTITY</span></td><td>Not needed for NMW use case. Discuss need in the context of additional CJA Prime use cases.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top: 60px; margin-bottom: 20px;">
+        <h2 style="border-bottom: 1px solid #eee; padding-bottom: 10px;">Sample Reporting Views</h2>
+        <p>The following tables illustrate how the Metrics and Dimensions defined above can be combined to analyze the Customer Journey.</p>
+      </div>
+
+      <div class="card mb-25">
+        <h3 style="margin-top:0;">1. Acquisition & Registration Funnel</h3>
+        <p class="mb-15" style="font-size:14px; color:#666;">Analyzing web registration conversion by Region and Member Type.</p>
+        <div style="overflow-x: auto;">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Region <br><span class="badge dim report-badge">DIMENSION</span></th>
+                <th>Plan Type <br><span class="badge dim report-badge">DIMENSION</span></th>
+                <th class="text-right">Member Enrollments <br><span class="badge metric report-badge">METRIC</span></th>
+                <th class="text-right">Registration Starts <br><span class="badge metric report-badge">METRIC</span></th>
+                <th class="text-right">HIS Care Modalities Completes <br><span class="badge metric report-badge">METRIC</span></th>
+                <th class="text-right">GMW Select PCP Completes <br><span class="badge metric report-badge">METRIC</span></th>
+                <th class="text-right">[Any other metric from list] <br><span class="badge metric report-badge">METRIC</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>NorCal</td><td>HMO</td><td class="text-right">1,200</td><td class="text-right">850</td><td class="text-right">70.8%</td><td class="text-align:right;">600</td><td class="text-align:right;">--</td></tr>
+              <tr><td>SoCal</td><td>PPO</td><td class="text-right">900</td><td class="text-right">400</td><td class="text-right">44.4%</td><td class="text-align:right;">350</td><td class="text-align:right;">--</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card mb-25">
+        <h3 style="margin-top:0;">2. Outreach Engagement Performance</h3>
+        <p class="mb-15" style="font-size:14px; color:#666;">Monitoring the effectiveness of Email and SMS campaigns by Cadence Sequence.</p>
+        <div style="overflow-x: auto;">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Cadence Sequence <br><span class="badge dim report-badge">DIMENSION</span></th>
+                <th class="text-right">Email Sends <br><span class="badge metric report-badge">METRIC</span></th>
+                <th class="text-right">Email Open Rate <br><span class="badge metric report-badge">METRIC</span></th>
+                <th class="text-right">SMS Sends <br><span class="badge metric report-badge">METRIC</span></th>
+                <th class="text-right">SMS Click Rate <br><span class="badge metric report-badge">METRIC</span></th>
+                <th class="text-right">HIS Benefits Starts <br><span class="badge metric report-badge">METRIC</span></th>
+                <th class="text-right">HIS Social Health Completes <br><span class="badge metric report-badge">METRIC</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Nudge 1</td><td class="text-right">5,000</td><td class="text-right">45.2%</td><td class="text-right">2,000</td><td class="text-right">12.5%</td><td class="text-right">450</td><td class="text-right">200</td></tr>
+              <tr><td>Nudge X</td><td class="text-right">3,200</td><td class="text-right">38.1%</td><td class="text-right">1,500</td><td class="text-right">8.2%</td><td class="text-right">310</td><td class="text-right">150</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card mb-25">
+        <h3 style="margin-top:0;">3. Digital Onboarding Completion</h3>
+        <p class="mb-15" style="font-size:14px; color:#666;">Tracking completion of key onboarding steps (GMW & HIS) by Service Area.</p>
+        <div style="overflow-x: auto;">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Service Area <br><span class="badge dim report-badge">DIMENSION</span></th>
+                <th class="text-right">GMW Digital ID Completes <br><span class="badge metric report-badge">METRIC</span></th>
+                <th class="text-right">GMW Select PCP Completes <br><span class="badge metric report-badge">METRIC</span></th>
+                <th class="text-right">HIS Social Health Completes <br><span class="badge metric report-badge">METRIC</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Area A</td><td class="text-right">340</td><td class="text-right">210</td><td class="text-right">150</td></tr>
+              <tr><td>Area B</td><td class="text-right">520</td><td class="text-right">405</td><td class="text-right">300</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div> 
+
+  <div id="dataSourceControlPanel">
+    <div class="ds-legend" id="dsLegend">
+      <div class="ds-legend-title">Data Silos</div>
+      <div class="ds-legend-item"><div class="ds-dot" style="background:#E34F26;"></div><span>Marketo (Email)</span></div>
+      <div class="ds-legend-item"><div class="ds-dot" style="background:#8E44AD;"></div><span>Ushur</span></div>
+      <div class="ds-legend-item"><div class="ds-dot" style="background:#2E7D32;"></div><span>CJA (Web/App)</span></div>
+      <div class="ds-legend-item"><div class="ds-dot" style="background:#546E7A;"></div><span>Member DB</span></div>
+    </div>
+    <button class="ds-toggle-btn" id="btnToggleSilos"><div class="toggle-status"></div>Data Source</button>
+  </div>
+      
+  <script>
+    // --- UTILITIES ---
+    window.adobeDataLayer = window.adobeDataLayer || [];
+
+    // --- NAVIGATION LOGIC ---
+    
+    // Top-Level Tabs
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab, .tabContent').forEach(el => el.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Sub-Level Tabs
+    document.querySelectorAll('.sub-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.sub-tab, .subTabContent').forEach(el => el.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.subtab).classList.add('active');
+      });
+    });
+
+    // Integrated Navigation Function (Handles Journey Nodes)
+    function navigateToTab(targetSubTabId) {
+      // 1. Activate Main Tab "dataGen"
+      document.querySelectorAll('.tab, .tabContent').forEach(el => el.classList.remove('active'));
+      document.querySelector('.tab[data-tab="dataGen"]').classList.add('active');
+      document.getElementById('dataGen').classList.add('active');
+
+      // 2. Activate Sub Tab
+      document.querySelectorAll('.sub-tab, .subTabContent').forEach(el => el.classList.remove('active'));
+      document.querySelector(`.sub-tab[data-subtab="${targetSubTabId}"]`).classList.add('active');
+      document.getElementById(targetSubTabId).classList.add('active');
+    }
+
+    // Toggle Logic (Silos)
+    document.getElementById('btnToggleSilos').addEventListener('click', function() {
+      this.classList.toggle('active');
+      document.body.classList.toggle('silo-mode');
+      document.getElementById('dsLegend').style.display = this.classList.contains('active') ? 'flex' : 'none';
+    });
+
+    // Expand/Collapse functions
+    const toggleStack = (id, expandedId, expand) => {
+        document.getElementById(id).style.display = expand ? 'none' : 'block';
+        document.getElementById(expandedId).style.display = expand ? 'flex' : 'none';
+    };
+    window.toggleRegNudges = (e) => toggleStack('regNudgeStack', 'regNudgeExpanded', e);
+    window.toggleSurveyNudges = (e) => toggleStack('surveyNudgeStack', 'surveyNudgeExpanded', e);
+    window.toggleUshur = (e) => toggleStack('ushurStack', 'ushurExpanded', e);
+    window.toggleGmw = (e) => toggleStack('gmwStack', 'gmwExpanded', e);
+
+    // Filter Table
+    function filterTable() {
+      const filter = document.getElementById("brdSearch").value.toUpperCase();
+      const tr = document.getElementById("brdTable").getElementsByTagName("tr");
+      for (let i = 1; i < tr.length; i++) {
+        let found = false;
+        const tds = tr[i].getElementsByTagName("td");
+        for (let j = 0; j < tds.length; j++) {
+           if (tds[j] && tds[j].textContent.toUpperCase().indexOf(filter) > -1) { found = true; break; }
+        }
+        tr[i].style.display = found ? "" : "none";
+      }
+    }
+
+    // Generator
+    const kpFirstNames = ["James", "Mary", "Robert", "Patricia", "John", "Jennifer", "Michael", "Linda", "David", "Elizabeth", "William", "Barbara"];
+    const kpLastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez"];
+    const kpServiceAreas = ["Northern California", "Southern California", "Colorado", "Georgia", "Hawaii", "Mid-Atlantic States", "Northwest", "Washington"];
+
+    function generateRandomId(length) {
+       const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+       let result = '';
+       for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+       return result;
+    }
+
+    function updateRolodex() {
+       document.querySelector('.rolodex-avatar').textContent = '🏥';
+    }
+
+    function generateKPMember() {
+      const fn = kpFirstNames[Math.floor(Math.random() * kpFirstNames.length)];
+      const ln = kpLastNames[Math.floor(Math.random() * kpLastNames.length)];
+      const area = kpServiceAreas[Math.floor(Math.random() * kpServiceAreas.length)];
+      const age = Math.floor(Math.random() * (90 - 18 + 1)) + 18;
+      const birthYear = new Date().getFullYear() - age;
+      const plan = "KP-" + Math.floor(10000000 + Math.random() * 90000000);
+      const guid = (crypto.randomUUID ? crypto.randomUUID() : generateRandomId(36));
+      const email = fn.toLowerCase() + "." + ln.toLowerCase() + Math.floor(Math.random()*100) + "@example.com";
+      const phone = `(555) ${Math.floor(100 + Math.random() * 900)}-${Math.floor(1000 + Math.random() * 9000)}`;
+      
+      document.getElementById("kpMemName").textContent = fn + " " + ln;
+      document.getElementById("kpMemGuid").textContent = guid;
+      document.getElementById("kpMemEmail").textContent = email;
+      document.getElementById("kpMemPhone").textContent = phone;
+      document.getElementById("kpMemBirthYear").textContent = birthYear;
+      document.getElementById("kpMemArea").textContent = area;
+      document.getElementById("kpMemPlan").textContent = plan;
+      updateRolodex();
+      generateEnrollmentJSON(fn, ln, email, phone, birthYear, area, plan, guid);
+    }
+    
+    function generateEnrollmentJSON(fName, lName, email, phone, birthYear, area, plan, guid) {
+      const now = new Date();
+      const pad = n => String(n).padStart(2,'0');
+      const tzo = -now.getTimezoneOffset();
+      const timestamp = now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + 'T' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()) + (tzo>=0?'+':'-') + pad(Math.floor(Math.abs(tzo)/60)) + ':' + pad(Math.abs(tzo)%60);
+      const birthDate = birthYear + "-01-01";
+      const json = {
+        "_id": generateRandomId(12) + "x1",
+        "_repo": { "createDate": timestamp, "modifyDate": timestamp },
+        "createdByBatchID": "/uri-reference",
+        "identityMap": { 
+            "CRLID": [{ "authenticatedState": "authenticated", "id": guid, "primary": true }],
+            "Email": [{ "authenticatedState": "authenticated", "id": email, "primary": false }],
+            "Phone": [{ "authenticatedState": "authenticated", "id": phone, "primary": false }]
+        },
+        "person": { "birthDate": birthDate, "birthYear": parseInt(birthYear), "name": { "firstName": fName, "lastName": lName, "fullName": fName + " " + lName }, "gender": "not_specified", "nationality": "US" },
+        "_accenture_partner": { "planNumber": plan, "serviceArea": area }
+      };
+      document.getElementById('kpJsonOutput').value = JSON.stringify(json, null, 2);
+    }
+    
+    document.getElementById("btnRegenKpMember").addEventListener("click", generateKPMember);
+    
+    // Icon Helper
+    function getIcon(type) {
+      type = (type || "").toLowerCase();
+      if (type.includes("pageview")) return "📄";
+      if (type.includes("login")) return "🔐";
+      if (type.includes("cart")) return "🛒";
+      if (type.includes("purchase") || type.includes("order")) return "💰";
+      if (type.includes("call")) return "📞";
+      if (type.includes("enrollment") || type.includes("registration")) return "📝";
+      if (type.includes("email") || type.includes("sent")) return "📧";
+      if (type.includes("opened")) return "👁️";
+      if (type.includes("clicked")) return "🖱️";
+      return "⚪";
+    }
+
+    async function getECID() {
+      try { const r = await alloy("getIdentity"); return r?.identity?.ECID || "—"; } 
+      catch { return "—"; }
+    }
+
+    function appendNmwRow(eventType, ecid, guid, email) {
+      const container = document.getElementById('nmwEventTableContainer');
+      if (!document.getElementById('nmwEventLogTable')) {
+        const table = document.createElement('table');
+        table.id = 'nmwEventLogTable';
+        table.innerHTML = '<tr><th class="iconCell"></th><th>Timestamp</th><th>Event Type</th><th>IdentityMap</th></tr>';
+        container.appendChild(table);
+      }
+      const idMapStr = '[ECID -> "{(ambiguous,' + ecid + ',f)}", GUID -> "{(authenticated,' + guid + ',t)}",Email -> "{(authenticated,' + email + ',f)}"]';
+      const row = document.createElement('tr');
+      row.innerHTML = '<td class="iconCell">' + getIcon(eventType) + '</td><td>' + new Date().toLocaleString() + '</td><td>' + eventType + '</td><td class="code-cell">' + idMapStr + '</td>';
+      document.getElementById('nmwEventLogTable').appendChild(row);
+    }
+
+    document.getElementById('fireKpMemberButton').addEventListener('click', async () => {
+      const getText = (id) => document.getElementById(id).textContent;
+      const memberData = { guid: getText('kpMemGuid'), email: getText('kpMemEmail'), birthYear: getText('kpMemBirthYear'), serviceArea: getText('kpMemArea'), planNumber: getText('kpMemPlan') };
+      window.adobeDataLayer.push({ event: "login", user: { calirunlabid: memberData.guid }, eventType: "member enrollment", membership: memberData });
+      const ecid = await getECID();
+      const container = document.getElementById('kpMemberEventTableContainer');
+      if (!document.getElementById('kpMemberLogTable')) {
+        const table = document.createElement('table');
+        table.id = 'kpMemberLogTable';
+        table.innerHTML = '<tr><th class="iconCell"></th><th>Timestamp</th><th>Event Type</th><th>Membership Data</th><th>IdentityMap</th></tr>';
+        container.appendChild(table);
+      }
+      const idMapStr = '[ECID -> "{(ambiguous,' + ecid + ',f)}", GUID -> "{(authenticated,' + memberData.guid + ',t)}",Email -> "{(authenticated,' + memberData.email + ',f)}"]';
+      const memStr = 'Plan: ' + memberData.planNumber + ', Area: ' + memberData.serviceArea + ', Year: ' + memberData.birthYear;
+      const row = document.createElement('tr');
+      row.innerHTML = '<td class="iconCell">📝</td><td>' + new Date().toLocaleString() + '</td><td>member enrollment</td><td>' + memStr + '</td><td class="code-cell">' + idMapStr + '</td>';
+      document.getElementById('kpMemberLogTable').appendChild(row);
+    });
+
+    document.querySelectorAll('.outreach-action-btn').forEach(btn => {
+      btn.addEventListener('click', async function() {
+        const eventType = this.dataset.event;
+        const guid = document.getElementById('kpMemGuid').textContent;
+        const email = document.getElementById('kpMemEmail').textContent;
+        if (!guid || guid === '—' || guid === 'Generating...') { alert('Please generate a member profile in the KP Member tab first.'); return; }
+        window.adobeDataLayer.push({ event: "login", eventType: eventType, user: { calirunlabid: guid } });
+        const ecid = await getECID();
+        appendNmwRow(eventType, ecid, guid, email);
+        this.classList.add('fired');
+        this.innerHTML = '<span class="btn-icon">✓</span> Done';
+      });
+    });
+
+    // CSV Export
+    function exportBrdToCsv() {
+      const rows = document.querySelectorAll("#brdTable tr");
+      let csv = [];
+      rows.forEach(row => {
+        let rowData = [];
+        row.querySelectorAll("th, td").forEach(col => {
+            rowData.push('"' + col.innerText.replace(/"/g, '""') + '"');
+        });
+        csv.push(rowData.join(","));
+      });
+      const blob = new Blob([csv.join("\n")], {type: "text/csv"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url; a.download = "NMW_Dictionary.csv";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+    
+    // Copy/Download JSON handlers
+    document.getElementById('copyKpJsonBtn').addEventListener('click', () => {
+        navigator.clipboard.writeText(document.getElementById('kpJsonOutput').value);
+    });
+
+    document.getElementById('downloadKpJsonBtn').addEventListener('click', () => {
+      const txt = document.getElementById('kpJsonOutput').value;
+      if(!txt) return;
+      let jsonObj;
+      try { jsonObj = JSON.parse(txt); } catch { return; }
+      let fileName = "enrollment_profile.json";
+      if (jsonObj?.identityMap?.Email?.[0]?.id) fileName = jsonObj.identityMap.Email[0].id + ".json";
+      const blob = new Blob([JSON.stringify(jsonObj)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = fileName;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    });
+
+    document.getElementById('uploadKpJsonBtn').addEventListener('click', () => { document.getElementById('jsonFileInput').click(); });
+    document.getElementById('jsonFileInput').addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const json = JSON.parse(e.target.result);
+          document.getElementById('kpJsonOutput').value = JSON.stringify(json, null, 2);
+          const fname = json.person?.name?.firstName || "";
+          const lname = json.person?.name?.lastName || "";
+          const guid = json.identityMap?.CRLID?.[0]?.id || "—";
+          const email = json.identityMap?.Email?.[0]?.id || "—";
+          const phone = json.identityMap?.Phone?.[0]?.id || "—";
+          const birthYear = json.person?.birthYear || "—";
+          const area = json._accenture_partner?.serviceArea || "—";
+          const plan = json._accenture_partner?.planNumber || "—";
+          
+          document.getElementById("kpMemName").textContent = (fname + " " + lname).trim() || "Unknown";
+          document.getElementById("kpMemGuid").textContent = guid;
+          document.getElementById("kpMemEmail").textContent = email;
+          document.getElementById("kpMemPhone").textContent = phone;
+          document.getElementById("kpMemBirthYear").textContent = birthYear;
+          document.getElementById("kpMemArea").textContent = area;
+          document.getElementById("kpMemPlan").textContent = plan;
+          updateRolodex();
+          event.target.value = '';
+        } catch (err) { alert("Error parsing JSON."); }
+      };
+      reader.readAsText(file);
+    });
+    
+    // Initial call
+    (function init() { generateKPMember(); })();
+  </script>
+</body>
+</html>

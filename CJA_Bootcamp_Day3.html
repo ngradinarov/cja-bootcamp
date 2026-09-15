@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CJA Bootcamp Day 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --ink:#17161d; --ink-2:#3c3b47; --muted:#7c7a85; --faint:#a9a7b0;
+    --line:#e7e5ea; --line-2:#f0eef3; --panel:#ffffff;
+    --violet:#5b2a9d; --violet-deep:#3f1d78; --violet-tint:#f4eefb; --violet-line:#e3d5f6;
+    --accent:#a100ff; --accent-tint:#f7edff; --accent-line:#e7cbff;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{background:#111017; color:var(--ink-2);
+    font-family:'Inter',system-ui,-apple-system,sans-serif; font-size:16px; line-height:1.5;
+    -webkit-font-smoothing:antialiased; overflow:hidden;}
+
+  #stage{position:fixed; inset:0;}
+  .slide{position:absolute; inset:0; display:none; flex-direction:column; justify-content:center;
+    background:var(--panel); padding:7vh 8vw; overflow:auto;}
+  .slide.on{display:flex;}
+  .inner{width:100%; max-width:1000px; margin:0 auto;}
+
+  .eyebrow{font-size:14px; font-weight:600; color:var(--violet); margin:0 0 18px;}
+  h1{font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--ink); letter-spacing:-.02em; margin:0;}
+  h2{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--ink); letter-spacing:-.015em;
+     font-size:36px; line-height:1.12; margin:0 0 24px;}
+  p{margin:0 0 14px;}
+  .lead{font-size:20px; color:var(--ink-2); max-width:70ch;}
+  strong{color:var(--ink);}
+
+  /* title / welcome */
+  .slide.title{background:linear-gradient(160deg,#221244 0%,#3f1d78 60%,#5b2a9d 100%); color:#fff;}
+  .slide.title h1{color:#fff; font-size:68px; line-height:1.0;}
+  .slide.title .sub{font-size:23px; color:#e5d8fa; margin-top:20px; max-width:60ch;}
+  .slide.title .meta{margin-top:46px; font-size:15px; color:#c9b6ec; display:flex; gap:28px; flex-wrap:wrap;}
+
+  /* numbered prompt */
+  ol.steps{list-style:none; counter-reset:s; margin:8px 0 0; padding:0;}
+  ol.steps li{counter-increment:s; position:relative; padding:16px 0 16px 62px; font-size:21px; color:var(--ink-2);
+     border-top:1px solid var(--line-2); max-width:72ch;}
+  ol.steps li:first-child{border-top:none;}
+  ol.steps li::before{content:counter(s); position:absolute; left:0; top:14px; width:38px; height:38px;
+     background:var(--violet-tint); color:var(--violet); border:1px solid var(--violet-line); border-radius:10px;
+     font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:18px; display:flex; align-items:center; justify-content:center;}
+  ol.steps li b{color:var(--ink);}
+
+  /* schedule rows */
+  .sched{border:1px solid var(--line); border-radius:14px; overflow:hidden; max-width:620px;}
+  .sched .row{display:flex; justify-content:space-between; align-items:center; padding:15px 20px; border-top:1px solid var(--line-2);}
+  .sched .row:first-child{border-top:none;}
+  .sched .k{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--ink); font-size:17px;}
+  .sched .v{font-variant-numeric:tabular-nums; color:var(--ink-2); font-size:16px;}
+  .sched .row.rest .k{color:var(--muted); font-weight:500;}
+
+  .callout{background:var(--accent-tint); border:1px solid var(--accent-line); border-radius:12px;
+     padding:16px 18px; font-size:17px; color:#4a3a55; margin-top:26px; max-width:78ch;}
+  .callout b{color:var(--ink);}
+
+  .notes-src{display:none;}
+
+  /* agenda slide */
+  .slide.agenda{padding:5vh 4vw;}
+  .slide.agenda .inner{max-width:1300px;}
+  .agrid{display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-top:8px; align-items:stretch;}
+  .acol{display:flex; flex-direction:column;}
+  .abar{background:var(--violet-tint); border-radius:9px; padding:10px 12px;}
+  .abar .n{display:block; font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--violet); font-size:19px; line-height:1;}
+  .abar .th{display:block; color:var(--violet); opacity:.82; font-size:12px; font-weight:500; margin-top:4px; line-height:1.2;}
+  .acol.lead .abar{background:var(--violet-deep);}
+  .acol.lead .abar .n, .acol.lead .abar .th{color:#fff; opacity:1;}
+  .acard{flex:1; margin-top:8px; border:1px solid var(--line); border-radius:14px; padding:13px 14px;}
+  .acol.lead .acard{background:var(--violet-tint); border-color:var(--violet-line);}
+  .amod + .amod{margin-top:11px;}
+  .amod h3{font-family:'Space Grotesk',sans-serif; color:var(--violet); font-size:13.5px; font-weight:700; line-height:1.15; margin:0 0 4px;}
+  .acol.lead .amod h3{color:var(--violet-deep);}
+  .amod ul{list-style:none; margin:0; padding:0;}
+  .amod li{position:relative; color:var(--ink-2); font-size:12.5px; line-height:1.3; padding-left:11px; margin-bottom:2px;}
+  .amod li::before{content:""; position:absolute; left:2px; top:7px; width:4px; height:4px; border-radius:50%; background:var(--faint);}
+  .anote{margin-top:16px; font-size:13.5px; color:var(--muted); max-width:110ch;}
+  .anote b{color:var(--ink-2);}
+  @media (max-width:900px){ .agrid{grid-template-columns:1fr 1fr;} .slide.agenda{padding:6vh 6vw;} }
+
+  /* menti slide */
+  .menti-link{display:inline-flex; align-items:center; gap:10px; margin-top:22px;
+     background:var(--violet); color:#fff; text-decoration:none; font-family:'Space Grotesk',sans-serif;
+     font-weight:600; font-size:18px; padding:14px 24px; border-radius:12px;}
+  .menti-link:hover{background:var(--violet-deep);}
+  .menti-link .icon{font-size:22px;}
+  .menti-sub{margin-top:14px; font-size:14px; color:var(--muted);}
+
+  /* cja overview slides */
+  .ov2{display:grid; grid-template-columns:1.05fr 1fr; gap:36px; margin-top:8px; align-items:start;}
+  .col-h{font-family:'Space Grotesk',sans-serif; font-size:13px; color:var(--violet); margin:0 0 12px; font-weight:600; letter-spacing:.02em;}
+  .stack{display:flex; flex-direction:column; gap:6px;}
+  .layer{border:1px solid var(--violet-line); border-radius:12px; padding:14px 16px; background:var(--violet-tint);}
+  .layer .lt{font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--violet-deep); font-size:16px;}
+  .layer .ls{font-size:12.5px; color:#6b567a; margin-top:3px;}
+  .layer.top{background:var(--violet); border-color:var(--violet);}
+  .layer.top .lt{color:#fff;} .layer.top .ls{color:#e5d8fa;}
+  .layer.base{background:#fff; border-color:var(--line);}
+  .layer.base .lt{color:var(--ink);} .layer.base .ls{color:var(--muted);}
+  .stack .arrow{align-self:center; color:var(--violet); font-size:13px; line-height:1;}
+  .getlist{list-style:none; margin:0; padding:0;}
+  .getlist li{position:relative; padding:11px 0 11px 26px; border-bottom:1px solid var(--line-2); font-size:15.5px; color:var(--ink-2);}
+  .getlist li:last-child{border-bottom:none;}
+  .getlist li::before{content:"▸"; position:absolute; left:2px; top:11px; color:var(--violet); font-weight:700;}
+  .uclist{margin-top:6px;}
+  .uc{display:grid; grid-template-columns:auto 1fr; gap:22px; align-items:baseline; padding:17px 0; border-top:1px solid var(--line);}
+  .uc:first-child{border-top:none;}
+  .uc .n{font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--violet-line); font-size:36px; line-height:1;}
+  .uc .h{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--ink); font-size:19px; margin-bottom:4px;}
+  .uc .d{font-size:14.5px; color:var(--ink-2); max-width:72ch;}
+  .inds{display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-top:6px;}
+  .ind{border:1px solid var(--line); border-radius:14px; padding:14px 14px 12px; display:flex; flex-direction:column;}
+  .ind .in{font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--violet); font-size:14.5px; margin-bottom:8px; line-height:1.15;}
+  .ind .irow{font-size:11.5px; color:var(--ink-2); line-height:1.35; margin-bottom:9px;}
+  .ind .ilab{display:block; font-size:10px; font-weight:700; color:var(--violet); margin-bottom:2px;}
+  .ind .imp{margin-top:auto; font-size:11.5px; color:var(--muted); border-top:1px solid var(--line-2); padding-top:9px;}
+  .ind .imp .ilab{color:var(--faint);}
+  .ind.hl{background:var(--accent-tint); border-color:var(--accent-line);}
+  .ind.hl .in{color:var(--accent);} .ind.hl .imp{color:var(--accent); border-color:var(--accent-line);}
+  @media (max-width:900px){ .ov2{grid-template-columns:1fr; gap:22px;} .inds{grid-template-columns:1fr 1fr;} }
+
+  /* how-it-fits slide */
+  .fits-shot{width:100%; height:auto; margin-top:16px; border:1px solid var(--line); border-radius:12px; display:block;}
+
+  /* section divider */
+  .slide.section{background:var(--violet-deep); color:#fff;}
+  .slide.section .num{font-family:'Space Grotesk',sans-serif; font-size:16px; color:#c9b6ec; font-weight:600; margin-bottom:12px; letter-spacing:.02em;}
+  .slide.section h1{color:#fff; font-size:52px; line-height:1.05; max-width:22ch;}
+  .slide.section .sub{color:#d8c8f2; font-size:19px; margin-top:16px; max-width:62ch;}
+
+  /* generic two-column + bullets */
+  .cols{display:grid; grid-template-columns:1fr 1fr; gap:34px; margin-top:6px;}
+  .col h3{font-family:'Space Grotesk',sans-serif; font-size:13px; color:var(--violet); margin:0 0 12px; font-weight:600; letter-spacing:.02em;}
+  ul.bul{list-style:none; margin:0; padding:0;}
+  ul.bul li{position:relative; padding-left:22px; margin-bottom:12px; font-size:16px; color:var(--ink-2); max-width:74ch;}
+  ul.bul li::before{content:""; position:absolute; left:2px; top:9px; width:7px; height:7px; border-radius:2px; background:var(--violet);}
+  ul.bul li b{color:var(--ink);}
+  ul.bul.tight li{margin-bottom:8px; font-size:14.5px;}
+
+  /* activity slide */
+  .act{background:var(--accent-tint); border:1px solid var(--accent-line); border-radius:14px; padding:20px 22px; margin-top:8px;}
+  .act .ameta{font-size:12.5px; color:var(--accent); font-weight:600; margin-bottom:10px;}
+  .act .scen{font-size:15.5px; color:var(--ink-2); line-height:1.45; margin-bottom:16px;}
+  .act .scen b{color:var(--ink);}
+  .srcs{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;}
+  .src{background:#fff; border:1px solid var(--accent-line); color:var(--violet); font-size:12.5px; font-weight:600; border-radius:999px; padding:5px 12px;}
+  .task{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .task .t{display:flex; gap:10px; align-items:baseline; font-size:14px; color:var(--ink-2);}
+  .task .t .tn{font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--accent); font-size:16px;}
+
+  /* cja vs aa terminology map */
+  .termmap{list-style:none; margin:0; padding:0;}
+  .termmap li{display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line-2); font-size:13px;}
+  .termmap li:last-child{border-bottom:none;}
+  .termmap .aa{color:var(--muted); text-align:right;}
+  .termmap .arw{color:var(--violet); font-weight:700;}
+  .termmap .cja{color:var(--ink); font-weight:600;}
+
+  /* prerequisites */
+  .req{background:var(--violet-tint); border:1px solid var(--violet-line); border-radius:12px; padding:16px 18px; margin-top:8px;}
+  .req .rl{font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--violet-deep); font-size:15px;}
+  .req .rd{font-size:13.5px; color:#4a3a55; margin-top:4px;}
+  .plus{text-align:center; color:var(--violet); font-weight:700; font-size:20px; margin:10px 0;}
+  .opts2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .opt2{border:1px solid var(--line); border-radius:12px; padding:16px 18px;}
+  .opt2 .ol{font-size:11px; font-weight:700; color:var(--violet); letter-spacing:.02em; margin-bottom:6px;}
+  .opt2 .ot{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--ink); font-size:15px; margin-bottom:4px;}
+  .opt2 .od{font-size:13px; color:var(--ink-2);}
+  @media (max-width:900px){ .cols{grid-template-columns:1fr; gap:20px;} .task,.opts2{grid-template-columns:1fr;} }
+
+  /* architecture zone slides */
+  .zone-shot{max-width:100%; max-height:52vh; height:auto; display:block; margin:14px auto 0; border:1px solid var(--line); border-radius:12px;}
+  .stage-cap{font-size:13.5px; color:var(--muted); margin-top:14px;}
+  .stage-cap b{color:var(--violet);}
+
+  /* NMW journey visualization (ported from KP Studio) */
+  .journey-container { padding: 20px 10px; overflow-x: auto; }
+  .journey-flow { display: flex; align-items: flex-start; gap: 16px; min-width: 1100px; position: relative; }
+  .journey-zone { background-color: #fcfdff; border: 1px solid #e1e1e1; border-top: 3px solid #005fcc; border-radius: 8px; padding: 12px 15px; display: flex; flex-direction: column; gap: 12px; position: relative; }
+  .journey-zone-header { font-size: 12px; font-weight: 700; color: #005fcc; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; border-bottom: 1px solid #eef2f9; padding-bottom: 8px; white-space: nowrap; }
+  .journey-zone-content { display: flex; gap: 12px; align-items: flex-start; }
+  .journey-node { background: #fff; border-radius: 6px; padding: 8px 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border: 1px solid #e1e1e1; cursor: pointer; transition: all 0.2s ease; min-width: 95px; max-width: 105px; position: relative; border-left: 3px solid #005fcc; }
+  .journey-node:hover { box-shadow: 0 4px 12px rgba(0,95,204,0.15); border-color: #005fcc; transform: translateY(-2px); }
+  .journey-node-header { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
+  .journey-node-icon { font-size: 12px; flex-shrink: 0; color: #666; }
+  .journey-node-title { font-weight: 600; font-size: 10px; color: #333; line-height: 1.2; }
+  .journey-node-hint { font-size: 8px; color: #005fcc; margin-top: 4px; opacity: 0; transition: opacity 0.2s; }
+  .journey-node:hover .journey-node-hint { opacity: 1; }
+  .journey-node-metrics { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 6px; padding-top: 6px; border-top: 1px dashed #e0e0e0; }
+  .metric-badge { display: inline-flex; align-items: center; gap: 2px; padding: 2px 4px; border-radius: 3px; font-size: 8px; font-weight: 600; background: #f5f5f5; color: #666; border: 1px solid #e8e8e8; }
+  .metric-badge svg { width: 8px; height: 8px; opacity: 0.7; }
+  .stacked-cards-container { position: relative; padding-top: 8px; padding-left: 8px; cursor: pointer; }
+  .stacked-card-back { position: absolute; width: 95px; height: 70px; background: #fff; border-radius: 6px; border: 1px solid #e1e1e1; border-left: 3px solid #005fcc; }
+  .stacked-card-3 { top: 0; left: 0; z-index: 1; opacity: 0.5; }
+  .stacked-card-2 { top: 4px; left: 4px; z-index: 2; opacity: 0.7; }
+  .stacked-cards-label { font-size: 8px; color: #999; text-align: center; margin-top: 6px; font-style: italic; }
+  .registration-column { display: flex; flex-direction: column; gap: 6px; }
+  .nudge-group { display: flex; flex-direction: column; gap: 4px; margin-left: 16px; position: relative; }
+  .nudge-group::before { content: ''; position: absolute; left: -10px; top: 0; bottom: 0; width: 2px; background: #e0e0e0; border-radius: 2px; }
+  .nudge-group .journey-node { min-width: 90px; max-width: 100px; }
+  .nudge-label { font-size: 8px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; margin-left: 16px; }
+  .survey-sections-group { display: flex; flex-direction: column; gap: 4px; }
+  .survey-sections-group .journey-node { min-width: 90px; max-width: 100px; }
+  .metric-badge { cursor:pointer; }
+  .metric-badge.done { background:#2e7d32; color:#fff; border-color:#2e7d32; }
+  .metric-badge.done::before { content:"\2713"; font-weight:700; margin-right:1px; }
+
+  /* question list */
+  .qlist{margin-top:6px;}
+  .q-item{display:grid; grid-template-columns:auto 1fr; gap:16px; align-items:baseline; padding:14px 0; border-top:1px solid var(--line-2); font-size:17px; color:var(--ink);}
+  .q-item:first-child{border-top:none;}
+  .q-item .qn{font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--violet); font-size:16px;}
+
+  /* sample report visualizations */
+  .viz{margin-top:14px;}
+  .viz-cap{font-size:11px; color:var(--faint); margin-bottom:10px; letter-spacing:.03em; text-transform:uppercase; font-weight:600;}
+  .viz-note{margin-top:18px; font-size:15px; color:#4a3a55; background:var(--violet-tint); border:1px solid var(--violet-line); border-radius:10px; padding:12px 16px;}
+  .viz-note b{color:var(--ink);}
+  /* freeform table */
+  .ff{width:100%; border-collapse:collapse; font-size:13.5px;}
+  .ff th{text-align:left; font-weight:600; color:var(--muted); font-size:10.5px; text-transform:uppercase; letter-spacing:.03em; padding:8px 12px; border-bottom:1px solid var(--line); white-space:nowrap;}
+  .ff th.num,.ff td.num{text-align:right; font-variant-numeric:tabular-nums;}
+  .ff td{padding:10px 12px; border-bottom:1px solid var(--line-2); color:var(--ink-2);}
+  .ff tr:last-child td{border-bottom:none;}
+  .ff td.lead{font-weight:600; color:var(--ink);}
+  .ff tr.hi td{background:var(--violet-tint);}
+  .ff .cellbar{position:relative; height:16px; background:#f1eff4; border-radius:3px; min-width:90px;}
+  .ff .cellbar .cb{position:absolute; left:0; top:0; height:100%; background:var(--violet); border-radius:3px;}
+  .ff .cellbar .cv{position:absolute; right:6px; top:50%; transform:translateY(-50%); font-size:11px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums;}
+  /* fallout */
+  .fo{display:flex; flex-direction:column;}
+  .fo-step{display:grid; grid-template-columns:230px 1fr 150px; gap:16px; align-items:center; padding:5px 0;}
+  .fo-name{font-size:14px; color:var(--ink); font-weight:600;}
+  .fo-wrap{background:#f1eff4; border-radius:5px; height:34px;}
+  .fo-bar{height:100%; background:linear-gradient(90deg,#5b2a9d,#8a5fce); border-radius:5px; display:flex; align-items:center; justify-content:flex-end; padding-right:10px; color:#fff; font-weight:700; font-size:13px;}
+  .fo-meta{text-align:right; font-size:12.5px; color:var(--muted); font-variant-numeric:tabular-nums;}
+  .fo-drop{padding:3px 0 3px 246px; font-size:11px; color:#c0392b; font-weight:600;}
+  /* bar chart */
+  .bc{display:flex; flex-direction:column; gap:9px;}
+  .bc-row{display:grid; grid-template-columns:135px 1fr; gap:14px; align-items:center;}
+  .bc-label{font-size:13px; color:var(--ink-2); text-align:right;}
+  .bc-track{background:#f1eff4; border-radius:5px; height:26px;}
+  .bc-fill{height:100%; background:var(--violet); border-radius:5px; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; color:#fff; font-size:12px; font-weight:700; font-variant-numeric:tabular-nums; min-width:26px;}
+  .bc-fill.hi{background:var(--accent);}
+  /* segment comparison */
+  .seg{display:flex; flex-direction:column; gap:12px;}
+  .seg-row{display:grid; grid-template-columns:230px 1fr; gap:20px; align-items:center; padding:14px 16px; border:1px solid var(--line); border-radius:12px;}
+  .seg-name{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--ink); font-size:15px;}
+  .seg-count{font-size:12px; color:var(--muted); margin-top:2px;}
+  .seg-ml{font-size:11px; color:var(--muted); margin-bottom:5px;}
+  .seg-track{background:#f1eff4; border-radius:5px; height:24px;}
+  .seg-fill{height:100%; border-radius:5px; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; color:#fff; font-size:12px; font-weight:700;}
+  /* cohort */
+  .coh{border-collapse:separate; border-spacing:5px; font-size:12.5px; margin-top:4px;}
+  .coh th{font-size:11px; color:var(--muted); font-weight:600; padding:2px 6px; text-align:center;}
+  .coh th.rh{text-align:left;}
+  .coh td.rh{font-weight:600; color:var(--ink); font-size:13px; white-space:nowrap; padding-right:10px;}
+  .coh td.cell{text-align:center; font-weight:700; border-radius:6px; padding:12px 10px; font-variant-numeric:tabular-nums; min-width:56px;}
+
+  /* today's data + silos */
+  .dimb{display:inline-block; font-size:10.5px; font-weight:600; padding:2px 8px; border-radius:999px; white-space:nowrap;}
+  .dimb.pg{background:var(--violet-tint); color:var(--violet); border:1px solid var(--violet-line);}
+  .dimb.ln{background:#e6f2f0; color:#0d6d64; border:1px solid #9fd6c4;}
+  .silos{display:flex; gap:12px; margin-top:6px; flex-wrap:wrap;}
+  .silo{flex:1; min-width:120px; border:1px solid var(--line); border-radius:12px; padding:14px 12px; text-align:center;}
+  .silo .sn{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px; color:var(--ink);}
+  .silo .ss{font-size:11px; color:var(--muted); margin-top:3px;}
+  .silo .tag{display:inline-block; margin-top:9px; font-size:10px; font-weight:700; border-radius:999px; padding:2px 9px;}
+  .silo.here{border-color:var(--violet); background:var(--violet-tint);}
+  .silo.here .sn{color:var(--violet-deep);}
+  .silo.here .tag{color:#fff; background:var(--violet);}
+  .silo.off{border-style:dashed; opacity:.75;}
+  .silo.off .tag{color:var(--muted); background:#f1f0f3; font-weight:600;}
+
+  /* data source (silo) view of the journey */
+  .src-legend{display:flex; gap:18px; flex-wrap:wrap; margin:2px 0 8px; font-size:12px; color:var(--ink-2);}
+  .src-legend .sl{display:inline-flex; align-items:center; gap:6px; font-weight:600;}
+  .src-legend .sw{width:12px; height:12px; border-radius:3px; display:inline-block;}
+  .silo-view .journey-node.email, .silo-view .journey-node.engagement-stream{ border-left-color:#E34F26; }
+  .silo-view .journey-node.survey-section{ border-left-color:#8E44AD; }
+  .silo-view .journey-node.registration, .silo-view .journey-node.gmw{ border-left-color:#2E7D32; }
+  .silo-view .journey-node.enrollment{ border-left-color:#546E7A; }
+  .silo-view .journey-node.call-center{ border-left-color:#B45309; }
+  .silo-view .stacked-card-back{ border-left-color:#cfc9d8; }
+  .silo-view .journey-node::after{ content:""; position:absolute; top:-7px; right:-5px; font-size:8px; font-weight:800; color:#fff; padding:2px 5px; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,.2); z-index:10; text-transform:uppercase; letter-spacing:.02em; }
+  .silo-view .journey-node.enrollment::after{ content:"MemDB"; background:#546E7A; }
+  .silo-view .journey-node.email::after, .silo-view .journey-node.engagement-stream::after{ content:"Marketo"; background:#E34F26; }
+  .silo-view .journey-node.registration::after, .silo-view .journey-node.gmw::after{ content:"CJA"; background:#2E7D32; }
+  .silo-view .journey-node.survey-section::after{ content:"Ushur"; background:#8E44AD; }
+  .silo-view .journey-node.call-center::after{ content:"Telephony"; background:#B45309; }
+
+  .ff .dval{font-family:ui-monospace, Menlo, Consolas, monospace; font-size:11.5px; color:var(--muted); white-space:nowrap;}
+
+  /* AEP ecosystem zoom-out */
+  .aep-wrap{position:relative; width:100%; max-width:1500px; margin:10px auto 0;}
+  .aep-shot{width:100%; height:auto; display:block; border:1px solid var(--line); border-radius:10px;}
+  .cja-callout{position:absolute; left:73.2%; top:65.2%; width:9.8%; height:5.8%; border:3px solid var(--accent); border-radius:8px; box-shadow:0 0 0 4px rgba(161,0,255,.22); pointer-events:none;}
+
+  .ph{color:#c00; font-weight:700;}
+
+  /* event data table */
+  .evt{width:100%; border-collapse:collapse; margin-top:14px; font-size:15px;}
+  .evt thead th{text-align:left; padding:14px 16px; background:var(--violet-tint); border-bottom:2px solid var(--violet-line); vertical-align:top;}
+  .evt thead th:first-child{border-top-left-radius:10px;}
+  .evt thead th:last-child{border-top-right-radius:10px;}
+  .evt .h-main{font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--violet-deep); font-size:20px; display:flex; align-items:center; gap:8px;}
+  .evt .h-sub{font-size:12px; color:var(--violet); font-weight:600; margin-top:3px; opacity:.9;}
+  .evt tbody td{padding:13px 16px; border-bottom:1px solid var(--line-2); color:var(--ink-2);}
+  .evt tbody tr:last-child td{border-bottom:none;}
+  .evt .who{font-family:ui-monospace, Menlo, Consolas, monospace; font-size:13px; color:var(--ink);}
+  .evt .when{font-variant-numeric:tabular-nums; color:var(--muted); white-space:nowrap;}
+  .evt .what{color:var(--ink); font-weight:500;}
+  .evt .what .ei{margin-right:9px;}
+
+  /* identities + attributes panels */
+  .kv2{display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:16px;}
+  .kv-panel{border:1px solid var(--line); border-radius:14px; padding:18px 20px;}
+  .kv-h{font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--violet-deep); font-size:18px; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
+  .kv-h span{font-family:'Inter',sans-serif; font-weight:600; font-size:13px; color:var(--violet); opacity:.9;}
+  .kv-note{font-size:12.5px; color:var(--muted); margin:6px 0 12px;}
+  .kv-list{display:flex; flex-direction:column;}
+  .kv-row{display:grid; grid-template-columns:auto 1fr; gap:16px; align-items:baseline; padding:9px 0; border-top:1px solid var(--line-2);}
+  .kv-row:first-child{border-top:none;}
+  .kv-k{font-size:13px; color:var(--muted); font-weight:600;}
+  .kv-v{font-family:ui-monospace, Menlo, Consolas, monospace; font-size:13px; color:var(--ink); text-align:right; word-break:break-all;}
+  @media (max-width:760px){ .kv2{grid-template-columns:1fr;} }
+
+  /* identity graph */
+  .idgraph{width:100%; max-width:840px; height:auto; display:block; margin:14px auto 4px;}
+  /* schema tree */
+  .schema{border:1px solid var(--line); border-radius:12px; padding:16px 20px; max-width:760px; margin:14px auto 4px;}
+  .sc-root{font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--ink); font-size:15px; margin-bottom:6px; display:flex; align-items:center; gap:8px;}
+  .sc-group{margin-top:10px;}
+  .sc-gh{font-weight:700; color:var(--violet); font-size:11px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:2px;}
+  .sc-field{display:grid; grid-template-columns:1fr auto; gap:14px; padding:5px 0 5px 16px; border-left:2px solid var(--violet-line); margin-left:4px;}
+  .sc-fname{color:var(--ink-2); font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12.5px; word-break:break-all;}
+  .sc-fval{color:var(--violet-deep); font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12.5px; font-weight:600; text-align:right; white-space:nowrap;}
+
+  /* split: original items left, visualization right */
+  .split2{display:grid; grid-template-columns:0.8fr 1.2fr; gap:24px; align-items:start; margin-top:14px;}
+  .split2 .idgraph, .split2 .schema{margin:0; max-width:none; width:100%;}
+  @media (max-width:820px){ .split2{grid-template-columns:1fr;} }
+
+  /* journey definition statement */
+  .jstmt{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:40px; line-height:1.22; color:var(--ink); letter-spacing:-.015em; max-width:26ch; margin-top:10px;}
+  .jstmt .e{color:var(--violet);} .jstmt .p{color:var(--accent);} .jstmt .t{color:#0d7d74;}
+  .jmap{display:flex; gap:30px; flex-wrap:wrap; margin-top:30px; font-size:14px; color:var(--muted);}
+  .jmap b{margin-right:6px;}
+  .jmap .e{color:var(--violet);} .jmap .p{color:var(--accent);} .jmap .t{color:#0d7d74;}
+  @media (max-width:760px){ .jstmt{font-size:28px;} }
+
+  /* event slide: highlight one person + mini timeline */
+  .evt tbody tr.evt-hl td:first-child{box-shadow:inset 3px 0 0 var(--accent);}
+  .jtl{margin-top:22px; border-top:1px solid var(--line-2); padding-top:16px;}
+  .jtl-head{font-size:13px; color:var(--muted); margin-bottom:14px;}
+  .jtl-id{font-family:ui-monospace,Menlo,Consolas,monospace; color:var(--accent); font-weight:700; background:var(--accent-tint); border:1px solid var(--accent-line); border-radius:6px; padding:1px 7px;}
+  .jtl-track{position:relative; height:88px; margin:6px 60px 0;}
+  .jtl-line{position:absolute; left:0; right:0; top:8px; height:3px; background:var(--accent-line); border-radius:3px;}
+  .jtl-pt{position:absolute; top:1px; transform:translateX(-50%); width:150px; text-align:center;}
+  .jtl-dot{width:16px; height:16px; border-radius:50%; background:var(--accent); border:3px solid #fff; box-shadow:0 0 0 2px var(--accent); margin:0 auto;}
+  .jtl-lbl{margin-top:12px; font-size:12px; color:var(--ink-2); line-height:1.35;}
+  .jtl-lbl .ic{font-size:15px;}
+  .jtl-lbl b{display:block; color:var(--ink); font-variant-numeric:tabular-nums; margin-top:2px;}
+  @media (max-width:760px){ .jtl-track{margin:6px 16px 0;} .jtl-pt{width:104px;} }
+
+  /* timestamp slide */
+  .tstamp{display:inline-block; border:1px solid var(--line); border-radius:14px; padding:22px 28px; margin-top:14px;}
+  .ts-k{font-size:13px; color:var(--muted); font-weight:600; margin-bottom:8px;}
+  .ts-v{font-family:ui-monospace,Menlo,Consolas,monospace; font-size:26px; color:var(--violet-deep); font-weight:600;}
+  .ts-friendly{font-size:14px; color:var(--muted); margin-top:8px;}
+
+  /* source -> AEP flow */
+  .flow{display:flex; align-items:center; gap:16px; margin-top:16px; flex-wrap:wrap;}
+  .flow-node{background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 18px; text-align:center; min-width:132px;}
+  .flow-node.src{border-color:var(--violet-line); background:var(--violet-tint);}
+  .fn-ic{font-size:22px; line-height:1;}
+  .fn-t{font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--ink); font-size:15px; margin-top:5px;}
+  .fn-s{font-size:11.5px; color:var(--muted); margin-top:2px;}
+  .flow-arrow{display:flex; flex-direction:column; align-items:center; color:var(--violet); font-size:24px; font-weight:700; line-height:1;}
+  .flow-arrow span{font-size:11px; color:var(--muted); font-weight:600; margin-bottom:2px;}
+  .flow-aep{border:2px solid var(--violet-line); border-radius:14px; padding:14px 16px 16px; background:#faf7fd;}
+  .fa-label{font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--violet-deep); font-size:13px; margin-bottom:10px;}
+  .fa-inner{display:flex; align-items:center; gap:14px;}
+
+  /* teams slide */
+  .slide.teams .inner{max-width:1200px;}
+  .tgrid{display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-top:6px;}
+  .tcol{display:flex; flex-direction:column;}
+  .tbar{background:var(--violet); color:#fff; border-radius:9px; padding:9px 13px;
+     font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px;}
+  .tbar .tname{font-weight:500; font-size:12.5px; opacity:.9;}
+  .tcard{flex:1; margin-top:8px; border:1px solid var(--line); border-radius:14px; padding:10px 14px;}
+  .roster{list-style:none; counter-reset:r; margin:0; padding:0;}
+  .roster li{counter-increment:r; position:relative; padding:10px 0 10px 26px; min-height:1.4em;
+     border-bottom:1px solid var(--line-2); color:var(--ink-2); font-size:14px;}
+  .roster li:last-child{border-bottom:none;}
+  .roster li::before{content:counter(r); position:absolute; left:0; top:10px; color:var(--violet);
+     font-weight:600; font-family:'Space Grotesk',sans-serif; font-size:13px;}
+  .roster li:empty::after{content:"Name"; color:var(--faint);}
+  @media (max-width:900px){ .tgrid{grid-template-columns:1fr 1fr;} .slide.teams .inner{max-width:none;} }
+
+  /* editing */
+  body.editing .inner{cursor:text;}
+  body.editing .slide.on .inner:focus,
+  body.editing .slide.on .inner:focus-within{outline:2px dashed var(--accent); outline-offset:10px; border-radius:10px;}
+  #ctl button.act{background:var(--accent); color:#fff;}
+  #editbadge{position:fixed; top:16px; left:18px; z-index:50; display:none; align-items:center; gap:7px;
+     background:var(--accent-tint); color:var(--violet); border:1px solid var(--accent-line);
+     border-radius:999px; padding:5px 12px; font-size:12.5px; font-weight:600;}
+  body.editing #editbadge{display:inline-flex;}
+  #toast{position:fixed; top:18px; left:50%; transform:translateX(-50%) translateY(-16px); z-index:60;
+     background:#14121c; color:#fff; border:1px solid rgba(255,255,255,.16); border-radius:999px;
+     padding:8px 16px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:all .22s ease;}
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  /* chrome */
+  #bar{position:fixed; left:0; right:0; bottom:0; height:4px; background:rgba(255,255,255,.12); z-index:40;}
+  #bar > i{display:block; height:100%; background:var(--accent); width:0; transition:width .2s ease;}
+  #ctl{position:fixed; bottom:16px; right:18px; display:flex; align-items:center; gap:8px; z-index:50;
+     background:rgba(20,18,28,.82); backdrop-filter:blur(6px); border:1px solid rgba(255,255,255,.14);
+     border-radius:999px; padding:7px 10px; color:#e7e2f0; font-size:13px;}
+  #ctl button{font:inherit; color:#e7e2f0; background:transparent; border:none; cursor:pointer; padding:4px 8px; border-radius:8px; font-weight:600;}
+  #ctl button:hover{background:rgba(255,255,255,.12);}
+  #count{font-variant-numeric:tabular-nums; color:#c9b6ec; min-width:52px; text-align:center;}
+  #clock{font-variant-numeric:tabular-nums; color:#c9b6ec; font-size:12px; opacity:.9; white-space:nowrap;}
+  #hint{position:fixed; bottom:18px; left:18px; z-index:50; color:rgba(255,255,255,.5); font-size:12.5px;}
+  #notes{position:fixed; left:0; right:0; bottom:0; z-index:45; max-height:42vh; overflow:auto;
+     background:#14121c; color:#d9d4e6; border-top:1px solid rgba(255,255,255,.14);
+     padding:18px 22px 26px; transform:translateY(100%); transition:transform .22s ease;}
+  #notes.open{transform:translateY(0);}
+  #notes .lab{font-size:11.5px; font-weight:700; letter-spacing:.06em; color:var(--accent); margin-bottom:8px;}
+  #notes .body{font-size:15px; line-height:1.6; max-width:80ch;}
+  #notes .body b{color:#fff;}
+
+  @media (max-width:760px){
+    .slide{padding:8vh 7vw;}
+    h2{font-size:27px;} .slide.title h1{font-size:44px;} .lead{font-size:17px;}
+    ol.steps li{font-size:18px;}
+  }
+
+  /* ===== Day 2 additions ===== */
+  .dimb.st{background:#fff3e0; color:#a35b00; border:1px solid #ffcf9e;}
+  .dimb.ba{background:#eceaf1; color:#5c5768; border:1px solid #d7d3de;}
+  .dimb.dv{background:#e8f0fe; color:#1a4f9c; border:1px solid #b6cdf4;}
+
+  .anat{border:2px solid var(--violet); border-radius:14px; padding:14px 16px; margin-top:6px;}
+  .anat .lvl{border:1px dashed var(--violet-line); border-radius:10px; padding:11px 14px; margin-top:10px;}
+  .anat .lbl{font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--violet); margin-bottom:5px;}
+  .anat .desc{font-size:13.5px; color:var(--ink-2);}
+
+  .cnt3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:10px;}
+  .cnt{border:1px solid var(--line); border-radius:14px; padding:18px 20px;}
+  .cnt .big{font-family:'Space Grotesk',sans-serif; font-size:32px; font-weight:700; color:var(--violet-deep); line-height:1; font-variant-numeric:tabular-nums;}
+  .cnt .nm{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:16px; color:var(--ink); margin-top:8px;}
+  .cnt .de{font-size:13px; color:var(--ink-2); margin-top:6px;}
+  .cnt .aa{font-size:11.5px; color:var(--muted); margin-top:10px;}
+
+  .ctn{border:2px solid var(--violet); border-radius:14px; padding:13px 16px; margin-top:8px;}
+  .ctn .ch{font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--violet-deep); font-size:15px;}
+  .ctn .cd{font-size:13px; color:var(--ink-2); margin-top:3px;}
+  .ctn .in2{border:2px solid #8a5fce; border-radius:12px; padding:12px 14px; margin-top:11px;}
+  .ctn .in3{border:2px solid var(--accent); border-radius:10px; padding:11px 13px; margin-top:11px;}
+
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:26px; margin-top:8px;}
+  .three{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:8px;}
+  .mini{font-size:12.5px; color:var(--muted); margin-top:8px;}
+  .formula{font-family:ui-monospace, Menlo, Consolas, monospace; font-size:15px; background:var(--violet-tint); border:1px solid var(--violet-line); border-radius:10px; padding:11px 15px; color:var(--violet-deep); display:inline-block; margin-top:4px;}
+
+  .rail{border:1px solid var(--line); border-radius:12px; overflow:hidden; font-size:13px;}
+  .rail .rh{background:var(--violet-tint); color:var(--violet-deep); font-weight:700; font-size:10.5px; letter-spacing:.04em; text-transform:uppercase; padding:8px 12px; border-bottom:1px solid var(--violet-line);}
+  .rail .ri{padding:7px 12px; border-bottom:1px solid var(--line-2); display:flex; justify-content:space-between; gap:10px; align-items:baseline;}
+  .rail .ri:last-child{border-bottom:none;}
+  .rail .rt{color:var(--ink);}
+  .rail .rs{color:var(--muted); font-size:11.5px; white-space:nowrap;}
+
+  /* ===== hands-on activity and solution layout (Days 3 to 5) ===== */
+  .act-head{display:flex; align-items:center; gap:10px; margin:0 0 4px; flex-wrap:wrap;}
+  .chip{font-size:11.5px; font-weight:700; padding:5px 14px; border-radius:999px;
+     border:1px solid var(--violet-line); color:var(--violet); background:var(--violet-tint); white-space:nowrap;}
+  .chip.time{background:var(--accent-tint); border-color:var(--accent-line); color:var(--accent);}
+  .act-sub{font-size:13.5px; color:var(--muted); font-style:italic; margin:0 0 14px;}
+  .act3{display:grid; grid-template-columns:0.92fr 1.3fr 1fr; gap:16px; align-items:stretch;}
+  .act2{display:grid; grid-template-columns:1.4fr 1fr; gap:16px; align-items:stretch;}
+  .abox{border:1px solid var(--violet-line); border-radius:14px; padding:16px 18px;
+     background:#fdfbff; display:flex; flex-direction:column;}
+  .abox .al{font-size:11px; font-weight:700; letter-spacing:.05em; color:var(--violet); margin-bottom:4px;}
+  .abox .at{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:17px; color:var(--ink); margin-bottom:9px; line-height:1.2;}
+  .abox p{font-size:13.5px; color:var(--ink-2); margin:0 0 8px; line-height:1.45;}
+  .abox.task{background:var(--violet-deep); border-color:var(--violet-deep);}
+  .abox.task .al{color:#c9b6ec;}
+  .abox.task .at{color:#fff;}
+  .abox.task p{color:#e5d8fa; font-size:15px;}
+  ol.anum{list-style:none; counter-reset:a; margin:0; padding:0;}
+  ol.anum li{counter-increment:a; position:relative; padding:7px 0 7px 32px; font-size:13.5px;
+     color:var(--ink-2); line-height:1.45;}
+  ol.anum li::before{content:counter(a); position:absolute; left:0; top:8px; width:21px; height:21px;
+     background:var(--violet); color:#fff; border-radius:50%; font-size:11px; font-weight:700;
+     display:flex; align-items:center; justify-content:center;}
+  ol.anum li b{color:var(--ink);}
+  .qmark{display:flex; gap:10px; align-items:flex-start; margin-bottom:10px;}
+  .qmark .qi{flex:0 0 21px; height:21px; border-radius:50%; background:rgba(255,255,255,.24);
+     color:#fff; font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; margin-top:2px;}
+  .qmark span{color:#e5d8fa; font-size:15px; line-height:1.4;}
+  .act-foot{margin-top:auto; padding-top:14px; font-size:12.5px; color:#c9b6ec; font-style:italic;}
+  .soln{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:6px; align-items:start;}
+  .shot{border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:#fbfafc;}
+  .shot .sh{font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+     color:var(--faint); margin-bottom:9px;}
+  .shot .sp{border:1px dashed var(--violet-line); border-radius:8px; padding:22px 14px; text-align:center;
+     color:var(--violet); font-size:12.5px; background:var(--violet-tint);}
+  .ansbox{background:var(--accent-tint); border:1px solid var(--accent-line); border-radius:12px;
+     padding:14px 18px; margin-top:14px; font-size:15.5px; color:#4a3a55;}
+  .ansbox b{color:var(--ink);}
+  .ansbox .big{font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700;
+     color:var(--violet-deep); line-height:1; margin-right:10px; vertical-align:-2px;}
+
+</style>
+</head>
+<body>
+
+<div id="stage">
+
+  <!-- DAY 3 -->
+  
+  <!-- 1 TITLE -->
+  <section data-min="2" class="slide title on">
+    <div class="inner">
+      <h1>From data<br/>to insight</h1>
+      <p class="sub">Visualizations, journey canvas, guided analyses, anomalies and alerts. Then the part most training skips: getting the answer to someone who is not in this room.</p>
+      <div class="meta"><span>CJA Bootcamp · Day 3 of 5</span><span>Kaiser Permanente</span><span>Delivered by Accenture</span><span class="ph">[date]</span></div>
+    </div>
+    <div class="notes-src">Two minutes. Yesterday they learned to count. Today they learn to see, and then to send. Reporting is 32 percent of the exam and Distribution is 12 percent, so today carries 44 percent of what is tested.</div>
+  </section>
+
+  <!-- 2 RECAP -->
+  <section data-min="3" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Day 3 · Recap</p>
+      <h2>Yesterday, in one slide</h2>
+      <ul class="bul">
+        <li>People, sessions and events answer different questions. Picking the wrong one is the most common error in this tool.</li>
+        <li>Scope is person, session or event. "Started a step and never completed it" needs a <b>person</b> container.</li>
+        <li>Metrics get attribution. Dimensions get persistence. Both live in the data view.</li>
+        <li>Components come from schema fields. Calculated metrics are built at report time and apply to history.</li>
+        <li>You found the cliff: <b>selecting a primary care physician completes at 62 percent</b> while every other step sits between 93 and 96. That is 836 members.</li>
+      </ul>
+      <div class="callout"><b>Today those 836 get a shape.</b> A fallout, a flow, a journey, an anomaly and a scheduled report.</div>
+    </div>
+    <div class="notes-src">Three minutes, retrieval not re-teaching. Ask for the container rule before you show it. The 836 is the thread through the whole day, so say the number out loud and expect them to recognise it.</div>
+  </section>
+
+  <!-- 3 MAP -->
+  <section data-min="2" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Day 3 · Today</p>
+      <h2>Where today goes</h2>
+      <div class="sched">
+        <div class="row"><div class="k">Visualizations</div><div class="v">Basic, then fallout, flow and cohort</div></div>
+        <div class="row rest"><div class="k">Break</div><div class="v">15 minutes</div></div>
+        <div class="row"><div class="k">Journey canvas</div><div class="v">The cross-channel journey, in one picture</div></div>
+        <div class="row rest"><div class="k">Lunch</div><div class="v">1 hour</div></div>
+        <div class="row"><div class="k">Guided analyses</div><div class="v">The self-serve path, and when to hand off</div></div>
+        <div class="row"><div class="k">Time and monitoring</div><div class="v">Date ranges and annotations</div></div>
+        <div class="row rest"><div class="k">Break</div><div class="v">15 minutes</div></div>
+        <div class="row"><div class="k">AI capabilities</div><div class="v">Anomaly detection and alerts</div></div>
+        <div class="row"><div class="k">Report distribution</div><div class="v">Share, curate, schedule, export</div></div>
+      </div>
+      <p class="mini">Eight hands-on activities today, each followed by a walkthrough. Breakout rooms, one person shares screen.</p>
+    </div>
+    <div class="notes-src">Two minutes. Set the rhythm explicitly: short teach, activity in your room, then we all look at the answer together. Nobody works alone today.</div>
+  </section>
+
+  <!-- 4 LAB 3.0 -->
+  <section data-min="8" class="slide">
+    <div class="inner" style="max-width:1200px;">
+      <div class="act-head"><p class="eyebrow" style="margin:0;">Warm up</p><span class="chip">Breakout room</span><span class="chip time">8 mins</span></div>
+      <h2 style="margin-bottom:2px;">Hands-on: rebuild it from memory</h2>
+      <p class="act-sub">No instructions. One screenshot. Work in your room.</p>
+      <div class="act2">
+        <div class="abox">
+          <div class="al">EXERCISE</div>
+          <div class="at">Yesterday's completion rate table</div>
+          <p>Rebuild the guided member welcome table you made yesterday: step in rows, starts, completes and completion rate in columns, sorted by rate.</p>
+          <p>You built the calculated metric yesterday, so it is already in your rail. If you did not save it, build it again now. You will need it four times today.</p>
+        </div>
+        <div class="abox task">
+          <div class="al">YOUR TASK</div>
+          <div class="at">Answer the question</div>
+          <div class="qmark"><div class="qi">?</div><span>Which step has the worst completion rate, and what is it?</span></div>
+          <div class="act-foot">Walkthrough and Q and A to follow</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-src">Eight minutes. Retrieval practice, deliberately unscaffolded. Expected answer: Select PCP at 62.0 percent. Anyone who cannot rebuild it needs help before the fallout lab, because fallout assumes the same seven steps. Walk the room rather than watching the clock.</div>
+  </section>
+
+  <!-- 5 DIVIDER -->
+  <section data-min="1" class="slide section">
+    <div class="inner">
+      <div class="num">Section 1</div>
+      <h1>Visualizations</h1>
+      <p class="sub">Choosing the picture that answers the question, rather than the one that looks best.</p>
+    </div>
+    <div class="notes-src">Divider.</div>
+  </section>
+
+  <!-- 6 MENU -->
+  <section data-min="6" class="slide">
+    <div class="inner" style="max-width:1160px;">
+      <p class="eyebrow">Visualizations</p>
+      <h2>What to reach for, and when</h2>
+      <table class="ff">
+        <thead><tr><th>The question sounds like</th><th>Reach for</th><th>AcmeHealth example</th></tr></thead>
+        <tbody>
+          <tr><td class="lead">Is it going up or down?</td><td>Line, area</td><td>Registration completes over 90 days</td></tr>
+          <tr><td class="lead">Which is biggest?</td><td>Bar, horizontal bar</td><td>Calls by queue</td></tr>
+          <tr><td class="lead">What share of the whole?</td><td>Donut</td><td>Members by plan</td></tr>
+          <tr><td class="lead">How are we doing against a target?</td><td>Bullet, gauge</td><td>GMW completion against 35 percent</td></tr>
+          <tr><td class="lead">What is the headline?</td><td>Summary number, summary change</td><td>836 members stalled</td></tr>
+          <tr class="hi"><td class="lead">Where do people drop out of a known path?</td><td>Fallout</td><td>The seven step checklist</td></tr>
+          <tr class="hi"><td class="lead">What do people do instead?</td><td>Flow</td><td>What follows an abandoned PCP step</td></tr>
+          <tr><td class="lead">Do they come back?</td><td>Cohort table</td><td>Return visits after registration</td></tr>
+          <tr><td class="lead">How do two groups overlap?</td><td>Venn</td><td>Callers against abandoners</td></tr>
+          <tr><td class="lead">How is a number distributed?</td><td>Histogram</td><td>Call handle time</td></tr>
+        </tbody>
+      </table>
+      <div class="viz-note">The exam asks this directly: given a business need, choose the visualization. The highlighted two are today's centrepiece and they are the ones people most often use wrongly.</div>
+    </div>
+    <div class="notes-src">Six minutes. Do not demo anything yet. Read the left column as the thing a stakeholder actually says, because that is how the exam frames it too. Flag the fallout and flow distinction now: fallout needs a path you already believe in, flow discovers the path you did not.</div>
+  </section>
+
+  <!-- 7 TREND FAMILY -->
+  <section data-min="5" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Visualizations</p>
+      <h2>The trend family</h2>
+      <ul class="bul">
+        <li><b>Line.</b> One or more metrics over time. The only visualization that can show anomalies.</li>
+        <li><b>Multi line.</b> Separate y axes, for metrics on different scales. Useful, easy to abuse.</li>
+        <li><b>Area and stacked area.</b> Composition over time. Stacked area hides individual movement, so use it for share rather than for change.</li>
+        <li>Granularity is a property of the panel's date range: day, week, month. Anomaly detection behaves differently at each.</li>
+      </ul>
+      <div class="callout">Line charts are where you will spend the AI block this afternoon, because the confidence band only renders on a line.</div>
+    </div>
+    <div class="notes-src">Five minutes. The line and anomaly link is worth planting here so the afternoon has somewhere to land. Warn against stacked area for trend questions: people reach for it because it is pretty and then cannot answer whether a series moved.</div>
+  </section>
+
+  <!-- 8 BAR AND DONUT -->
+  <section data-min="5" class="slide">
+    <div class="inner" style="max-width:1120px;">
+      <p class="eyebrow">Visualizations</p>
+      <h2>Ranking and share</h2>
+      <div class="two">
+        <div>
+          <ul class="bul tight">
+            <li><b>Bar</b> for ranking. Horizontal bar when the labels are long, which for AcmeHealth they usually are.</li>
+            <li><b>Stacked bar</b> for a second dimension inside each bar. Readable up to about four segments.</li>
+            <li><b>Donut</b> for share of a whole. Only when the parts genuinely sum to something meaningful.</li>
+            <li>A donut with eleven slices is a table that has been made harder to read.</li>
+          </ul>
+        </div>
+        <div>
+          <div class="viz-cap">Horizontal bar · calls by queue</div>
+          <div class="bc">
+            <div class="bc-row"><div class="bc-label">Member Services</div><div class="bc-track"><div class="bc-fill hi" style="width:100%">276</div></div></div>
+            <div class="bc-row"><div class="bc-label">Digital Support</div><div class="bc-track"><div class="bc-fill" style="width:75%">207</div></div></div>
+            <div class="bc-row"><div class="bc-label">Benefits &amp; Eligibility</div><div class="bc-track"><div class="bc-fill" style="width:58%">161</div></div></div>
+            <div class="bc-row"><div class="bc-label">Claims &amp; Billing</div><div class="bc-track"><div class="bc-fill" style="width:54%">150</div></div></div>
+            <div class="bc-row"><div class="bc-label">Pharmacy</div><div class="bc-track"><div class="bc-fill" style="width:46%">126</div></div></div>
+            <div class="bc-row"><div class="bc-label">Appointments</div><div class="bc-track"><div class="bc-fill" style="width:38%">104</div></div></div>
+            <div class="bc-row"><div class="bc-label">Find a Doctor</div><div class="bc-track"><div class="bc-fill" style="width:25%">69</div></div></div>
+            <div class="bc-row"><div class="bc-label">Nurse Advice Line</div><div class="bc-track"><div class="bc-fill" style="width:21%">57</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-src">Five minutes. Real numbers from the baseline: 1,150 calls across eight queues. Ask what is odd about Find a Doctor sitting seventh when PCP selection is the biggest failure on the site. The answer is that members do not call the queue named after their problem, which is a genuine contact centre insight and it comes back on Day 4 when the scorecard adds intent.</div>
+  </section>
+
+  <!-- 9 SUMMARY -->
+  <section data-min="4" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Visualizations</p>
+      <h2>Summary number and summary change</h2>
+      <ul class="bul">
+        <li><b>Summary number</b> shows one figure, large. It is the most read thing in any project.</li>
+        <li><b>Summary change</b> shows the same figure against a comparison period, with direction and percentage.</li>
+        <li>Both take their value from a cell in a table, so the table has to be right first.</li>
+        <li>Label them. A large number with no caption will be quoted out of context within a week.</li>
+      </ul>
+      <div class="callout">For a stakeholder deck, one summary change and one line chart will outperform a page of tables. Restraint is a reporting skill.</div>
+    </div>
+    <div class="notes-src">Four minutes. The dependency on an underlying cell trips people up: they delete the table and wonder why the number vanished. Demo that if you have a second. The restraint point matters for this audience, who mostly build for other people.</div>
+  </section>
+
+  <!-- 10 BULLET AND GAUGE -->
+  <section data-min="4" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Visualizations</p>
+      <h2>Reporting against a target</h2>
+      <ul class="bul tight">
+        <li><b>Bullet</b> compares a metric to one or more thresholds you set. Compact, and it reads at a glance.</li>
+        <li><b>Gauge</b> does the same thing with more ink and less precision.</li>
+        <li>Thresholds are yours to define. CJA does not know what good looks like for AcmeHealth.</li>
+        <li>For today, use <b>35 percent</b> as the guided member welcome completion target.</li>
+      </ul>
+      <div class="callout">Current completion is 43.1 percent overall, so the programme is ahead of target while a single step inside it is failing. Both statements are true, which is exactly why one number is never enough.</div>
+    </div>
+    <div class="notes-src">Four minutes. The callout is the real lesson and it is worth pausing on: 1,120 of 2,600 starters finish, which beats a 35 percent target, and yet 836 people are stuck at one step. A target met at the top can hide a failure in the middle. That framing also sets up fallout in fifteen minutes.</div>
+  </section>
+
+  <!-- 11 CAPTIONS -->
+  <section data-min="4" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Visualizations</p>
+      <h2>Intelligent captions</h2>
+      <ul class="bul">
+        <li>Generative AI writes a plain language summary of what a visualization shows.</li>
+        <li>Supported on line, multi line, bar, horizontal bar, donut, area, flow and fallout.</li>
+        <li>Useful for stakeholders who will not read a chart, and for sanity checking your own reading of one.</li>
+        <li>It describes what is in the chart. It does not know why, and it does not know your business.</li>
+      </ul>
+      <div class="callout">Treat a caption as a second opinion, not as an answer. If it disagrees with your reading, one of you has misread the chart and it is worth finding out which.</div>
+    </div>
+    <div class="notes-src">Four minutes. Turn one on live if the sandbox allows. Keep the framing honest: it is a description generator, and the value is in catching your own misreadings rather than in outsourcing interpretation. This also previews the AI block after the second break.</div>
+  </section>
+
+  <!-- 12 SAMPLE TREND -->
+  <section data-min="4" class="slide">
+    <div class="inner" style="max-width:1160px;">
+      <p class="eyebrow">Sample report</p>
+      <h2 style="margin-bottom:4px;">Registration completes, last 90 days</h2>
+      <div class="viz">
+        <div class="viz-cap">Line · daily granularity</div>
+        <svg viewBox="0 0 1100 260" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto;">
+          <rect x="0" y="0" width="1100" height="260" fill="#fff"/>
+          <g stroke="#f0eef3" stroke-width="1">
+            <line x1="60" y1="40" x2="1070" y2="40"/><line x1="60" y1="90" x2="1070" y2="90"/>
+            <line x1="60" y1="140" x2="1070" y2="140"/><line x1="60" y1="190" x2="1070" y2="190"/>
+          </g>
+          <line x1="60" y1="220" x2="1070" y2="220" stroke="#e7e5ea" stroke-width="1.5"/>
+          <polyline fill="none" stroke="#5b2a9d" stroke-width="2.2" points="70,120 100,108 130,132 160,96 190,180 220,190 250,104 280,116 310,100 340,124 370,112 400,176 430,186 460,108 490,96 520,120 550,104 580,128 610,182 640,192 670,112 700,100 730,124 760,108 790,116 820,178 850,188 880,196 910,200 940,194 970,110 1000,98 1030,122 1060,106"/>
+          <circle cx="880" cy="196" r="5" fill="#fff" stroke="#c0392b" stroke-width="2.5"/>
+          <circle cx="910" cy="200" r="5" fill="#fff" stroke="#c0392b" stroke-width="2.5"/>
+          <circle cx="940" cy="194" r="5" fill="#fff" stroke="#c0392b" stroke-width="2.5"/>
+          <text x="905" y="232" font-family="Inter" font-size="11" fill="#c0392b" text-anchor="middle">24 to 26 Aug</text>
+          <text x="40" y="44" font-family="Inter" font-size="10" fill="#a9a7b0" text-anchor="end">60</text>
+          <text x="40" y="144" font-family="Inter" font-size="10" fill="#a9a7b0" text-anchor="end">30</text>
+          <text x="40" y="224" font-family="Inter" font-size="10" fill="#a9a7b0" text-anchor="end">0</text>
+          <text x="70" y="245" font-family="Inter" font-size="10" fill="#a9a7b0">13 Jun</text>
+          <text x="1060" y="245" font-family="Inter" font-size="10" fill="#a9a7b0" text-anchor="end">11 Sep</text>
+        </svg>
+      </div>
+      <div class="viz-note">The weekly rhythm is the weekend. The three circled days in late August are not the weekend, and they are roughly half a normal weekday. <b>Nobody has told the tool that anything happened.</b> This afternoon we make it find those three days on its own.</div>
+    </div>
+    <div class="notes-src">Four minutes. Let them look before you say anything, then ask what they notice. Most rooms spot the weekly sawtooth first and the dip second. Do not explain the dip today; the anomaly lab this afternoon is where they find it and the annotation lab is where they label it. The dates are 24 to 26 August, and yes, it is planted.</div>
+  </section>
+
+  <!-- 13 LAB 3.1 ACTIVITY -->
+  <section data-min="8" class="slide">
+    <div class="inner" style="max-width:1220px;">
+      <div class="act-head"><p class="eyebrow" style="margin:0;">Visualizations</p><span class="chip">Breakout room</span><span class="chip time">8 mins</span></div>
+      <h2 style="margin-bottom:2px;">Hands-on: five questions, five pictures</h2>
+      <p class="act-sub">Work in your room. One person shares screen. Prepend your room number to anything you save.</p>
+      <div class="act3">
+        <div class="abox">
+          <div class="al">EXERCISE</div>
+          <div class="at">Pick the right visualization</div>
+          <p>Five questions a stakeholder might actually ask. Each is best answered by a different visualization.</p>
+          <p>You are being marked on the choice as much as the answer.</p>
+        </div>
+        <div class="abox">
+          <div class="al">INSTRUCTIONS</div>
+          <div class="at">Build one panel</div>
+          <ol class="anum">
+            <li>New project on <b><span class="ph">[AcmeHealth Course]</span></b>, panel set to <b>last 90 days</b>.</li>
+            <li>Build a visualization for each question. Do not use a freeform table more than once.</li>
+            <li>Set the guided member welcome completion target to <b>35 percent</b> for the target question.</li>
+            <li>Name the project <b>Day 3 · Room <span class="ph">[N]</span></b>.</li>
+          </ol>
+        </div>
+        <div class="abox task">
+          <div class="al">YOUR TASK</div>
+          <div class="at">Answer the questions</div>
+          <div class="qmark"><div class="qi">1</div><span>Which call queue takes the most calls?</span></div>
+          <div class="qmark"><div class="qi">2</div><span>What share of members are on each plan?</span></div>
+          <div class="qmark"><div class="qi">3</div><span>Are we above or below the 35 percent completion target?</span></div>
+          <div class="qmark"><div class="qi">4</div><span>Is registration trending up or down?</span></div>
+          <div class="qmark"><div class="qi">5</div><span>How long does a typical call actually take?</span></div>
+          <div class="act-foot">Walkthrough and Q and A to follow</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-src">Eight minutes and it will feel tight, which is intentional. The point is speed of choice, not polish. Watch for teams building five freeform tables; stop them early. Question 5 is the one that separates rooms, because it needs a histogram or a distribution rather than an average, and an average alone hides the abandoned calls sitting at the long end.</div>
+  </section>
+
+  <!-- 14 LAB 3.1 SOLUTION -->
+  <section data-min="4" class="slide">
+    <div class="inner" style="max-width:1180px;">
+      <p class="eyebrow">Visualizations</p>
+      <h2 style="margin-bottom:8px;">Hands-on: solution</h2>
+      <table class="ff">
+        <thead><tr><th>Question</th><th>Visualization</th><th>Answer</th></tr></thead>
+        <tbody>
+          <tr><td class="lead">Busiest queue</td><td><span class="dimb pg">Horizontal bar</span></td><td><b>Member Services</b>, 276 of 1,150 calls</td></tr>
+          <tr><td class="lead">Plan share</td><td><span class="dimb pg">Donut</span></td><td>Traditional 34%, Silver 26%, Senior Advantage 22%, Deductible 18%</td></tr>
+          <tr><td class="lead">Against target</td><td><span class="dimb pg">Bullet</span></td><td><b>43.1%</b> against a 35% target. Ahead, and still 836 members stuck</td></tr>
+          <tr><td class="lead">Registration trend</td><td><span class="dimb pg">Line</span></td><td>Flat, with a three day dip in late August</td></tr>
+          <tr class="hi"><td class="lead">Typical call length</td><td><span class="dimb ln">Histogram</span></td><td>Mean is <b>701 seconds</b>, but the distribution is bimodal</td></tr>
+        </tbody>
+      </table>
+      <div class="ansbox"><b>Question 5 is the teaching one.</b> The mean handle time is 701 seconds, about 11 minutes 40. A histogram shows two humps: short resolved calls, and a long tail of calls that ran over ten minutes and ended abandoned or transferred. <b>84 calls were abandoned entirely.</b> The average describes almost nobody.</div>
+      <p class="mini"><span class="ph">[Replace with screenshots from the live sandbox before the session.]</span></p>
+    </div>
+    <div class="notes-src">Four minutes. Spend three of them on question 5. This is the first time in the week that a single statistic is shown to be misleading, and it sets up both the bucketing work on Day 4 and the general habit of looking at shape rather than centre. The 84 abandoned calls become a segment on Day 4.</div>
+  </section>
+
+  <!-- 15 BREAK -->
+  <section data-min="15" class="slide section">
+    <div class="inner">
+      <div class="num">Break</div>
+      <h1>15 minutes</h1>
+      <p class="sub">Back for fallout and flow, which is where the 836 finally get a picture.</p>
+    </div>
+    <div class="notes-src">Fifteen minutes.</div>
+  </section>
+
+  <!-- 16 DIVIDER -->
+  <section data-min="1" class="slide section">
+    <div class="inner">
+      <div class="num">Section 2</div>
+      <h1>Fallout, flow and cohorts</h1>
+      <p class="sub">Three ways of asking what happened next.</p>
+    </div>
+    <div class="notes-src">Divider.</div>
+  </section>
+
+  <!-- 17 FALLOUT WHAT -->
+  <section data-min="5" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Fallout</p>
+      <h2>Fallout answers one question</h2>
+      <p class="lead">Of the people who reached step one, how many reached step two, and step three, and so on to the end?</p>
+      <ul class="bul">
+        <li>You define the path. Fallout does not discover it.</li>
+        <li>Each touchpoint can be a dimension item, a metric, or a segment. They can come from different datasets, which is the cross-channel part.</li>
+        <li>The output is a count and a percentage at every step, plus the drop between steps.</li>
+        <li>Right click any step to segment, trend or break down the people who fell out there.</li>
+      </ul>
+      <div class="callout">Use fallout when you already believe in the path. Use flow when you want to find out what the path actually is.</div>
+    </div>
+    <div class="notes-src">Five minutes. The callout is the distinction people get wrong and the exam tests. Press the point that touchpoints can span datasets: a fallout that goes enrollment, web registration, then a phone call is doing something no single-channel tool can do, and it is the argument for CJA in one visualization.</div>
+  </section>
+
+  <!-- 18 FALLOUT MECHANICS -->
+  <section data-min="7" class="slide">
+    <div class="inner" style="max-width:1140px;">
+      <p class="eyebrow">Fallout</p>
+      <h2>Three settings that change the answer</h2>
+      <div class="three">
+        <div class="opt2">
+          <div class="ol">CONTAINER</div>
+          <div class="ot">Person or session</div>
+          <div class="od">Person lets the path span weeks. Session requires it all in one sitting. For AcmeHealth onboarding, person is almost always right.</div>
+        </div>
+        <div class="opt2">
+          <div class="ol">PATH TYPE</div>
+          <div class="ot">Eventual or exact</div>
+          <div class="od">Eventual allows other events in between. Exact requires the next touchpoint to be the very next event. Eventual is the default and usually what you mean.</div>
+        </div>
+        <div class="opt2">
+          <div class="ol">COMPARISON</div>
+          <div class="ot">A second series</div>
+          <div class="od">Drop a segment onto the fallout to overlay a second population and read both drop-off curves against each other.</div>
+        </div>
+      </div>
+      <div class="callout"><b>Exact path on a web journey nearly always returns near zero.</b> Real people load a page, go back, check something else, then continue. If your fallout collapses at step two, check this setting before you check the data.</div>
+    </div>
+    <div class="notes-src">Seven minutes. The exact against eventual trap is the single most useful debugging tip in the whole visualization section, and it is a plausible exam question. The comparison series is what lab 3.2 is built around, so introduce it properly here rather than as an afterthought.</div>
+  </section>
+
+  <!-- 19 SAMPLE FALLOUT -->
+  <section data-min="4" class="slide">
+    <div class="inner" style="max-width:1160px;">
+      <p class="eyebrow">Sample report</p>
+      <h2 style="margin-bottom:4px;">Where does the guided member welcome break?</h2>
+      <div class="viz">
+        <div class="viz-cap">Fallout · person container · eventual path</div>
+        <div class="fo">
+          <div class="fo-step"><div class="fo-name">Enrolled</div><div class="fo-wrap"><div class="fo-bar" style="width:100%">100%</div></div><div class="fo-meta">5,000</div></div>
+          <div class="fo-drop">&#9660; 29.0% drop-off</div>
+          <div class="fo-step"><div class="fo-name">Registration started</div><div class="fo-wrap"><div class="fo-bar" style="width:71%">71.0%</div></div><div class="fo-meta">3,550</div></div>
+          <div class="fo-drop">&#9660; 11.3% drop-off</div>
+          <div class="fo-step"><div class="fo-name">Registration complete</div><div class="fo-wrap"><div class="fo-bar" style="width:63%">63.0%</div></div><div class="fo-meta">3,150</div></div>
+          <div class="fo-drop">&#9660; 17.5% drop-off</div>
+          <div class="fo-step"><div class="fo-name">Checklist started</div><div class="fo-wrap"><div class="fo-bar" style="width:52%">52.0%</div></div><div class="fo-meta">2,600</div></div>
+          <div class="fo-drop">&#9660; 15.4% drop-off</div>
+          <div class="fo-step"><div class="fo-name">Reached select PCP</div><div class="fo-wrap"><div class="fo-bar" style="width:44%">44.0%</div></div><div class="fo-meta">2,200</div></div>
+          <div class="fo-drop">&#9660; 38.0% drop-off</div>
+          <div class="fo-step"><div class="fo-name">Completed select PCP</div><div class="fo-wrap"><div class="fo-bar" style="width:27.3%">27.3%</div></div><div class="fo-meta">1,364</div></div>
+          <div class="fo-drop">&#9660; 17.9% drop-off</div>
+          <div class="fo-step"><div class="fo-name">Checklist complete</div><div class="fo-wrap"><div class="fo-bar" style="width:22.4%">22.4%</div></div><div class="fo-meta">1,120</div></div>
+        </div>
+      </div>
+      <div class="viz-note">Every drop is between 11 and 29 percent except one. <b>Select PCP loses 38 percent of the people who reach it</b>, which is 836 members, more than the other six checklist steps combined.</div>
+    </div>
+    <div class="notes-src">Four minutes. They have seen 836 three times now and this is the first time it has a shape. Point out that the first drop, enrollment to registration at 29 percent, is numerically the biggest single loss, and ask why we are focused on PCP instead. The answer is that 29 percent of a cold audience is normal and 38 percent inside an authenticated checklist is not. Benchmarks matter more than magnitudes.</div>
+  </section>
+
+  <!-- 20 I DO FALLOUT -->
+  <section data-min="6" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Fallout · Watch</p>
+      <h2>I do: build it</h2>
+      <ol class="steps">
+        <li>Drag <b>Fallout</b> onto the canvas. Confirm the container is set to <b>person</b>.</li>
+        <li>Drop in the six touchpoints in order, narrating each source: enrollment is the membership file, registration and the checklist are web.</li>
+        <li>Toggle to <b>exact path</b>, let the room watch it collapse, then toggle back.</li>
+        <li>Right click the select PCP step and show <b>breakdown</b> without using it.</li>
+      </ol>
+      <div class="callout">Step 3 is the demonstration that matters. Break it deliberately so they recognise the symptom when they cause it accidentally.</div>
+    </div>
+    <div class="notes-src">Six minutes, presenter driving, nobody typing. The exact path collapse is genuinely dramatic and it inoculates the room. End on the right click menu without using it, because the next lab needs them to find it themselves.</div>
+  </section>
+
+  <!-- 21 LAB 3.2 ACTIVITY -->
+  <section data-min="10" class="slide">
+    <div class="inner" style="max-width:1220px;">
+      <div class="act-head"><p class="eyebrow" style="margin:0;">Fallout</p><span class="chip">Breakout room</span><span class="chip time">10 mins</span></div>
+      <h2 style="margin-bottom:2px;">Hands-on: who gets past the primary care step?</h2>
+      <p class="act-sub">Work in your room. One person shares screen.</p>
+      <div class="act3">
+        <div class="abox">
+          <div class="al">EXERCISE</div>
+          <div class="at">Fallout with a comparison</div>
+          <p>836 members start choosing a primary care physician and never finish. Somebody must be getting through more often than others.</p>
+          <p>You have a survey depth segment from yesterday. Use it to split the curve.</p>
+        </div>
+        <div class="abox">
+          <div class="al">INSTRUCTIONS</div>
+          <div class="at">Build the fallout</div>
+          <ol class="anum">
+            <li>Fallout, <b>person</b> container, <b>eventual</b> path, panel on <b>last 90 days</b>.</li>
+            <li>Six touchpoints: enrolled, registration started, registration complete, checklist started, select PCP started, select PCP complete.</li>
+            <li>Drop the segment <b>completed all four survey sections</b> onto the fallout as a second series.</li>
+            <li>Right click the select PCP drop and break it down by <b>Region</b>.</li>
+            <li>Save as <b>Room <span class="ph">[N]</span> · PCP fallout</b>.</li>
+          </ol>
+        </div>
+        <div class="abox task">
+          <div class="al">YOUR TASK</div>
+          <div class="at">Answer the question</div>
+          <div class="qmark"><div class="qi">?</div><span>What percentage of members who completed the whole survey get through the select PCP step, and how does that compare with everyone else?</span></div>
+          <div class="act-foot">Walkthrough and Q and A to follow</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-src">Ten minutes. This is the highest value activity of the week. Expected answer is 72.4 percent against 59.8 percent. Watch for rooms that drop the segment onto the panel rather than the visualization, which segments everything and loses the comparison. The region breakdown is a bonus if they get there; Southern California is worst at 35.3 percent completion overall.</div>
+  </section>
+
+  <!-- 22 LAB 3.2 SOLUTION -->
+  <section data-min="5" class="slide">
+    <div class="inner" style="max-width:1180px;">
+      <p class="eyebrow">Fallout</p>
+      <h2 style="margin-bottom:8px;">Hands-on: solution</h2>
+      <div class="soln">
+        <div class="shot">
+          <div class="sh">Select PCP completion, by survey depth</div>
+          <div class="bc">
+            <div class="bc-row"><div class="bc-label">All four sections</div><div class="bc-track"><div class="bc-fill hi" style="width:72.4%">72.4%</div></div></div>
+            <div class="bc-row"><div class="bc-label">Everyone else</div><div class="bc-track"><div class="bc-fill" style="width:59.8%">59.8%</div></div></div>
+          </div>
+          <p class="mini">488 members completed all four sections. They clear the step 12.6 points more often.</p>
+        </div>
+        <div class="shot">
+          <div class="sh">Checklist completion by region</div>
+          <table class="ff">
+            <tbody>
+              <tr><td class="lead">Hawaii</td><td class="num">52.4%</td></tr>
+              <tr><td class="lead">Colorado</td><td class="num">49.7%</td></tr>
+              <tr><td class="lead">Mid-Atlantic</td><td class="num">44.5%</td></tr>
+              <tr><td class="lead">Northern California</td><td class="num">43.7%</td></tr>
+              <tr class="hi"><td class="lead">Southern California</td><td class="num">35.3%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="ansbox"><b>72.4 percent against 59.8 percent.</b> Members who engaged with the survey are substantially more likely to get through the hardest step. That is Day 1's third question, answered on data you generated, and it is a correlation rather than a cause. The survey did not fix the page. Engaged members were always going to be more persistent.</div>
+    </div>
+    <div class="notes-src">Five minutes. Say the causation caveat out loud, because somebody will leave this room and tell a product owner that sending more surveys will fix PCP selection. The honest reading is that survey depth is a useful predictor of persistence, which makes it good for targeting and useless as an intervention. Hawaii leading on 253 members previews the small sample caution.</div>
+  </section>
+
+  <!-- 23 FLOW WHAT -->
+  <section data-min="5" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Flow</p>
+      <h2>Flow answers the opposite question</h2>
+      <p class="lead">Given that people were here, where did they actually go?</p>
+      <ul class="bul">
+        <li>You pick a starting point. Flow discovers the paths outward, ranked by volume.</li>
+        <li>Forward, backward, or both. Two steps, three steps, as far as you want.</li>
+        <li>Nodes can be dimension items or metrics, and can come from any dataset in the connection.</li>
+        <li>Click any node to expand it, or to make it the new centre.</li>
+      </ul>
+      <div class="callout">Fallout tests a hypothesis. Flow generates one. After the last lab you know 836 people leave at select PCP. Flow tells you where they went.</div>
+    </div>
+    <div class="notes-src">Five minutes. The pairing with fallout is the point: they have just measured a hole, and now they find out what is on the other side of it. Keep the framing as hypothesis testing against hypothesis generation, because that is the language analysts will reuse.</div>
+  </section>
+
+  <!-- 24 FLOW MECHANICS -->
+  <section data-min="6" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Flow</p>
+      <h2>The settings that matter</h2>
+      <ul class="bul">
+        <li><b>Container.</b> Person or session, same meaning as fallout. Session flow stops at the end of the visit.</li>
+        <li><b>Include repeat instances.</b> On, a page that reloads shows as a loop back to itself. Off, consecutive repeats collapse. Turn it off for readability, on for diagnosing loops.</li>
+        <li><b>Entry and exit nodes.</b> Flow marks where people arrived from outside and where they left entirely.</li>
+        <li><b>Dimension choice.</b> Page name gives you navigation. Journey step gives you progress. They tell different stories.</li>
+      </ul>
+      <div class="callout">A big exit node next to a failing step is the finding. It means people did not go elsewhere in the product, they left.</div>
+    </div>
+    <div class="notes-src">Six minutes. Repeat instances is the setting that makes a flow readable or unreadable, so demo the toggle if you can. The exit node point is what makes the next lab land, because the answer includes a substantial exit and that is worse news than a detour.</div>
+  </section>
+
+  <!-- 25 SAMPLE FLOW -->
+  <section data-min="4" class="slide">
+    <div class="inner" style="max-width:1180px;">
+      <p class="eyebrow">Sample report</p>
+      <h2 style="margin-bottom:4px;">What happens after someone abandons the primary care step?</h2>
+      <div class="viz">
+        <div class="viz-cap">Flow · person container · two steps forward from select PCP start</div>
+        <svg viewBox="0 0 1120 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+          <rect width="1120" height="300" fill="#fff"/>
+          <rect x="40" y="110" width="190" height="70" rx="10" fill="#f4eefb" stroke="#5b2a9d" stroke-width="2"/>
+          <text x="135" y="140" font-family="Inter" font-size="13" font-weight="700" fill="#3f1d78" text-anchor="middle">Select PCP started</text>
+          <text x="135" y="162" font-family="Inter" font-size="12" fill="#7c7a85" text-anchor="middle">2,200 people</text>
+          <path d="M230 135 C 300 135, 320 60, 400 60" stroke="#8a5fce" stroke-width="16" fill="none" opacity=".55"/>
+          <path d="M230 148 C 300 148, 320 145, 400 145" stroke="#c0392b" stroke-width="12" fill="none" opacity=".5"/>
+          <path d="M230 160 C 300 160, 320 215, 400 215" stroke="#8a5fce" stroke-width="7" fill="none" opacity=".4"/>
+          <path d="M230 170 C 300 170, 320 275, 400 275" stroke="#8a5fce" stroke-width="5" fill="none" opacity=".3"/>
+          <rect x="400" y="32" width="210" height="58" rx="10" fill="#fff" stroke="#e7e5ea"/>
+          <text x="505" y="56" font-family="Inter" font-size="12.5" font-weight="600" fill="#17161d" text-anchor="middle">Select PCP complete</text>
+          <text x="505" y="76" font-family="Inter" font-size="11.5" fill="#7c7a85" text-anchor="middle">1,364 · 62.0%</text>
+          <rect x="400" y="118" width="210" height="58" rx="10" fill="#fdecea" stroke="#c0392b"/>
+          <text x="505" y="142" font-family="Inter" font-size="12.5" font-weight="700" fill="#c0392b" text-anchor="middle">Exit</text>
+          <text x="505" y="162" font-family="Inter" font-size="11.5" fill="#c0392b" text-anchor="middle">511 · 23.2%</text>
+          <rect x="400" y="190" width="210" height="52" rx="10" fill="#fff" stroke="#e7e5ea"/>
+          <text x="505" y="212" font-family="Inter" font-size="12.5" font-weight="600" fill="#17161d" text-anchor="middle">Find a Doctor page</text>
+          <text x="505" y="230" font-family="Inter" font-size="11.5" fill="#7c7a85" text-anchor="middle">208 · 9.5%</text>
+          <rect x="400" y="252" width="210" height="44" rx="10" fill="#fff" stroke="#e7e5ea"/>
+          <text x="505" y="270" font-family="Inter" font-size="12.5" font-weight="600" fill="#17161d" text-anchor="middle">Contact centre call</text>
+          <text x="505" y="287" font-family="Inter" font-size="11.5" fill="#7c7a85" text-anchor="middle">117 · 5.3%</text>
+          <path d="M610 145 C 700 145, 720 145, 800 145" stroke="#c0392b" stroke-width="10" fill="none" opacity=".35"/>
+          <rect x="800" y="112" width="230" height="66" rx="10" fill="#fdecea" stroke="#c0392b" stroke-dasharray="4 3"/>
+          <text x="915" y="138" font-family="Inter" font-size="12.5" font-weight="700" fill="#c0392b" text-anchor="middle">No further activity</text>
+          <text x="915" y="158" font-family="Inter" font-size="11.5" fill="#c0392b" text-anchor="middle">within 30 days</text>
+        </svg>
+      </div>
+      <div class="viz-note">Of the 836 who do not complete, the largest single destination is <b>exit</b>. They did not go somewhere else in the product. They left, and most did not come back within 30 days. Only 117 called.</div>
+    </div>
+    <div class="notes-src">Four minutes. The finding is uncomfortable and that is why it is useful: a failing step that produces a detour is a usability problem, a failing step that produces an exit is a retention problem, and they get different owners. The 117 who called are the bridge to Day 4, because those are the calls whose transcripts the room will score.</div>
+  </section>
+
+  <!-- 26 LAB 3.3 ACTIVITY -->
+  <section data-min="10" class="slide">
+    <div class="inner" style="max-width:1220px;">
+      <div class="act-head"><p class="eyebrow" style="margin:0;">Flow</p><span class="chip">Breakout room</span><span class="chip time">10 mins</span></div>
+      <h2 style="margin-bottom:2px;">Hands-on: where do they go instead?</h2>
+      <p class="act-sub">Work in your room. One person shares screen.</p>
+      <div class="act3">
+        <div class="abox">
+          <div class="al">EXERCISE</div>
+          <div class="at">Flow out of the failing step</div>
+          <p>You know 836 members stall at select PCP. Now find out what they do next, and whether any of it is recoverable.</p>
+        </div>
+        <div class="abox">
+          <div class="al">INSTRUCTIONS</div>
+          <div class="at">Build the flow</div>
+          <ol class="anum">
+            <li>Flow visualization, <b>person</b> container, <b>two steps forward</b>.</li>
+            <li>Focus on <b>Journey Step</b> equals <b>select-pcp start</b>.</li>
+            <li>Turn <b>repeat instances</b> off, then on. Note which is readable.</li>
+            <li>Apply your <b>abandoned PCP selection</b> segment from yesterday and compare.</li>
+          </ol>
+        </div>
+        <div class="abox task">
+          <div class="al">YOUR TASK</div>
+          <div class="at">Answer the question</div>
+          <div class="qmark"><div class="qi">?</div><span>What is the single largest destination after someone starts the select PCP step and does not complete it?</span></div>
+          <div class="act-foot">Walkthrough and Q and A to follow</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-src">Ten minutes. Expected answer: exit, at roughly 23 percent, larger than any in-product destination. Some rooms will answer Find a Doctor because it is the biggest labelled box and exit does not feel like a destination. That mistake is worth surfacing in the debrief, because exit is a node like any other and ignoring it is how teams miss churn.</div>
+  </section>
+
+  <!-- 27 LAB 3.3 SOLUTION -->
+  <section data-min="4" class="slide">
+    <div class="inner" style="max-width:1120px;">
+      <p class="eyebrow">Flow</p>
+      <h2 style="margin-bottom:8px;">Hands-on: solution</h2>
+      <table class="ff">
+        <thead><tr><th>Destination after select PCP start</th><th class="num">People</th><th class="num">Share</th><th>What it means</th></tr></thead>
+        <tbody>
+          <tr><td class="lead">Select PCP complete</td><td class="num">1,364</td><td class="num">62.0%</td><td>Got through</td></tr>
+          <tr class="hi"><td class="lead">Exit</td><td class="num">511</td><td class="num">23.2%</td><td><b>Left the product entirely</b></td></tr>
+          <tr><td class="lead">Find a Doctor page</td><td class="num">208</td><td class="num">9.5%</td><td>Tried to solve it a different way</td></tr>
+          <tr><td class="lead">Contact centre call</td><td class="num">117</td><td class="num">5.3%</td><td>Escalated to a human</td></tr>
+        </tbody>
+      </table>
+      <div class="ansbox"><b>Exit, at 23.2 percent.</b> The most common thing a stalled member does next is nothing. Only one in seven of the people who fail this step asks anyone for help, which means the contact centre volume badly understates the size of the problem.</div>
+      <p class="mini"><span class="ph">[Replace with screenshots from the live sandbox before the session.]</span></p>
+    </div>
+    <div class="notes-src">Four minutes. The last sentence of the answer box is the insight to leave them with: contact centre volume is a biased sample of member difficulty, because most people who struggle never call. That is a genuinely useful thing for a health plan analyst to internalise, and it is why the web data matters.</div>
+  </section>
+
+  <!-- 28 COHORT -->
+  <section data-min="3" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Cohort tables</p>
+      <h2>The third question: do they come back?</h2>
+      <ul class="bul tight">
+        <li><b>Retention.</b> Of the people who did X in a period, how many did Y in each later period.</li>
+        <li><b>Churn.</b> The inverse view, showing who stopped.</li>
+        <li><b>Latency.</b> How long between the inclusion event and the return event.</li>
+        <li><b>Custom.</b> Choose the inclusion metric and the return metric independently.</li>
+      </ul>
+      <div class="callout">Cohorts need time. A 90 day window gives you roughly twelve weekly cohorts, which is enough to see a pattern and not enough to be certain of one.</div>
+    </div>
+    <div class="notes-src">Three minutes, named rather than taught, because guided analysis covers retention after lunch with less setup. The honest caveat about 90 days is worth saying: this is a training sandbox, and in production they would want a year.</div>
+  </section>
+
+  <!-- 29 DIVIDER -->
+  <section data-min="1" class="slide section">
+    <div class="inner">
+      <div class="num">Section 3</div>
+      <h1>Journey canvas</h1>
+      <p class="sub">The whole cross-channel journey, in one picture, with branches.</p>
+    </div>
+    <div class="notes-src">Divider. This is the centrepiece of the day.</div>
+  </section>
+
+  <!-- 30 CANVAS VS FALLOUT -->
+  <section data-min="6" class="slide">
+    <div class="inner" style="max-width:1120px;">
+      <p class="eyebrow">Journey canvas</p>
+      <h2>Why not just use fallout?</h2>
+      <div class="two">
+        <div class="opt2">
+          <div class="ol">FALLOUT</div>
+          <div class="ot">One straight line</div>
+          <div class="od">A single ordered sequence. Every person either continues or drops. No branches, no alternative routes, no rejoining.</div>
+        </div>
+        <div class="opt2">
+          <div class="ol">JOURNEY CANVAS</div>
+          <div class="ot">A map with junctions</div>
+          <div class="od">Multiple entry points, branching decision points, paths that split and rejoin. Shows both fallout and fallthrough at every node.</div>
+        </div>
+      </div>
+      <ul class="bul tight" style="margin-top:18px;">
+        <li>Drag and drop nodes onto a canvas and connect them.</li>
+        <li>A node can be an event, a dimension item, a segment or a date range.</li>
+        <li>You can build a journey from scratch, or pull one in from Journey Optimizer and measure the journey somebody actually designed.</li>
+        <li>Exclude nodes, compare the journey to a prior period, and create segments and audiences from any node's fallout.</li>
+      </ul>
+    </div>
+    <div class="notes-src">Six minutes. The Journey Optimizer link is the one to emphasise for this audience: on Friday they build an AJO journey, and the canvas is how they will measure whether it worked. That closes the loop between the two products and it is a genuine differentiator worth knowing about.</div>
+  </section>
+
+  <!-- 31 NODES -->
+  <section data-min="5" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Journey canvas</p>
+      <h2>What a node can be</h2>
+      <ul class="bul">
+        <li><b>An event.</b> Registration complete, a checklist step, a call record.</li>
+        <li><b>A dimension item.</b> A specific page, a specific tactic, a specific call queue.</li>
+        <li><b>A segment.</b> Which lets you put "members who completed the survey" in the middle of a path.</li>
+        <li><b>A date range.</b> For journeys where timing is the condition.</li>
+      </ul>
+      <div class="callout">Because a node can be a segment, the canvas can express things a funnel cannot: enrolled, then either opened a nudge or did not, then registered. Two routes to the same outcome, measured separately.</div>
+    </div>
+    <div class="notes-src">Five minutes. The segment-as-node idea is what unlocks the interesting journeys and it is not obvious, so give it the callout and an example. This is also the setup for the branching structure they build in the lab.</div>
+  </section>
+
+  <!-- 32 FALLTHROUGH -->
+  <section data-min="5" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Journey canvas</p>
+      <h2>Fallout and fallthrough at every node</h2>
+      <ul class="bul tight">
+        <li><b>Fallthrough</b> is the people who continued from this node to the next one you connected.</li>
+        <li><b>Fallout</b> is everyone else who reached this node and went no further along that path.</li>
+        <li>Select a node to see the top dimension items that come <b>before</b> or <b>after</b> it, at any point in the journey rather than only immediately.</li>
+        <li>Compare the whole journey to four weeks ago, two quarters ago, a year ago, or a custom range.</li>
+        <li>Turn any node's fallout into a segment, a trend, an audience or a breakdown, without leaving the visualization.</li>
+      </ul>
+      <div class="callout">That last point is the workflow: find the leak on the canvas, turn it into an audience, and hand it to Journey Optimizer. You will do exactly that on Friday.</div>
+    </div>
+    <div class="notes-src">Five minutes. Emphasise the node-to-audience path because it is the through-line of the week and it is what makes this more than a reporting exercise. The comparison feature is newer and worth demoing if the sandbox has data a year back, which ours does not, so say so rather than pretending.</div>
+  </section>
+
+  <!-- 33 SAMPLE CANVAS -->
+  <section data-min="5" class="slide">
+    <div class="inner" style="max-width:1200px;">
+      <p class="eyebrow">Sample report</p>
+      <h2 style="margin-bottom:4px;">The AcmeHealth journey, five sources, one canvas</h2>
+      <div class="viz">
+        <div class="viz-cap">Journey canvas · person container · last 90 days</div>
+        <svg viewBox="0 0 1160 290" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+          <rect width="1160" height="290" fill="#fff"/>
+          <g font-family="Inter" font-size="11.5">
+            <rect x="20" y="110" width="150" height="62" rx="10" fill="#eceaf1" stroke="#546E7A" stroke-width="2"/>
+            <text x="95" y="134" font-size="12.5" font-weight="700" fill="#17161d" text-anchor="middle">Enrolled</text>
+            <text x="95" y="154" fill="#7c7a85" text-anchor="middle">5,000 · membership</text>
+            <line x1="170" y1="141" x2="210" y2="141" stroke="#a9a7b0" stroke-width="2"/>
+            <rect x="210" y="110" width="150" height="62" rx="10" fill="#fff3e0" stroke="#E34F26" stroke-width="2"/>
+            <text x="285" y="134" font-size="12.5" font-weight="700" fill="#17161d" text-anchor="middle">Nudge opened</text>
+            <text x="285" y="154" fill="#7c7a85" text-anchor="middle">2,412 · marketing</text>
+            <line x1="360" y1="141" x2="400" y2="141" stroke="#a9a7b0" stroke-width="2"/>
+            <rect x="400" y="110" width="150" height="62" rx="10" fill="#e8f5e9" stroke="#2E7D32" stroke-width="2"/>
+            <text x="475" y="134" font-size="12.5" font-weight="700" fill="#17161d" text-anchor="middle">Registered</text>
+            <text x="475" y="154" fill="#7c7a85" text-anchor="middle">3,150 · web</text>
+            <line x1="550" y1="141" x2="590" y2="141" stroke="#a9a7b0" stroke-width="2"/>
+            <rect x="590" y="110" width="150" height="62" rx="10" fill="#e8f5e9" stroke="#2E7D32" stroke-width="2"/>
+            <text x="665" y="134" font-size="12.5" font-weight="700" fill="#17161d" text-anchor="middle">Select PCP start</text>
+            <text x="665" y="154" fill="#7c7a85" text-anchor="middle">2,200 · web</text>
+            <path d="M740 128 C 790 128, 800 55, 850 55" stroke="#2E7D32" stroke-width="3" fill="none"/>
+            <path d="M740 155 C 790 155, 800 232, 850 232" stroke="#c0392b" stroke-width="3" fill="none"/>
+            <rect x="850" y="26" width="160" height="58" rx="10" fill="#e8f5e9" stroke="#2E7D32" stroke-width="2"/>
+            <text x="930" y="50" font-size="12.5" font-weight="700" fill="#17161d" text-anchor="middle">Completed</text>
+            <text x="930" y="70" fill="#2E7D32" text-anchor="middle">1,364 fallthrough</text>
+            <rect x="850" y="203" width="160" height="58" rx="10" fill="#fdecea" stroke="#c0392b" stroke-width="2"/>
+            <text x="930" y="227" font-size="12.5" font-weight="700" fill="#c0392b" text-anchor="middle">Stalled</text>
+            <text x="930" y="247" fill="#c0392b" text-anchor="middle">836 fallout</text>
+            <path d="M930 261 C 930 280, 1010 280, 1040 258" stroke="#EF6C00" stroke-width="2.5" fill="none" stroke-dasharray="5 3"/>
+            <rect x="1030" y="196" width="115" height="58" rx="10" fill="#fff3e0" stroke="#EF6C00" stroke-width="2"/>
+            <text x="1087" y="220" font-size="12.5" font-weight="700" fill="#17161d" text-anchor="middle">Called</text>
+            <text x="1087" y="240" fill="#EF6C00" text-anchor="middle">117 · telephony</text>
+          </g>
+        </svg>
+      </div>
+      <div class="viz-note">Membership, marketing, web and telephony in one picture, for the same 5,000 people. <b>No single system holds this journey.</b> That is the argument for the whole week, in one visualization.</div>
+    </div>
+    <div class="notes-src">Five minutes. Let this one sit. Point at the four colours and name the source system behind each. This is the slide participants will screenshot and show their own leadership, so make sure they know the reason it is possible is the stitch they learned about on Monday.</div>
+  </section>
+
+  <!-- 34 I DO CANVAS -->
+  <section data-min="6" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Journey canvas · Watch</p>
+      <h2>I do: the first three nodes</h2>
+      <ol class="steps">
+        <li>Open <b><span class="ph">[Day 3 canvas starter]</span></b>. Three nodes are already placed.</li>
+        <li>Walk through how each was defined and which dataset it came from.</li>
+        <li>Add the fourth node, select PCP start, and connect it.</li>
+        <li>Select the node and show fallthrough against fallout.</li>
+      </ol>
+      <div class="callout">Node definitions are fiddly. Starting from three pre-placed nodes is the difference between a 16 minute lab and a 40 minute one.</div>
+    </div>
+    <div class="notes-src">Six minutes. The starter project is essential, do not skip building it beforehand. Narrate the dataset behind each node out loud, because the cross-channel point is invisible unless somebody says it.</div>
+  </section>
+
+  <!-- 35 LAB 3.4 ACTIVITY -->
+  <section data-min="16" class="slide">
+    <div class="inner" style="max-width:1220px;">
+      <div class="act-head"><p class="eyebrow" style="margin:0;">Journey canvas</p><span class="chip">Breakout room</span><span class="chip time">16 mins</span></div>
+      <h2 style="margin-bottom:2px;">Hands-on: build the cross-channel journey</h2>
+      <p class="act-sub">The centrepiece of the week. Work in your room, one person shares screen.</p>
+      <div class="act3">
+        <div class="abox">
+          <div class="al">EXERCISE</div>
+          <div class="at">Five sources, one journey</div>
+          <p>Build the journey a new AcmeHealth member actually takes, spanning the membership file, the campaign file, the website and the contact centre.</p>
+          <p>Three nodes are pre-placed in the starter project. You add the branch.</p>
+        </div>
+        <div class="abox">
+          <div class="al">INSTRUCTIONS</div>
+          <div class="at">Extend the canvas</div>
+          <ol class="anum">
+            <li>Open <b><span class="ph">[Day 3 canvas starter]</span></b>, duplicate it, rename with your room number.</li>
+            <li>Add node 4: <b>select PCP start</b>. Connect it to registered.</li>
+            <li>Branch from node 4. Node 5a: <b>select PCP complete</b>. Node 5b: <b>a contact centre call</b>.</li>
+            <li>Add node 6: <b>first appointment booked</b>, connected from 5a.</li>
+            <li>Turn the <b>fallout at node 4</b> into a segment using the right click menu.</li>
+          </ol>
+        </div>
+        <div class="abox task">
+          <div class="al">YOUR TASK</div>
+          <div class="at">Answer the question</div>
+          <div class="qmark"><div class="qi">?</div><span>How many of the members who stall at select PCP go on to call the contact centre, and what share of the stalled group is that?</span></div>
+          <div class="act-foot">Walkthrough and Q and A to follow</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-src">Sixteen minutes and it will use all of them. Expected answer: 117 of 836, about 14 percent. Circulate hard; node definition is where people get stuck and a two minute intervention saves a room. The segment created in step 5 is used again on Friday, so make sure every room saves it with their room number.</div>
+  </section>
+
+  <!-- 36 LAB 3.4 SOLUTION -->
+  <section data-min="6" class="slide">
+    <div class="inner" style="max-width:1160px;">
+      <p class="eyebrow">Journey canvas</p>
+      <h2 style="margin-bottom:8px;">Hands-on: solution</h2>
+      <div class="soln">
+        <div class="shot">
+          <div class="sh">Node 4 · select PCP start · 2,200 people</div>
+          <table class="ff">
+            <tbody>
+              <tr><td class="lead">Fallthrough to complete</td><td class="num">1,364</td><td class="num">62.0%</td></tr>
+              <tr class="hi"><td class="lead">Fallout, stalled</td><td class="num">836</td><td class="num">38.0%</td></tr>
+              <tr><td class="lead">Of those, called</td><td class="num">117</td><td class="num">14.0%</td></tr>
+              <tr><td class="lead">Of those, no further activity</td><td class="num">511</td><td class="num">61.1%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="shot">
+          <div class="sh">What each node cost you to build</div>
+          <ul class="bul tight" style="margin:0;">
+            <li>Enrolled came from the <b>membership file</b>, loaded as a batch.</li>
+            <li>Nudge opened came from the <b>campaign file</b>.</li>
+            <li>Registered and select PCP came from the <b>website</b>, streaming.</li>
+            <li>Called came from the <b>contact centre file</b>.</li>
+            <li>All four resolve to one person because of the <b>identity stitch</b>.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ansbox"><span class="big">117</span><b>of 836, or 14 percent.</b> Seven in eight members who stall never contact anyone. If you sized this problem from call volume alone you would estimate it at roughly one seventh of its real size.</div>
+    </div>
+    <div class="notes-src">Six minutes and worth protecting. Two debrief points. First, the 14 percent: operational teams routinely size digital problems from contact volume and this shows the multiplier. Second, the right hand panel: ask what would have been needed to build this in their current tooling, and let the room answer. That is the business case for CJA, made by them rather than by you.</div>
+  </section>
+
+  <!-- 37 LUNCH -->
+  <section data-min="60" class="slide section">
+    <div class="inner">
+      <div class="num">Lunch</div>
+      <h1>1 hour</h1>
+      <p class="sub">This afternoon: guided analyses, date ranges, anomalies and alerts, and getting the answer out of the building.</p>
+    </div>
+    <div class="notes-src">One hour. Anyone whose canvas did not finish should pair up after lunch rather than falling behind; the afternoon does not depend on it.</div>
+  </section>
+
+  <!-- 38 DIVIDER -->
+  <section data-min="1" class="slide section">
+    <div class="inner">
+      <div class="num">Section 4</div>
+      <h1>Guided analyses</h1>
+      <p class="sub">The same questions, without building anything.</p>
+    </div>
+    <div class="notes-src">Divider.</div>
+  </section>
+
+  <!-- 39 WHAT IT IS -->
+  <section data-min="5" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Guided analyses</p>
+      <h2>A question and answer interface</h2>
+      <ul class="bul">
+        <li>Pick an analysis type, choose your events and segments in a query rail, read the answer.</li>
+        <li>It runs on the same data view, the same connection, the same components. Nothing is different underneath.</li>
+        <li>Every analysis can be exported into Analysis Workspace when you need to go further.</li>
+        <li>Written insight, chart and table, all three together.</li>
+      </ul>
+      <div class="callout">Some administrators give new users guided analysis and withhold Workspace until they are ready. For a product manager who needs a retention curve once a month, it is the right tool.</div>
+    </div>
+    <div class="notes-src">Five minutes. Frame it as a different door onto the same house rather than a lesser product. For this audience the useful question is who on their team should get this instead of Workspace, and the answer is usually the stakeholders who currently ask them for screenshots.</div>
+  </section>
+
+  <!-- 40 THE ELEVEN -->
+  <section data-min="6" class="slide">
+    <div class="inner" style="max-width:1160px;">
+      <p class="eyebrow">Guided analyses</p>
+      <h2>The eleven, and what each answers</h2>
+      <table class="ff">
+        <thead><tr><th>Analysis</th><th>Answers</th><th>AcmeHealth use</th></tr></thead>
+        <tbody>
+          <tr><td class="lead">Trends</td><td>How does this move over time?</td><td>Registrations by week</td></tr>
+          <tr class="hi"><td class="lead">Funnel</td><td>Where do people drop between steps?</td><td>The seven checklist steps</td></tr>
+          <tr><td class="lead">Conversion trends</td><td>Is the conversion rate itself changing?</td><td>Checklist completion week by week</td></tr>
+          <tr><td class="lead">Retention</td><td>Do they come back, and for how long?</td><td>Return visits after registration</td></tr>
+          <tr><td class="lead">Active growth</td><td>Who is new, retained, returning, dormant?</td><td>Monthly active members</td></tr>
+          <tr><td class="lead">Net growth</td><td>Are we gaining or losing overall?</td><td>Engaged member base</td></tr>
+          <tr><td class="lead">Frequency</td><td>How often, distributed?</td><td>Logins per member per month</td></tr>
+          <tr class="hi"><td class="lead">First use impact</td><td>Does doing X first change later behaviour?</td><td>Does finishing the survey change checklist completion?</td></tr>
+          <tr><td class="lead">Engagement</td><td>Breadth and depth of feature use</td><td>Which parts of the plan members actually use</td></tr>
+          <tr><td class="lead">Release impact</td><td>Before and after a change</td><td>After a page fix</td></tr>
+          <tr><td class="lead">Timeline</td><td>What does one person's activity look like?</td><td>A single member's session pattern</td></tr>
+        </tbody>
+      </table>
+      <div class="viz-note">All eleven are available on our package. The two highlighted are in the next activity, and <b>first use impact</b> answers in one click something that took you a fallout and a segment this morning.</div>
+    </div>
+    <div class="notes-src">Six minutes. Do not read the table. Teach funnel and first use impact, name the rest. The punchline to set up: this morning they built a fallout with a segment overlay to learn that survey completers do better, and first use impact answers the same question with three dropdowns. Both routes matter, and knowing when to use which is the skill.</div>
+  </section>
+
+  <!-- 41 QUERY RAIL -->
+  <section data-min="4" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Guided analyses</p>
+      <h2>The query rail</h2>
+      <ul class="bul tight">
+        <li><b>Events</b> are what you measure. Labelled steps, key indicators or start and return events depending on the analysis.</li>
+        <li><b>Segments</b> are who you measure, identified as A, B and so on in the chart.</li>
+        <li><b>Counted as</b> sets the counting method.</li>
+        <li><b>Filters</b> narrow an event by a dimension without leaving the rail.</li>
+        <li><b>Breakdown</b> splits the result, where the analysis supports it.</li>
+      </ul>
+      <div class="callout">Each analysis caps how many events and segments it will take. That constraint is the point: it is what stops the output becoming unreadable.</div>
+    </div>
+    <div class="notes-src">Four minutes. Keep it short, the lab teaches the rail better than the slide does. The constraint framing is worth saying because power users find the limits annoying until they see what an unconstrained version looks like.</div>
+  </section>
+
+  <!-- 42 LAB 3.5 ACTIVITY -->
+  <section data-min="10" class="slide">
+    <div class="inner" style="max-width:1220px;">
+      <div class="act-head"><p class="eyebrow" style="margin:0;">Guided analyses</p><span class="chip">Breakout room</span><span class="chip time">10 mins</span></div>
+      <h2 style="margin-bottom:2px;">Hands-on: the same answer, two ways</h2>
+      <p class="act-sub">Work in your room. One person shares screen.</p>
+      <div class="act3">
+        <div class="abox">
+          <div class="al">EXERCISE</div>
+          <div class="at">Funnel, then first use impact</div>
+          <p>This morning you proved that survey completers clear the primary care step more often. It took a fallout, a saved segment and a comparison series.</p>
+          <p>Now get the same finding out of the guided path and decide which you would hand to a stakeholder.</p>
+        </div>
+        <div class="abox">
+          <div class="al">INSTRUCTIONS</div>
+          <div class="at">Run both analyses</div>
+          <ol class="anum">
+            <li>Open <b>Guided analysis</b> from the homepage. Choose <b>Funnel</b>.</li>
+            <li>Four steps: checklist started, benefits complete, select PCP started, select PCP complete. Break down by <b>Plan Name</b>.</li>
+            <li>Switch the view to <b>First use impact</b>.</li>
+            <li>First use event: <b>survey section complete</b>. Key indicator: <b>select PCP complete</b>.</li>
+            <li><b>Export to Workspace</b> from the menu and see what it builds.</li>
+          </ol>
+        </div>
+        <div class="abox task">
+          <div class="al">YOUR TASK</div>
+          <div class="at">Answer the question</div>
+          <div class="qmark"><div class="qi">?</div><span>Which plan has the steepest drop at the select PCP step, and which of the two tools would you send to a product owner?</span></div>
+          <div class="act-foot">Walkthrough and Q and A to follow</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-src">Ten minutes. Expected: Deductible HMO is weakest overall at 38.2 percent checklist completion, Senior Advantage strongest at 51.7. The second half of the question is the real one and there is no single right answer; steer the debrief toward guided analysis for a recurring question a stakeholder will re-run, Workspace for anything needing a custom segment.</div>
+  </section>
+
+  <!-- 43 LAB 3.5 SOLUTION -->
+  <section data-min="4" class="slide">
+    <div class="inner" style="max-width:1120px;">
+      <p class="eyebrow">Guided analyses</p>
+      <h2 style="margin-bottom:8px;">Hands-on: solution</h2>
+      <table class="ff">
+        <thead><tr><th>Plan</th><th class="num">Checklist completion</th><th>Reading</th></tr></thead>
+        <tbody>
+          <tr><td class="lead">Senior Advantage</td><td class="num">51.7%</td><td>Strongest, and counter-intuitive</td></tr>
+          <tr><td class="lead">Silver HMO</td><td class="num">41.5%</td><td></td></tr>
+          <tr><td class="lead">Traditional HMO</td><td class="num">41.1%</td><td></td></tr>
+          <tr class="hi"><td class="lead">Deductible HMO</td><td class="num">38.2%</td><td><b>Steepest drop</b></td></tr>
+        </tbody>
+      </table>
+      <div class="ansbox"><b>Deductible HMO, at 38.2 percent.</b> On the second half: guided analysis is the better hand-off for a product owner who will re-run this monthly, because the query rail is legible and they cannot break it. Workspace is better the moment the question needs a segment you built yourself. The wrong answer is to assume the more powerful tool is always the right one to send.</div>
+    </div>
+    <div class="notes-src">Four minutes. Senior Advantage leading by ten points is worth a moment; the room will expect older members to struggle with a digital checklist and the data says otherwise. Do not explain it away, note that the finding would need qualitative follow-up, which is the right analyst instinct.</div>
+  </section>
+
+  <!-- 44 DIVIDER -->
+  <section data-min="1" class="slide section">
+    <div class="inner">
+      <div class="num">Section 5</div>
+      <h1>Time and monitoring</h1>
+      <p class="sub">Date ranges that do not need editing, and notes that survive you.</p>
+    </div>
+    <div class="notes-src">Divider.</div>
+  </section>
+
+  <!-- 45 DATE RANGES -->
+  <section data-min="6" class="slide">
+    <div class="inner" style="max-width:1120px;">
+      <p class="eyebrow">Date ranges</p>
+      <h2>Fixed, rolling and relative</h2>
+      <div class="three">
+        <div class="opt2">
+          <div class="ol">FIXED</div>
+          <div class="ot">13 Jun to 11 Sep</div>
+          <div class="od">Exact dates that never move. Right for a report about a specific period. Wrong for anything scheduled, because it will still be showing June next March.</div>
+        </div>
+        <div class="opt2">
+          <div class="ol">ROLLING</div>
+          <div class="ot">Last 30 days</div>
+          <div class="od">Recalculated every time the project opens. Right for monitoring. This is what most scheduled reports should use.</div>
+        </div>
+        <div class="opt2">
+          <div class="ol">RELATIVE</div>
+          <div class="ot">This month so far</div>
+          <div class="od">Anchored to a calendar boundary rather than a count of days. Right when the business thinks in months and quarters.</div>
+        </div>
+      </div>
+      <div class="callout"><b>The most common reporting failure in any analytics tool</b> is a scheduled report with a fixed date range. It keeps arriving, it keeps being read, and it stopped being true months ago.</div>
+    </div>
+    <div class="notes-src">Six minutes. The callout is the highest value warning of the afternoon and it connects directly to the scheduling section later. Ask how many people have received a stale dashboard; most hands go up. Relative against rolling is a genuine exam distinction, so be precise about the calendar boundary.</div>
+  </section>
+
+  <!-- 46 CUSTOM RANGES -->
+  <section data-min="5" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Date ranges</p>
+      <h2>Save a date range as a component</h2>
+      <ul class="bul">
+        <li>A custom date range lives in the component rail next to metrics and dimensions.</li>
+        <li>Build it once, use it in every project, share it with the team.</li>
+        <li>Drag one into a table column to compare periods inside a single table.</li>
+        <li>Name it for what it means, not for what it is: "Open enrollment window" rather than "Oct 15 to Dec 7".</li>
+      </ul>
+      <div class="callout">Naming matters here more than anywhere. A date range called "last quarter" that is actually fixed to Q2 will mislead everyone who uses it.</div>
+    </div>
+    <div class="notes-src">Five minutes. Date ranges as draggable components surprises people who assume the calendar picker is the only route. The naming warning is real and worth ninety seconds, because these get shared across teams and the definition travels without the context.</div>
+  </section>
+
+  <!-- 47 COMPARISON -->
+  <section data-min="4" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Date ranges</p>
+      <h2>Comparison ranges</h2>
+      <ul class="bul tight">
+        <li>Add a comparison to a panel and every visualization in it gains a second series.</li>
+        <li>Previous period, same period last year, or a custom range.</li>
+        <li>Summary change reads directly from the comparison, which is why it is the fastest headline in the tool.</li>
+        <li>You can show or hide the comparison columns without removing the comparison.</li>
+      </ul>
+      <div class="callout">Our sandbox has 90 days of data, so a year-on-year comparison returns nothing. Say that out loud in the room rather than letting somebody conclude the feature is broken.</div>
+    </div>
+    <div class="notes-src">Four minutes. The honesty callout matters: somebody will try year-on-year and get an empty chart, and if you have not pre-empted it they will spend five minutes debugging a limitation of the training data rather than a bug.</div>
+  </section>
+
+  <!-- 48 ANNOTATIONS -->
+  <section data-min="5" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Annotations</p>
+      <h2>Notes that stick to the data</h2>
+      <ul class="bul">
+        <li>Attach a note to a date or a date range. It appears on every chart covering that period, for everyone.</li>
+        <li>Scope it to a metric, a dimension or the whole data view.</li>
+        <li>Colour coded, so a release, an outage and a campaign can be told apart at a glance.</li>
+        <li>This is how institutional memory survives people leaving.</li>
+      </ul>
+      <div class="callout">Six months from now, nobody will remember why registrations halved for three days in August. An annotation is the difference between an explained dip and a recurring mystery.</div>
+    </div>
+    <div class="notes-src">Five minutes. The institutional memory framing lands with this audience, who mostly inherit dashboards from people who left. The August dip is the worked example and they annotate it in the very next activity, so the setup and the payoff are two slides apart.</div>
+  </section>
+
+  <!-- 49 LAB 3.6 ACTIVITY -->
+  <section data-min="10" class="slide">
+    <div class="inner" style="max-width:1220px;">
+      <div class="act-head"><p class="eyebrow" style="margin:0;">Time and monitoring</p><span class="chip">Breakout room</span><span class="chip time">10 mins</span></div>
+      <h2 style="margin-bottom:2px;">Hands-on: stop hard coding dates</h2>
+      <p class="act-sub">Work in your room. One person shares screen.</p>
+      <div class="act3">
+        <div class="abox">
+          <div class="al">EXERCISE</div>
+          <div class="at">A report that stays true</div>
+          <p>Build a monitoring view of registration that will still be correct in three months without anyone touching it, and label the thing that went wrong in August.</p>
+        </div>
+        <div class="abox">
+          <div class="al">INSTRUCTIONS</div>
+          <div class="at">Build and annotate</div>
+          <ol class="anum">
+            <li>Create a custom date range component, <b>rolling last 30 days</b>. Name it and save it.</li>
+            <li>Line chart of <b>registration completes</b>, daily, using your new range.</li>
+            <li>Add a <b>previous period</b> comparison to the panel.</li>
+            <li>Switch the panel to <b>last 90 days</b> and find the three day dip.</li>
+            <li>Annotate those three days. Title it, colour it, scope it to registration completes.</li>
+          </ol>
+        </div>
+        <div class="abox task">
+          <div class="al">YOUR TASK</div>
+          <div class="at">Answer the question</div>
+          <div class="qmark"><div class="qi">?</div><span>Which three dates does the dip cover, and roughly how far below a normal weekday did registrations fall?</span></div>
+          <div class="act-foot">Walkthrough and Q and A to follow</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-src">Ten minutes. Expected answer: 24, 25 and 26 August, all weekdays, at roughly half a normal weekday level. Watch for rooms annotating a weekend trough instead, which is the natural mistake, and use it in the debrief: the weekly rhythm is normal and an anomaly is a departure from the rhythm, not a low point.</div>
+  </section>
+
+  <!-- 50 LAB 3.6 SOLUTION -->
+  <section data-min="4" class="slide">
+    <div class="inner" style="max-width:1120px;">
+      <p class="eyebrow">Time and monitoring</p>
+      <h2 style="margin-bottom:8px;">Hands-on: solution</h2>
+      <div class="ansbox" style="margin-top:0;"><b>24, 25 and 26 August 2026.</b> Monday, Tuesday and Wednesday, running at roughly half the level of a normal weekday. Weekends are already low, which is why picking the three lowest days on the chart gives you the wrong answer.</div>
+      <table class="ff" style="margin-top:16px;">
+        <thead><tr><th>Annotation field</th><th>What to put in it</th></tr></thead>
+        <tbody>
+          <tr><td class="lead">Title</td><td>Registration incident, 24 to 26 Aug</td></tr>
+          <tr><td class="lead">Description</td><td>Completion rate dropped by about half. Cause under investigation. <span class="ph">[replace with the real cause]</span></td></tr>
+          <tr><td class="lead">Date range</td><td>24 Aug 2026 to 26 Aug 2026</td></tr>
+          <tr><td class="lead">Scope</td><td>Metric: registration completes</td></tr>
+          <tr><td class="lead">Colour</td><td>Red, reserved for incidents</td></tr>
+        </tbody>
+      </table>
+      <p class="mini">Agree the colour convention as a team before anyone creates a second annotation. Red for incidents, blue for releases, green for campaigns.</p>
+    </div>
+    <div class="notes-src">Four minutes. The colour convention point is small and genuinely useful: annotations are shared, so an unmanaged colour scheme becomes noise within a quarter. Leave the cause as a placeholder deliberately, because in the next section the tool identifies the dip without being told and that is a better sequence than explaining it now.</div>
+  </section>
+
+  <!-- 51 BREAK -->
+  <section data-min="15" class="slide section">
+    <div class="inner">
+      <div class="num">Break</div>
+      <h1>15 minutes</h1>
+      <p class="sub">Back to let the tool find that dip on its own.</p>
+    </div>
+    <div class="notes-src">Fifteen minutes.</div>
+  </section>
+
+  <!-- 52 DIVIDER -->
+  <section data-min="1" class="slide section">
+    <div class="inner">
+      <div class="num">Section 6</div>
+      <h1>AI capabilities</h1>
+      <p class="sub">Anomaly detection, alerts, and what the assistant can and cannot do.</p>
+    </div>
+    <div class="notes-src">Divider.</div>
+  </section>
+
+  <!-- 53 ANOMALY WHAT -->
+  <section data-min="5" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Anomaly detection</p>
+      <h2>What it does</h2>
+      <ul class="bul">
+        <li>Builds a statistical expectation for a metric from its own history, then flags the days that fall outside it.</li>
+        <li>Produces an expected value and a confidence band, plotted on a line chart.</li>
+        <li>Anything outside the band is an anomaly, with the size of the departure quantified.</li>
+        <li>It knows nothing about your business. It knows what this metric normally does.</li>
+      </ul>
+      <div class="callout">You annotated the August dip because you already knew it was there. Anomaly detection is how you find the next one without knowing to look.</div>
+    </div>
+    <div class="notes-src">Five minutes. The sequencing across the last two sections is the teaching device, so make it explicit. Keep the definition tight: expectation from history, band around it, flag departures. The business-blindness point matters because it prevents people treating flags as conclusions.</div>
+  </section>
+
+  <!-- 54 HOW IT WORKS -->
+  <section data-min="6" class="slide">
+    <div class="inner" style="max-width:1120px;">
+      <p class="eyebrow">Anomaly detection</p>
+      <h2>How it builds the expectation</h2>
+      <ul class="bul">
+        <li>At daily granularity it uses a reference period of up to <b>35 days before your reporting window</b>, plus the matching window a year earlier where that exists.</li>
+        <li>It selects between time series models and an outlier detection approach depending on the data.</li>
+        <li>It accounts for weekday and weekend rhythm, and for a set of known holidays.</li>
+        <li>Hourly, weekly and monthly granularities use different techniques.</li>
+      </ul>
+      <div class="callout"><b>This is why our sandbox holds 90 days rather than a fortnight.</b> Without 35 days of history behind the reporting window there is nothing to build an expectation from, and every day looks normal.</div>
+    </div>
+    <div class="notes-src">Six minutes. The 35 day figure is the single most practically important number in the section and it is a plausible exam question. It also explains a real failure mode: a newly connected dataset produces no anomalies for over a month and people assume the feature is broken. The callout ties it to a decision made when the training data was built.</div>
+  </section>
+
+  <!-- 55 SAMPLE ANOMALY -->
+  <section data-min="5" class="slide">
+    <div class="inner" style="max-width:1160px;">
+      <p class="eyebrow">Sample report</p>
+      <h2 style="margin-bottom:4px;">The same chart, with anomalies turned on</h2>
+      <div class="viz">
+        <div class="viz-cap">Line · registration completes · daily · show anomalies</div>
+        <svg viewBox="0 0 1100 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+          <rect width="1100" height="260" fill="#fff"/>
+          <path d="M70,84 L1060,84 L1060,152 L70,152 Z" fill="#efe7fa" opacity=".75"/>
+          <polyline fill="none" stroke="#a9a7b0" stroke-width="1.4" stroke-dasharray="5 4" points="70,118 1060,118"/>
+          <polyline fill="none" stroke="#5b2a9d" stroke-width="2.2" points="70,120 100,108 130,132 160,96 190,140 220,146 250,104 280,116 310,100 340,124 370,112 400,138 430,144 460,108 490,96 520,120 550,104 580,128 610,140 640,148 670,112 700,100 730,124 760,108 790,116 820,136 850,146 880,196 910,200 940,194 970,110 1000,98 1030,122 1060,106"/>
+          <circle cx="880" cy="196" r="6" fill="#fff" stroke="#c0392b" stroke-width="3"/>
+          <circle cx="910" cy="200" r="6" fill="#fff" stroke="#c0392b" stroke-width="3"/>
+          <circle cx="940" cy="194" r="6" fill="#fff" stroke="#c0392b" stroke-width="3"/>
+          <text x="1000" y="176" font-family="Inter" font-size="11" fill="#7c7a85">expected</text>
+          <text x="1000" y="72" font-family="Inter" font-size="11" fill="#7c7a85">confidence band</text>
+          <text x="910" y="228" font-family="Inter" font-size="11.5" font-weight="700" fill="#c0392b" text-anchor="middle">3 anomalies · 47% below expected</text>
+        </svg>
+      </div>
+      <div class="viz-note">The shaded band is where values were expected to fall. Three days sit outside it. <b>The weekends do not</b>, because the model learned the weekly rhythm and expects them to be low.</div>
+    </div>
+    <div class="notes-src">Five minutes. The weekend point is the one to land: this is exactly the mistake the room made in the annotation activity, and the model does not make it. Click an anomaly in the live tool if you can, because the detail panel showing expected against actual is more convincing than the slide.</div>
+  </section>
+
+  <!-- 56 CONTRIBUTION -->
+  <section data-min="4" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Contribution analysis</p>
+      <h2>The follow-up question</h2>
+      <ul class="bul tight">
+        <li>Anomaly detection tells you <b>something happened</b>. Contribution analysis looks for <b>which dimension items moved with it</b>.</li>
+        <li>Run it against a daily anomaly and embed the result in the project.</li>
+        <li>It returns correlations, ranked. It does not return causes.</li>
+        <li>A dimension item that barely moved but is enormous can still dominate the result. Read the lift, not just the rank.</li>
+      </ul>
+      <div class="callout"><span class="ph">[Confirm contribution analysis entitlement before the session and cut this slide if it is not available.]</span></div>
+    </div>
+    <div class="notes-src">Four minutes if entitled, skip if not. The correlation caveat is the whole professional point; contribution analysis output gets quoted as root cause in status meetings constantly. If the entitlement is missing, say so honestly and move on rather than describing a feature they cannot open.</div>
+  </section>
+
+  <!-- 57 ALERTS -->
+  <section data-min="6" class="slide">
+    <div class="inner" style="max-width:1120px;">
+      <p class="eyebrow">Alerts</p>
+      <h2>Being told, instead of looking</h2>
+      <div class="two">
+        <div>
+          <ul class="bul tight">
+            <li>Trigger on an <b>anomaly</b>, on a <b>percentage change</b>, or on a metric crossing a <b>fixed value</b>.</li>
+            <li>Anomaly based alerts, sometimes called intelligent alerts, need a Prime or Ultimate package. We have Prime.</li>
+            <li>Stack several metrics into one alert rather than sending three emails.</li>
+            <li>Delivered by email or SMS, with a link to a generated Workspace project showing the trigger.</li>
+            <li>Create one directly from a freeform table row.</li>
+          </ul>
+        </div>
+        <div>
+          <div class="viz-cap">Threshold, and what it costs you</div>
+          <table class="ff">
+            <thead><tr><th>Threshold</th><th>Band</th><th>Result</th></tr></thead>
+            <tbody>
+              <tr><td class="lead">90%</td><td>Narrow</td><td>More alerts, more noise</td></tr>
+              <tr class="hi"><td class="lead">95%</td><td>Balanced</td><td>The usual starting point</td></tr>
+              <tr><td class="lead">99%</td><td>Wide</td><td>Only extreme events</td></tr>
+              <tr><td class="lead">99.9%</td><td>Very wide</td><td>Almost nothing triggers</td></tr>
+            </tbody>
+          </table>
+          <p class="mini">Preview how often an alert would have fired before you turn it on.</p>
+        </div>
+      </div>
+    </div>
+    <div class="notes-src">Six minutes. The preview feature is the thing to sell hardest: it is the only defence against alert fatigue, and every analytics team has a channel nobody reads because somebody set a 90 percent threshold once. The package gating is worth stating since it is a real constraint and a possible exam question.</div>
+  </section>
+
+  <!-- 58 NO HOURLY -->
+  <section data-min="3" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Alerts</p>
+      <h2>Why there are no hourly alerts in CJA</h2>
+      <ul class="bul tight">
+        <li>Event data from multiple sources is not complete for a given hour until well after that hour has passed.</li>
+        <li>Adobe's guidance puts typical completeness at <b>three to nine hours</b> past event time.</li>
+        <li>An hourly alert would therefore fire on partial data and report a collapse that is just latency.</li>
+        <li>Adobe Analytics has hourly alerts. CJA does not. The difference is the multi-source architecture.</li>
+      </ul>
+      <div class="callout">This is a favourite exam question, and it is also the honest answer when a stakeholder asks for real time alerting on batch data.</div>
+    </div>
+    <div class="notes-src">Three minutes. Small slide, high exam value, and it connects back to Monday's batch latency lesson. The stakeholder framing is useful: the reason is architectural, not a missing feature, and saying that clearly is more credible than promising to look into it.</div>
+  </section>
+
+  <!-- 59 AI ASSISTANT -->
+  <section data-min="5" class="slide">
+    <div class="inner">
+      <p class="eyebrow">AI capabilities</p>
+      <h2>AI assistant, and what to expect from it</h2>
+      <ul class="bul">
+        <li>Natural language questions against your data view. "What are my top pages this month."</li>
+        <li>Good at simple, well specified, single-step questions.</li>
+        <li>Weak where your components are badly named, because it has only your metadata to work from.</li>
+        <li>Everything you were told about descriptions on Tuesday pays off here.</li>
+      </ul>
+      <div class="callout">The quality of the assistant is a direct function of the quality of your data view. A rail full of components called "eVar12 copy" produces bad answers, and the fix is curation rather than a better model.</div>
+    </div>
+    <div class="notes-src">Five minutes. The callout is the argument that turns a governance chore into something people actually do. Demo one question if the sandbox supports it, and pick one that works; a live failure here undersells a genuinely useful feature and eats time.</div>
+  </section>
+
+  <!-- 60 LAB 3.7 ACTIVITY -->
+  <section data-min="6" class="slide">
+    <div class="inner" style="max-width:1220px;">
+      <div class="act-head"><p class="eyebrow" style="margin:0;">AI capabilities</p><span class="chip">Breakout room</span><span class="chip time">6 mins</span></div>
+      <h2 style="margin-bottom:2px;">Hands-on: let it find the dip, then automate it</h2>
+      <p class="act-sub">Short and sharp. Work in your room.</p>
+      <div class="act3">
+        <div class="abox">
+          <div class="al">EXERCISE</div>
+          <div class="at">Anomaly, then alert</div>
+          <p>You found the August dip by eye and annotated it. Now confirm the tool agrees, and set up the thing that would have told you at the time.</p>
+        </div>
+        <div class="abox">
+          <div class="al">INSTRUCTIONS</div>
+          <div class="at">Detect and alert</div>
+          <ol class="anum">
+            <li>Line chart, <b>registration completes</b>, daily, last 90 days.</li>
+            <li>Turn on <b>show anomalies</b>. Click one and read the detail.</li>
+            <li>Select the metric and <b>create alert from selection</b>, anomaly based, <b>95 percent</b>.</li>
+            <li><b>Preview</b> how often it would have fired over 90 days. Note the number.</li>
+            <li>Change the threshold to <b>99 percent</b> and preview again.</li>
+          </ol>
+        </div>
+        <div class="abox task">
+          <div class="al">YOUR TASK</div>
+          <div class="at">Answer the question</div>
+          <div class="qmark"><div class="qi">?</div><span>How many times would the 95 percent alert have fired, and how many at 99 percent? Which would you actually switch on?</span></div>
+          <div class="act-foot">Walkthrough and Q and A to follow</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-src">Six minutes, tight. The numbers vary a little by data view so do not pre-announce them; what matters is that 95 fires more often than 99 and the room can articulate the trade. Nobody should leave without having used the preview, because that is the transferable habit.</div>
+  </section>
+
+  <!-- 61 LAB 3.7 SOLUTION -->
+  <section data-min="4" class="slide">
+    <div class="inner" style="max-width:1120px;">
+      <p class="eyebrow">AI capabilities</p>
+      <h2 style="margin-bottom:8px;">Hands-on: solution</h2>
+      <div class="ansbox" style="margin-top:0;"><b>The three August days are flagged at both thresholds</b>, because a roughly 47 percent departure is extreme. At 95 percent you also pick up a small number of milder days. At 99 percent you get the incident and almost nothing else.</div>
+      <ul class="bul tight" style="margin-top:16px;">
+        <li>Which to switch on depends on who receives it. For an on-call operations channel, 99 percent, because a false alarm at 3am costs trust.</li>
+        <li>For an analyst reviewing weekly, 95 percent, because a mild flag worth ten seconds of attention is cheap.</li>
+        <li>The wrong answer is to pick a threshold without previewing it.</li>
+      </ul>
+      <div class="callout">Stack the alert rather than creating three. Registration completes, checklist starts and call volume in one alert gives the recipient context instead of a single orphan number.</div>
+    </div>
+    <div class="notes-src">Four minutes. The audience-dependent answer is the professional point and it generalises well beyond this tool. The stacking tip is practical and almost nobody discovers it alone.</div>
+  </section>
+
+  <!-- 62 DIVIDER -->
+  <section data-min="1" class="slide section">
+    <div class="inner">
+      <div class="num">Section 7</div>
+      <h1>Report distribution</h1>
+      <p class="sub">Twelve percent of the exam, and the part that decides whether any of this was worth doing.</p>
+    </div>
+    <div class="notes-src">Divider. Do not let this section get squeezed; it is a full exam domain and it is the one people skip.</div>
+  </section>
+
+  <!-- 63 SHARING -->
+  <section data-min="5" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Distribution</p>
+      <h2>Sharing a project</h2>
+      <ul class="bul">
+        <li><b>Can edit.</b> A full collaborator. They can change your definitions.</li>
+        <li><b>Can duplicate.</b> They can copy it and work on their own version, leaving yours intact.</li>
+        <li><b>Can view.</b> Read only, and the safest default for a stakeholder.</li>
+        <li>Share with individuals, with groups, or generate a link.</li>
+        <li>Recipients need access to the <b>data view</b>, not just the project. Sharing a project with someone who cannot see the data view gives them an error, not a report.</li>
+      </ul>
+      <div class="callout">That last line is the most common support ticket in any CJA rollout. Check data view access before you blame the share.</div>
+    </div>
+    <div class="notes-src">Five minutes. The data view access point is the practically useful one and it is exam relevant. Name the three levels precisely, because the exam distinguishes them and people conflate duplicate with edit.</div>
+  </section>
+
+  <!-- 64 CURATION -->
+  <section data-min="5" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Distribution</p>
+      <h2>Curation: hiding what they do not need</h2>
+      <ul class="bul">
+        <li>Curate a project to a chosen set of components. Recipients see only those in the rail.</li>
+        <li>It makes a project usable for a non-analyst, who would otherwise face four hundred components.</li>
+        <li>Curation is <b>presentation</b>, not <b>security</b>. It hides components from a view; it does not prevent access.</li>
+        <li>If a field must not be seen, that is a data governance and permissions job, which is tomorrow.</li>
+      </ul>
+      <div class="callout">The exam tests this distinction. Curate for clarity. Restrict for confidentiality. They are different tools with different owners.</div>
+    </div>
+    <div class="notes-src">Five minutes. The curation against security distinction is a named exam objective and a genuine risk: people curate a project to hide a sensitive field and believe they have secured it. Tomorrow's governance lab shows what actual restriction looks like, so plant the link now.</div>
+  </section>
+
+  <!-- 65 SCHEDULING -->
+  <section data-min="4" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Distribution</p>
+      <h2>Scheduling</h2>
+      <ul class="bul tight">
+        <li>Send a project as a PDF or CSV on a recurring schedule, to people inside or outside the organisation.</li>
+        <li>Daily, weekly, monthly, or a custom cadence, with an end date.</li>
+        <li>Schedules expire. The owner is warned before they do.</li>
+        <li>Use a <b>rolling</b> date range. A scheduled report on a fixed range is a recurring lie.</li>
+      </ul>
+      <div class="callout">Before you schedule anything, ask who reads it and what they do differently because of it. Most scheduled reports fail that question.</div>
+    </div>
+    <div class="notes-src">Four minutes. The rolling date range warning is the callback to the date range section and it is the single most common real world error, so repeat it deliberately. The closing question is worth asking the room; it usually produces a rueful laugh and a real conversation about report hygiene.</div>
+  </section>
+
+  <!-- 66 REPORT BUILDER -->
+  <section data-min="5" class="slide">
+    <div class="inner" style="max-width:1120px;">
+      <p class="eyebrow">Distribution</p>
+      <h2>Two other places your data can go</h2>
+      <div class="two">
+        <div class="opt2">
+          <div class="ol">REPORT BUILDER</div>
+          <div class="ot">CJA data inside Excel</div>
+          <div class="od">Build data blocks against a data view and refresh them in place. For finance and operations teams who will never open Workspace, this is the route that works. Available on macOS, Windows and the web.</div>
+        </div>
+        <div class="opt2">
+          <div class="ol">MOBILE SCORECARDS</div>
+          <div class="ot">KPIs on a phone</div>
+          <div class="od">A curated set of metrics in the Adobe Analytics dashboards app. Built in Workspace by an analyst, consumed by an executive who wants four numbers on a Monday morning.</div>
+        </div>
+      </div>
+      <div class="callout">Both are named in the exam's list of expected skills. Neither needs a lab today, but you should be able to say what each is for.</div>
+    </div>
+    <div class="notes-src">Five minutes. Demo neither unless you have time in hand. The honest framing is distribution as meeting people where they already work: the finance team lives in Excel and will not migrate, and Report Builder is the answer to that rather than a consolation prize.</div>
+  </section>
+
+  <!-- 67 EXPORTS -->
+  <section data-min="4" class="slide">
+    <div class="inner">
+      <p class="eyebrow">Distribution</p>
+      <h2>Exports</h2>
+      <ul class="bul tight">
+        <li><b>Copy to clipboard</b> and <b>download CSV</b> for a single table.</li>
+        <li><b>Download PDF</b> for the whole project.</li>
+        <li><b>Full table export</b> for large result sets that exceed what Workspace will render.</li>
+        <li><b>Export to cloud</b> to send results to a cloud storage destination on a schedule.</li>
+      </ul>
+      <div class="callout">Once data leaves CJA it leaves your governance with it. That is not a reason to avoid exporting, but it is a reason to know which exports exist and who is running them.</div>
+    </div>
+    <div class="notes-src">Four minutes. The governance framing bridges into tomorrow. For a health plan audience the point lands harder than usual, because an exported CSV of member level data is a genuine risk and somebody in the room will already be worrying about it.</div>
+  </section>
+
+  <!-- 68 LAB 3.8 ACTIVITY -->
+  <section data-min="7" class="slide">
+    <div class="inner" style="max-width:1220px;">
+      <div class="act-head"><p class="eyebrow" style="margin:0;">Distribution</p><span class="chip">Breakout room</span><span class="chip time">7 mins</span></div>
+      <h2 style="margin-bottom:2px;">Hands-on: get it out of the building</h2>
+      <p class="act-sub">Work in your room. Pair up inside the room so one of you receives what the other sends.</p>
+      <div class="act3">
+        <div class="abox">
+          <div class="al">EXERCISE</div>
+          <div class="at">Hand it to a stakeholder</div>
+          <p>Take today's PCP fallout project and prepare it for a product owner who has never opened CJA and will want it every Monday.</p>
+        </div>
+        <div class="abox">
+          <div class="al">INSTRUCTIONS</div>
+          <div class="at">Curate, share, schedule</div>
+          <ol class="anum">
+            <li>Open <b>Room <span class="ph">[N]</span> · PCP fallout</b>.</li>
+            <li>Set the panel to a <b>rolling last 30 days</b>.</li>
+            <li><b>Curate</b> the project down to six components.</li>
+            <li><b>Share</b> it with your partner as <b>can view</b>. Have them open it and report what they can and cannot do.</li>
+            <li><b>Schedule</b> it weekly as a PDF to yourself.</li>
+          </ol>
+        </div>
+        <div class="abox task">
+          <div class="al">YOUR TASK</div>
+          <div class="at">Answer the question</div>
+          <div class="qmark"><div class="qi">?</div><span>What can your partner do that surprised you, and what could they not do that you expected them to manage?</span></div>
+          <div class="act-foot">Walkthrough and Q and A to follow</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-src">Seven minutes. The partner step is what makes this real rather than theoretical. Common discoveries: a view-only recipient can still change the date range and still export, which surprises people, and a recipient without data view access sees an error rather than a report. Both are worth surfacing in the debrief.</div>
+  </section>
+
+  <!-- 69 LAB 3.8 SOLUTION -->
+  <section data-min="4" class="slide">
+    <div class="inner" style="max-width:1120px;">
+      <p class="eyebrow">Distribution</p>
+      <h2 style="margin-bottom:8px;">Hands-on: solution</h2>
+      <table class="ff">
+        <thead><tr><th>A "can view" recipient</th><th>Can they?</th><th>Why it matters</th></tr></thead>
+        <tbody>
+          <tr><td class="lead">Read the project</td><td class="num">Yes</td><td></td></tr>
+          <tr><td class="lead">Change the date range</td><td class="num">Yes</td><td>Surprises most people. The view is read only, the exploration is not</td></tr>
+          <tr><td class="lead">Export the table to CSV</td><td class="num">Yes</td><td>Curation did not stop this. Governance is a separate control</td></tr>
+          <tr class="hi"><td class="lead">See components you curated out</td><td class="num">No</td><td>In this project. They remain available elsewhere</td></tr>
+          <tr><td class="lead">Open it without data view access</td><td class="num">No</td><td>The most common rollout support ticket</td></tr>
+          <tr><td class="lead">Change your saved definitions</td><td class="num">No</td><td></td></tr>
+        </tbody>
+      </table>
+      <div class="ansbox"><b>Curation shaped what they see. It did not restrict what they can reach.</b> That gap is exactly what data governance closes, and it is the first thing we do tomorrow.</div>
+    </div>
+    <div class="notes-src">Four minutes. This table is worth the room's full attention because it corrects a belief most people hold. End on the bridge to tomorrow rather than on the detail.</div>
+  </section>
+
+  <!-- 70 CLOSE -->
+  <section data-min="5" class="slide title">
+    <div class="inner">
+      <h1>Tomorrow:<br/>your own voice, as data</h1>
+      <p class="sub">You have measured the problem from four angles. Tomorrow you take the call transcript your member left on Monday, turn it into something CJA can report on, and then decide who is allowed to see it.</p>
+      <div class="meta"><span>Leaderboard update</span><span>Bring your segments and your fallout</span><span class="ph">[facilitator contact]</span></div>
+    </div>
+    <div class="notes-src">Five minutes. Update the leaderboard on screen. Set up tomorrow morning honestly: they will use Copilot on a transcript, and the interesting part is not the scoring but what happens when twenty five people score the same call differently. Remind them Copilot needs to be working on their machine before nine.</div>
+  </section>
+
+
+</div>
+
+<div id="bar"><i></i></div>
+<div id="hint">← → move · N notes · F full screen · Edit to change text</div>
+<div id="ctl">
+  <button onclick="go(-1)">‹ Prev</button>
+  <span id="count">1 / 1</span>
+  <span id="clock"></span>
+  <button onclick="go(1)">Next ›</button>
+  <button onclick="toggleNotes()" title="Facilitator notes (N)">Notes</button>
+  <button id="editBtn" onclick="toggleEdit()" title="Click any text to edit it">Edit</button>
+  <button onclick="saveFile()" title="Save your edits (Ctrl/Cmd+S)">Save</button>
+  <button onclick="fs()" title="Full screen (F)">⤢</button>
+</div>
+<div id="notes"><div class="lab">Facilitator notes</div><div class="body" id="notesBody"></div></div>
+<div id="editbadge">✎ Editing. Click any text to change it.</div>
+<div id="toast"></div>
+
+<script>
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var i = 0;
+  var notesEl = document.getElementById('notes');
+  var notesBody = document.getElementById('notesBody');
+  var count = document.getElementById('count');
+  var barFill = document.querySelector('#bar > i');
+  var editBtn = document.getElementById('editBtn');
+  var toastEl = document.getElementById('toast');
+  var fileHandle = null;
+  var clockEl = document.getElementById('clock');
+  function clockAt(mins){ var t=9*60+mins, h=Math.floor(t/60), m=t%60, ap=h>=12?'PM':'AM', h12=h%12||12; return h12+':'+(m<10?'0':'')+m+' '+ap; }
+
+  function editing(){ return document.body.classList.contains('editing'); }
+
+  function render(){
+    slides.forEach(function(s,n){ s.classList.toggle('on', n===i); });
+    count.textContent = (i+1) + ' / ' + slides.length;
+    barFill.style.width = ((i+1)/slides.length*100) + '%';
+    var src = slides[i].querySelector('.notes-src');
+    notesBody.innerHTML = src ? src.innerHTML : '<em>No notes for this slide.</em>';
+    var mins=0; for(var k=0;k<i;k++){ mins += parseInt(slides[k].getAttribute('data-min'))||0; }
+    var dur=parseInt(slides[i].getAttribute('data-min'))||0;
+    if(clockEl) clockEl.textContent = clockAt(mins) + ' \u00b7 ' + dur + 'm';
+    slides[i].scrollTop = 0;
+  }
+  function go(d){ i = (i + d + slides.length) % slides.length; render(); }
+  function toggleNotes(){ notesEl.classList.toggle('open'); }
+  function fs(){ if(!document.fullscreenElement){ document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); } else { document.exitFullscreen && document.exitFullscreen(); } }
+
+  function setEdit(on){
+    document.body.classList.toggle('editing', on);
+    slides.forEach(function(s){
+      var inner = s.querySelector('.inner');
+      if(!inner) return;
+      if(on){ inner.setAttribute('contenteditable','true'); inner.setAttribute('spellcheck','false'); }
+      else { inner.removeAttribute('contenteditable'); inner.removeAttribute('spellcheck'); }
+    });
+    if(on){ notesBody.setAttribute('contenteditable','true'); } else { notesBody.removeAttribute('contenteditable'); }
+    if(editBtn){ editBtn.textContent = on ? 'Done' : 'Edit'; editBtn.classList.toggle('act', on); }
+  }
+  function toggleEdit(){ setEdit(!editing()); }
+
+  // keep facilitator-note edits attached to their slide
+  notesBody.addEventListener('input', function(){
+    var src = slides[i].querySelector('.notes-src');
+    if(src) src.innerHTML = notesBody.innerHTML;
+  });
+
+  function flash(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(flash._t);
+    flash._t = setTimeout(function(){ toastEl.classList.remove('show'); }, 1600);
+  }
+
+  async function saveFile(){
+    var src = slides[i].querySelector('.notes-src'); if(src) src.innerHTML = notesBody.innerHTML;
+    var wasEditing = editing();
+    if(wasEditing) setEdit(false);            // serialize a clean, non-editable copy
+    var html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+    if(wasEditing) setEdit(true);
+
+    if(window.showSaveFilePicker){
+      try{
+        if(!fileHandle){
+          fileHandle = await window.showSaveFilePicker({ suggestedName:'CJA_Bootcamp_Day3.html',
+            types:[{description:'HTML file', accept:{'text/html':['.html']}}] });
+        }
+        var w = await fileHandle.createWritable();
+        await w.write(html); await w.close();
+        flash('Saved to file'); return;
+      }catch(err){ if(err && err.name==='AbortError') return; }
+    }
+    var blob = new Blob([html], {type:'text/html'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'CJA_Bootcamp_Day3.html';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+    flash('Downloaded updated file');
+  }
+
+  document.addEventListener('keydown', function(e){
+    if((e.ctrlKey||e.metaKey) && (e.key==='s'||e.key==='S')){ e.preventDefault(); saveFile(); return; }
+    if(editing()) return;                       // typing/caret keys pass through while editing
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){ go(1); e.preventDefault(); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ go(-1); e.preventDefault(); }
+    else if(e.key==='Home'){ i=0; render(); }
+    else if(e.key==='End'){ i=slides.length-1; render(); }
+    else if(e.key==='n'||e.key==='N'){ toggleNotes(); }
+    else if(e.key==='f'||e.key==='F'){ fs(); }
+  });
+  document.getElementById('stage').addEventListener('click', function(e){
+    if(editing()) return;                       // don't advance slides while editing
+    if(e.target.closest('button, a, .journey-container')) return;
+    go(1);
+  });
+
+  render();
+
+  // NMW journey expand/collapse
+  function toggleStack(id, expandedId, expand){
+    var a=document.getElementById(id), b=document.getElementById(expandedId);
+    if(a) a.style.display = expand ? 'none' : 'block';
+    if(b) b.style.display = expand ? 'flex' : 'none';
+  }
+  window.toggleRegNudges=function(e){toggleStack('regNudgeStack','regNudgeExpanded',e);};
+  window.toggleSurveyNudges=function(e){toggleStack('surveyNudgeStack','surveyNudgeExpanded',e);};
+  window.toggleUshur=function(e){toggleStack('ushurStack','ushurExpanded',e);};
+  window.toggleGmw=function(e){toggleStack('gmwStack','gmwExpanded',e);};
+  window.navigateToTab=function(){};
+  // mark individual metrics as selected/done (illustrates the events the member has completed)
+  document.addEventListener('click', function(e){
+    var badge = e.target.closest('.metric-badge');
+    if(!badge || !badge.closest('.journey-container')) return;
+    e.stopPropagation();               // don't expand the stack or fire node navigation
+    badge.classList.toggle('done');
+  }, true);
+</script>
+</body>
+</html>

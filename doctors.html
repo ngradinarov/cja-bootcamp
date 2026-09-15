@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find a Doctor — AcmeHealth</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data-layer.js"></script>
+  <script src="js/personalization.js"></script>
+  <script src="https://assets.adobedtm.com/dca8f73c45d4/5200617fa907/launch-a7b11588ffe5-development.min.js" async></script>
+</head>
+<body>
+
+  <div class="utility-bar">
+    <div class="container">
+      <a href="#">Español</a><a href="#">Accessibility</a><a href="#">Contact Us</a><a href="login.html">Sign In</a>
+    </div>
+  </div>
+
+  <header>
+    <div class="container">
+      <a href="index.html" class="logo"><div class="logo-icon">A</div> AcmeHealth</a>
+      <nav>
+        <a href="index.html">Home</a><a href="plans.html">Plans</a><a href="doctors.html">Find a Doctor</a><a href="pharmacy.html">Pharmacy</a><a href="appointments.html">Appointments</a>
+      </nav>
+      <a href="login.html" class="header-cta">Member Sign In</a>
+    </div>
+  </header>
+
+  <!-- Hero with Search -->
+  <section class="hero" style="padding: 50px 0;">
+    <div class="container">
+      <h1>Find a Doctor</h1>
+      <p>Search our network of providers by name, specialty, or location.</p>
+      <div class="search-bar" style="margin-top: 24px;">
+        <input type="text" placeholder="Doctor name, specialty, or condition..." data-track-action="doctor-search-input" data-track-section="search">
+        <select data-track-action="doctor-search-filter" data-track-detail="location">
+          <option>All Locations</option>
+          <option>Northern California</option>
+          <option>Southern California</option>
+          <option>Mid-Atlantic</option>
+          <option>Northwest</option>
+          <option>Hawaii</option>
+        </select>
+        <button class="btn btn-primary" data-track-action="doctor-search" data-track-section="search">Search</button>
+      </div>
+    </div>
+  </section>
+  <div id="ajo-offer-doctor" style="max-width: 1200px; margin: 24px auto; padding: 0 24px;"></div>
+  <!-- Specialties Quick Filter -->
+  <section class="section">
+    <div class="container">
+      <h2>Browse by Specialty</h2>
+      <p class="subtitle">Select a specialty to filter providers</p>
+      <div class="links-grid">
+        <a href="#results" class="link-card" data-track-action="specialty-filter" data-track-detail="primary-care">
+          <div class="icon">🏥</div>
+          <h3>Primary Care</h3>
+          <p>Family medicine, internal medicine</p>
+        </a>
+        <a href="#results" class="link-card" data-track-action="specialty-filter" data-track-detail="cardiology">
+          <div class="icon">❤️</div>
+          <h3>Cardiology</h3>
+          <p>Heart and cardiovascular</p>
+        </a>
+        <a href="#results" class="link-card" data-track-action="specialty-filter" data-track-detail="orthopedics">
+          <div class="icon">🦴</div>
+          <h3>Orthopedics</h3>
+          <p>Bone, joint, and muscle</p>
+        </a>
+        <a href="#results" class="link-card" data-track-action="specialty-filter" data-track-detail="pediatrics">
+          <div class="icon">👶</div>
+          <h3>Pediatrics</h3>
+          <p>Children's health</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Search Results -->
+  <section class="section section-alt" id="results">
+    <div class="container">
+      <h2>Available Providers</h2>
+      <p class="subtitle">Showing results for your area</p>
+
+      <div style="display: grid; gap: 16px;">
+        <div class="doctor-card" data-track-action="doctor-card-view" data-track-detail="dr-chen">
+          <div class="doctor-avatar">👩‍⚕️</div>
+          <div class="doctor-info" style="flex: 1;">
+            <h3>Dr. Sarah Chen, MD</h3>
+            <div class="specialty">Family Medicine — Primary Care</div>
+            <div class="location">📍 AcmeHealth Medical Center — Oakland, CA</div>
+            <div class="rating">★★★★★ 4.9 (312 reviews)</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; justify-content: center;">
+            <a href="appointments.html" class="btn btn-primary" style="font-size: 0.85rem; padding: 8px 16px;" data-track-action="book-appointment" data-track-detail="dr-chen">Book Appointment</a>
+            <a href="#" class="btn btn-outline" style="font-size: 0.85rem; padding: 8px 16px;">View Profile</a>
+          </div>
+        </div>
+
+        <div class="doctor-card" data-track-action="doctor-card-view" data-track-detail="dr-martinez">
+          <div class="doctor-avatar">👨‍⚕️</div>
+          <div class="doctor-info" style="flex: 1;">
+            <h3>Dr. Miguel Martinez, MD</h3>
+            <div class="specialty">Cardiology</div>
+            <div class="location">📍 AcmeHealth Heart Institute — San Francisco, CA</div>
+            <div class="rating">★★★★★ 4.8 (198 reviews)</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; justify-content: center;">
+            <a href="appointments.html" class="btn btn-primary" style="font-size: 0.85rem; padding: 8px 16px;" data-track-action="book-appointment" data-track-detail="dr-martinez">Book Appointment</a>
+            <a href="#" class="btn btn-outline" style="font-size: 0.85rem; padding: 8px 16px;">View Profile</a>
+          </div>
+        </div>
+
+        <div class="doctor-card" data-track-action="doctor-card-view" data-track-detail="dr-patel">
+          <div class="doctor-avatar">👩‍⚕️</div>
+          <div class="doctor-info" style="flex: 1;">
+            <h3>Dr. Priya Patel, DO</h3>
+            <div class="specialty">Pediatrics</div>
+            <div class="location">📍 AcmeHealth Walnut Creek — Walnut Creek, CA</div>
+            <div class="rating">★★★★☆ 4.7 (245 reviews)</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; justify-content: center;">
+            <a href="appointments.html" class="btn btn-primary" style="font-size: 0.85rem; padding: 8px 16px;" data-track-action="book-appointment" data-track-detail="dr-patel">Book Appointment</a>
+            <a href="#" class="btn btn-outline" style="font-size: 0.85rem; padding: 8px 16px;">View Profile</a>
+          </div>
+        </div>
+
+        <div class="doctor-card" data-track-action="doctor-card-view" data-track-detail="dr-jackson">
+          <div class="doctor-avatar">👨‍⚕️</div>
+          <div class="doctor-info" style="flex: 1;">
+            <h3>Dr. David Jackson, MD</h3>
+            <div class="specialty">Orthopedic Surgery</div>
+            <div class="location">📍 AcmeHealth Medical Center — Oakland, CA</div>
+            <div class="rating">★★★★★ 4.9 (167 reviews)</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; justify-content: center;">
+            <a href="appointments.html" class="btn btn-primary" style="font-size: 0.85rem; padding: 8px 16px;" data-track-action="book-appointment" data-track-detail="dr-jackson">Book Appointment</a>
+            <a href="#" class="btn btn-outline" style="font-size: 0.85rem; padding: 8px 16px;">View Profile</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div><h4>AcmeHealth</h4><a href="plans.html">Plans & Coverage</a><a href="doctors.html">Find a Doctor</a><a href="pharmacy.html">Pharmacy</a><a href="appointments.html">Appointments</a></div>
+        <div><h4>Members</h4><a href="login.html">Sign In</a><a href="#">ID Cards</a><a href="#">Claims</a><a href="#">Benefits</a></div>
+        <div><h4>Support</h4><a href="#">Contact Us</a><a href="#">FAQs</a><a href="#">Billing</a><a href="#">Grievances</a></div>
+        <div><h4>About</h4><a href="#">Our Mission</a><a href="#">Careers</a><a href="#">Newsroom</a><a href="#">Community Health</a></div>
+      </div>
+      <div class="footer-bottom">&copy; 2026 AcmeHealth. Demo site for Adobe testing.</div>
+    </div>
+  </footer>
+
+  <script src="js/site.js"></script>
+</body>
+</html>

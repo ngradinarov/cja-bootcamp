@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — AcmeHealth</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data-layer.js"></script>
+  <script src="js/personalization.js"></script>
+  <script src="https://assets.adobedtm.com/dca8f73c45d4/5200617fa907/launch-a7b11588ffe5-development.min.js" async></script>
+</head>
+<body>
+
+  <div class="utility-bar">
+    <div class="container">
+      <a href="#">Español</a><a href="#">Accessibility</a><a href="#">Contact Us</a><a href="admin-filegenerator.html">File Generator</a><a href="login.html">Sign In</a>
+    </div>
+  </div>
+
+  <header>
+    <div class="container">
+      <a href="index.html" class="logo"><div class="logo-icon">A</div> AcmeHealth</a>
+      <nav>
+        <a href="index.html">Home</a><a href="plans.html">Plans</a><a href="doctors.html">Find a Doctor</a><a href="pharmacy.html">Pharmacy</a><a href="appointments.html">Appointments</a>
+      </nav>
+      <a href="login.html" class="header-cta">Member Sign In</a>
+    </div>
+  </header>
+
+  <section class="section" style="padding: 80px 0; background: var(--gray-100); min-height: 70vh; display: flex; align-items: center;">
+    <div class="container">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; max-width: 900px; margin: 0 auto;">
+
+        <!-- Sign In Form -->
+        <div class="form-card" style="max-width: none;">
+          <h2>Member Sign In</h2>
+          <p class="subtitle">Access your health dashboard</p>
+          <form class="demo-form" data-track-action="sign-in-attempt" data-track-section="login">
+            <div class="form-group">
+              <label for="email">Email or Member ID</label>
+              <input type="text" id="email" placeholder="name@example.com" data-track-action="login-field" data-track-detail="email">
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" id="password" placeholder="Enter your password" data-track-action="login-field" data-track-detail="password">
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--gray-700); font-weight: 400;">
+                <input type="checkbox"> Remember me
+              </label>
+              <a href="#" style="font-size: 0.85rem;" data-track-action="forgot-password">Forgot password?</a>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; text-align: center;" data-track-action="sign-in-submit">Sign In</button>
+          </form>
+
+          <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--gray-200); text-align: center;">
+            <p style="font-size: 0.85rem; color: var(--gray-400); margin-bottom: 12px;">Or sign in with</p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+              <a href="#" class="btn btn-outline" style="font-size: 0.85rem; padding: 8px 20px;" data-track-action="social-login" data-track-detail="google">Google</a>
+              <a href="#" class="btn btn-outline" style="font-size: 0.85rem; padding: 8px 20px;" data-track-action="social-login" data-track-detail="apple">Apple</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Register CTA -->
+        <div>
+          <h2 style="color: var(--blue-900); margin-bottom: 12px;">New to AcmeHealth?</h2>
+          <p style="color: var(--gray-700); margin-bottom: 24px; line-height: 1.7;">Create an account to access your health records, schedule appointments, refill prescriptions, and message your care team.</p>
+          <ul style="list-style: none; margin-bottom: 28px;">
+            <li style="padding: 8px 0; color: var(--gray-700);">✓ View test results and health records</li>
+            <li style="padding: 8px 0; color: var(--gray-700);">✓ Schedule and manage appointments</li>
+            <li style="padding: 8px 0; color: var(--gray-700);">✓ Refill prescriptions online</li>
+            <li style="padding: 8px 0; color: var(--gray-700);">✓ Message your doctor securely</li>
+            <li style="padding: 8px 0; color: var(--gray-700);">✓ Pay bills and view claims</li>
+          </ul>
+          <a href="register-start.html" class="btn btn-primary" data-track-action="register-cta" data-track-section="login" data-track-detail="create-account">Create an Account</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div><h4>AcmeHealth</h4><a href="plans.html">Plans & Coverage</a><a href="doctors.html">Find a Doctor</a><a href="pharmacy.html">Pharmacy</a><a href="appointments.html">Appointments</a></div>
+        <div><h4>Members</h4><a href="login.html">Sign In</a><a href="#">ID Cards</a><a href="#">Claims</a><a href="#">Benefits</a></div>
+        <div><h4>Support</h4><a href="#">Contact Us</a><a href="#">FAQs</a><a href="#">Billing</a><a href="#">Grievances</a></div>
+        <div><h4>About</h4><a href="#">Our Mission</a><a href="#">Careers</a><a href="#">Newsroom</a><a href="#">Community Health</a></div>
+      </div>
+      <div class="footer-bottom">&copy; 2026 AcmeHealth. Demo site for Adobe testing.</div>
+    </div>
+  </footer>
+
+  <script src="js/site.js"></script>
+</body>
+</html>

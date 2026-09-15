@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Appointments — AcmeHealth</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data-layer.js"></script>
+  <script src="js/personalization.js"></script>
+  <script src="https://assets.adobedtm.com/dca8f73c45d4/5200617fa907/launch-a7b11588ffe5-development.min.js" async></script>
+</head>
+<body>
+
+  <div class="utility-bar">
+    <div class="container">
+      <a href="#">Español</a><a href="#">Accessibility</a><a href="#">Contact Us</a><a href="login.html">Sign In</a>
+    </div>
+  </div>
+
+  <header>
+    <div class="container">
+      <a href="index.html" class="logo"><div class="logo-icon">A</div> AcmeHealth</a>
+      <nav>
+        <a href="index.html">Home</a><a href="plans.html">Plans</a><a href="doctors.html">Find a Doctor</a><a href="pharmacy.html">Pharmacy</a><a href="appointments.html">Appointments</a>
+      </nav>
+      <a href="login.html" class="header-cta">Member Sign In</a>
+    </div>
+  </header>
+
+  <section class="hero" style="padding: 50px 0;">
+    <div class="container">
+      <h1>Appointments</h1>
+      <p>Schedule a new visit or manage your upcoming appointments.</p>
+    </div>
+  </section>
+  
+  <div id="ajo-offer" style="max-width: 1200px; margin: 24px auto; padding: 0 24px;"></div>
+  
+  <!-- Upcoming Appointments -->
+  <section class="section">
+    <div class="container">
+      <h2>Upcoming Appointments</h2>
+      <p class="subtitle">Your scheduled visits</p>
+
+      <div style="display: grid; gap: 16px; margin-bottom: 40px;">
+        <div class="doctor-card" data-track-action="appointment-view" data-track-detail="upcoming-1">
+          <div class="doctor-avatar">👩‍⚕️</div>
+          <div class="doctor-info" style="flex: 1;">
+            <h3>Dr. Sarah Chen, MD</h3>
+            <div class="specialty">Annual Physical Exam</div>
+            <div class="location">📅 May 15, 2026 at 10:30 AM</div>
+            <div style="font-size: 0.85rem; color: var(--gray-400);">📍 AcmeHealth Medical Center — Oakland, CA</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; justify-content: center;">
+            <a href="#" class="btn btn-outline" style="font-size: 0.85rem; padding: 8px 16px;" data-track-action="appointment-action" data-track-detail="reschedule">Reschedule</a>
+            <a href="#" class="btn btn-outline" style="font-size: 0.85rem; padding: 8px 16px; color: var(--red-500); border-color: var(--red-500);" data-track-action="appointment-action" data-track-detail="cancel">Cancel</a>
+          </div>
+        </div>
+
+        <div class="doctor-card" data-track-action="appointment-view" data-track-detail="upcoming-2">
+          <div class="doctor-avatar">👨‍⚕️</div>
+          <div class="doctor-info" style="flex: 1;">
+            <h3>Dr. Miguel Martinez, MD</h3>
+            <div class="specialty">Cardiology Follow-Up</div>
+            <div class="location">📅 May 22, 2026 at 2:00 PM — Video Visit</div>
+            <div style="font-size: 0.85rem; color: var(--gray-400);">💻 Telehealth — Join from your device</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; justify-content: center;">
+            <a href="#" class="btn btn-primary" style="font-size: 0.85rem; padding: 8px 16px;" data-track-action="telehealth-join" data-track-detail="dr-martinez">Join Video Visit</a>
+            <a href="#" class="btn btn-outline" style="font-size: 0.85rem; padding: 8px 16px;" data-track-action="appointment-action" data-track-detail="reschedule">Reschedule</a>
+          </div>
+        </div>
+      </div>
+
+      <hr style="border: none; border-top: 2px solid var(--gray-200); margin: 40px 0;">
+
+      <!-- Schedule New -->
+      <h2>Schedule a New Appointment</h2>
+      <p class="subtitle">Choose your visit type and preferred time</p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+        <div>
+          <form class="demo-form" data-track-action="schedule-appointment">
+            <div class="form-group">
+              <label for="visit-type">Visit Type</label>
+              <select id="visit-type" data-track-action="schedule-field" data-track-detail="visit-type">
+                <option>Select a visit type...</option>
+                <option>Primary Care — New Concern</option>
+                <option>Primary Care — Follow-Up</option>
+                <option>Annual Physical</option>
+                <option>Specialist Referral</option>
+                <option>Urgent Care</option>
+                <option>Telehealth / Video Visit</option>
+                <option>Mental Health</option>
+                <option>Lab Work / Blood Draw</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="appt-doctor">Preferred Provider</label>
+              <select id="appt-doctor" data-track-action="schedule-field" data-track-detail="provider">
+                <option>No preference</option>
+                <option>Dr. Sarah Chen — Family Medicine</option>
+                <option>Dr. Miguel Martinez — Cardiology</option>
+                <option>Dr. Priya Patel — Pediatrics</option>
+                <option>Dr. David Jackson — Orthopedics</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="appt-location">Location</label>
+              <select id="appt-location" data-track-action="schedule-field" data-track-detail="location">
+                <option>Oakland Medical Center</option>
+                <option>San Francisco Medical Center</option>
+                <option>Walnut Creek Medical Center</option>
+                <option>Video Visit (Telehealth)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="appt-date">Preferred Date</label>
+              <input type="date" id="appt-date" data-track-action="schedule-field" data-track-detail="date">
+            </div>
+
+            <div class="form-group">
+              <label>Preferred Time</label>
+              <div class="slot-grid">
+                <div class="slot" data-track-action="time-slot" data-track-detail="morning-early">8:00 AM</div>
+                <div class="slot" data-track-action="time-slot" data-track-detail="morning-mid">9:30 AM</div>
+                <div class="slot" data-track-action="time-slot" data-track-detail="morning-late">11:00 AM</div>
+                <div class="slot" data-track-action="time-slot" data-track-detail="afternoon-early">1:00 PM</div>
+                <div class="slot" data-track-action="time-slot" data-track-detail="afternoon-mid">2:30 PM</div>
+                <div class="slot" data-track-action="time-slot" data-track-detail="afternoon-late">4:00 PM</div>
+                <div class="slot" data-track-action="time-slot" data-track-detail="evening-early">5:30 PM</div>
+                <div class="slot" data-track-action="time-slot" data-track-detail="evening-late">6:30 PM</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="appt-reason">Reason for Visit (optional)</label>
+              <textarea id="appt-reason" rows="3" placeholder="Briefly describe the reason for your visit..." data-track-action="schedule-field" data-track-detail="reason"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; text-align: center;" data-track-action="schedule-submit">Schedule Appointment</button>
+          </form>
+        </div>
+
+        <!-- Side Info -->
+        <div>
+          <div style="background: var(--blue-100); border-radius: 12px; padding: 28px; margin-bottom: 24px;">
+            <h3 style="color: var(--blue-900); margin-bottom: 12px;">💡 Need care now?</h3>
+            <p style="font-size: 0.9rem; color: var(--gray-700); margin-bottom: 16px;">For non-emergency urgent care, video visits are available with a provider within 15 minutes during business hours.</p>
+            <a href="#" class="btn btn-primary" style="font-size: 0.85rem;" data-track-action="urgent-video-cta" data-track-section="schedule">Start Video Visit</a>
+          </div>
+
+          <div style="background: var(--green-100); border-radius: 12px; padding: 28px; margin-bottom: 24px;">
+            <h3 style="color: var(--green-700); margin-bottom: 12px;">📋 Pre-visit Checklist</h3>
+            <ul style="list-style: none; font-size: 0.9rem; color: var(--gray-700);">
+              <li style="padding: 6px 0;">✓ Bring your member ID card</li>
+              <li style="padding: 6px 0;">✓ List current medications</li>
+              <li style="padding: 6px 0;">✓ Note symptoms and questions</li>
+              <li style="padding: 6px 0;">✓ Arrive 15 minutes early</li>
+            </ul>
+          </div>
+
+          <div style="background: var(--white); border: 2px solid var(--gray-200); border-radius: 12px; padding: 28px;">
+            <h3 style="color: var(--blue-900); margin-bottom: 12px;">📞 Need Help?</h3>
+            <p style="font-size: 0.9rem; color: var(--gray-700);">Call our appointment line:<br><strong style="font-size: 1.1rem;">(800) 555-CARE</strong><br>Mon–Fri: 7am–7pm | Sat: 8am–3pm</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div><h4>AcmeHealth</h4><a href="plans.html">Plans & Coverage</a><a href="doctors.html">Find a Doctor</a><a href="pharmacy.html">Pharmacy</a><a href="appointments.html">Appointments</a></div>
+        <div><h4>Members</h4><a href="login.html">Sign In</a><a href="#">ID Cards</a><a href="#">Claims</a><a href="#">Benefits</a></div>
+        <div><h4>Support</h4><a href="#">Contact Us</a><a href="#">FAQs</a><a href="#">Billing</a><a href="#">Grievances</a></div>
+        <div><h4>About</h4><a href="#">Our Mission</a><a href="#">Careers</a><a href="#">Newsroom</a><a href="#">Community Health</a></div>
+      </div>
+      <div class="footer-bottom">&copy; 2026 AcmeHealth. Demo site for Adobe testing.</div>
+    </div>
+  </footer>
+
+  <script src="js/site.js"></script>
+</body>
+</html>

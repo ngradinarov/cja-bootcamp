@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pharmacy — AcmeHealth</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data-layer.js"></script>
+  <script src="js/personalization.js"></script>
+  <script src="https://assets.adobedtm.com/dca8f73c45d4/5200617fa907/launch-a7b11588ffe5-development.min.js" async></script>
+</head>
+<body>
+
+  <div class="utility-bar">
+    <div class="container">
+      <a href="#">Español</a><a href="#">Accessibility</a><a href="#">Contact Us</a><a href="login.html">Sign In</a>
+    </div>
+  </div>
+
+  <header>
+    <div class="container">
+      <a href="index.html" class="logo"><div class="logo-icon">A</div> AcmeHealth</a>
+      <nav>
+        <a href="index.html">Home</a><a href="plans.html">Plans</a><a href="doctors.html">Find a Doctor</a><a href="pharmacy.html">Pharmacy</a><a href="appointments.html">Appointments</a>
+      </nav>
+      <a href="login.html" class="header-cta">Member Sign In</a>
+    </div>
+  </header>
+
+  <section class="hero" style="padding: 50px 0;">
+    <div class="container">
+      <h1>Pharmacy</h1>
+      <p>Manage prescriptions, request refills, and check drug costs — all in one place.</p>
+    </div>
+  </section>
+
+  <!-- Prescription Status -->
+  <section class="section">
+    <div class="container">
+      <div class="alert-banner">
+        <strong>Mail-order savings:</strong> Get a 90-day supply delivered to your door for the price of a 60-day supply. <a href="#" data-track-action="promo-click" data-track-detail="mail-order">Learn more →</a>
+      </div>
+
+      <h2>Your Prescriptions</h2>
+      <p class="subtitle">Current medications and refill status</p>
+
+      <div style="display: grid; gap: 16px;">
+        <div class="rx-status" data-track-action="rx-view" data-track-detail="lisinopril">
+          <div class="status-dot ready"></div>
+          <div style="flex: 1;">
+            <strong>Lisinopril 10mg</strong>
+            <div style="font-size: 0.85rem; color: var(--gray-400);">Dr. Chen — Last filled: Apr 12, 2026</div>
+          </div>
+          <span style="color: var(--green-500); font-weight: 600; font-size: 0.9rem;">Ready for Pickup</span>
+          <a href="#" class="btn btn-outline" style="font-size: 0.85rem; padding: 8px 16px;" data-track-action="rx-action" data-track-detail="lisinopril-pickup">Pickup Details</a>
+        </div>
+
+        <div class="rx-status" data-track-action="rx-view" data-track-detail="metformin">
+          <div class="status-dot pending"></div>
+          <div style="flex: 1;">
+            <strong>Metformin 500mg</strong>
+            <div style="font-size: 0.85rem; color: var(--gray-400);">Dr. Martinez — Last filled: Mar 28, 2026</div>
+          </div>
+          <span style="color: var(--orange-500); font-weight: 600; font-size: 0.9rem;">Processing</span>
+          <a href="#" class="btn btn-outline" style="font-size: 0.85rem; padding: 8px 16px;" data-track-action="rx-action" data-track-detail="metformin-status">Track Status</a>
+        </div>
+
+        <div class="rx-status" data-track-action="rx-view" data-track-detail="atorvastatin">
+          <div class="status-dot refill"></div>
+          <div style="flex: 1;">
+            <strong>Atorvastatin 20mg</strong>
+            <div style="font-size: 0.85rem; color: var(--gray-400);">Dr. Chen — Last filled: Feb 15, 2026</div>
+          </div>
+          <span style="color: var(--blue-500); font-weight: 600; font-size: 0.9rem;">Refill Available</span>
+          <a href="#" class="btn btn-primary" style="font-size: 0.85rem; padding: 8px 16px;" data-track-action="rx-refill" data-track-detail="atorvastatin">Refill Now</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Drug Cost Lookup -->
+  <section class="section section-alt">
+    <div class="container">
+      <h2>Drug Cost Estimator</h2>
+      <p class="subtitle">Look up estimated costs based on your plan</p>
+
+      <div style="max-width: 600px;">
+        <form class="demo-form" data-track-action="drug-cost-search">
+          <div class="form-group">
+            <label for="drug-name">Medication Name</label>
+            <input type="text" id="drug-name" placeholder="e.g. Lisinopril, Metformin, Ozempic..." data-track-action="drug-search-input">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="drug-plan">Your Plan</label>
+              <select id="drug-plan" data-track-action="drug-plan-select">
+                <option>Bronze</option>
+                <option selected>Silver</option>
+                <option>Gold</option>
+                <option>Medicare Advantage</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="drug-pharmacy">Pharmacy Type</label>
+              <select id="drug-pharmacy" data-track-action="drug-pharmacy-select">
+                <option>AcmeHealth Pharmacy</option>
+                <option>Retail (In-Network)</option>
+                <option>Mail Order (90-day)</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" data-track-action="drug-cost-submit">Estimate Cost</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pharmacy Locations -->
+  <section class="section">
+    <div class="container">
+      <h2>Pharmacy Locations</h2>
+      <p class="subtitle">Find a AcmeHealth pharmacy near you</p>
+      <div class="cards-grid">
+        <div class="card" data-track-action="pharmacy-location" data-track-detail="oakland">
+          <div class="card-img" style="height: 120px;">[ Map Placeholder ]</div>
+          <div class="card-body">
+            <h3>Oakland Medical Center</h3>
+            <p>3600 Broadway, Oakland, CA 94611<br>Mon–Fri: 8am–8pm | Sat: 9am–5pm</p>
+            <a href="#" class="btn btn-outline" style="font-size: 0.85rem; padding: 8px 16px;">Get Directions</a>
+          </div>
+        </div>
+        <div class="card" data-track-action="pharmacy-location" data-track-detail="sf">
+          <div class="card-img" style="height: 120px;">[ Map Placeholder ]</div>
+          <div class="card-body">
+            <h3>San Francisco Medical Center</h3>
+            <p>2425 Geary Blvd, San Francisco, CA 94115<br>Mon–Fri: 8am–8pm | Sat: 9am–5pm</p>
+            <a href="#" class="btn btn-outline" style="font-size: 0.85rem; padding: 8px 16px;">Get Directions</a>
+          </div>
+        </div>
+        <div class="card" data-track-action="pharmacy-location" data-track-detail="walnut-creek">
+          <div class="card-img" style="height: 120px;">[ Map Placeholder ]</div>
+          <div class="card-body">
+            <h3>Walnut Creek Medical Center</h3>
+            <p>1425 S Main St, Walnut Creek, CA 94596<br>Mon–Fri: 8am–8pm | Sat: 9am–5pm</p>
+            <a href="#" class="btn btn-outline" style="font-size: 0.85rem; padding: 8px 16px;">Get Directions</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div><h4>AcmeHealth</h4><a href="plans.html">Plans & Coverage</a><a href="doctors.html">Find a Doctor</a><a href="pharmacy.html">Pharmacy</a><a href="appointments.html">Appointments</a></div>
+        <div><h4>Members</h4><a href="login.html">Sign In</a><a href="#">ID Cards</a><a href="#">Claims</a><a href="#">Benefits</a></div>
+        <div><h4>Support</h4><a href="#">Contact Us</a><a href="#">FAQs</a><a href="#">Billing</a><a href="#">Grievances</a></div>
+        <div><h4>About</h4><a href="#">Our Mission</a><a href="#">Careers</a><a href="#">Newsroom</a><a href="#">Community Health</a></div>
+      </div>
+      <div class="footer-bottom">&copy; 2026 AcmeHealth. Demo site for Adobe testing.</div>
+    </div>
+  </footer>
+
+  <script src="js/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plans & Coverage — AcmeHealth</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data-layer.js"></script>
+  <script src="js/personalization.js"></script>
+  <script src="https://assets.adobedtm.com/dca8f73c45d4/5200617fa907/launch-a7b11588ffe5-development.min.js" async></script>
+</head>
+<body>
+
+  <div class="utility-bar">
+    <div class="container">
+      <a href="#">Español</a>
+      <a href="#">Accessibility</a>
+      <a href="#">Contact Us</a>
+      <a href="login.html">Sign In</a>
+    </div>
+  </div>
+
+  <header>
+    <div class="container">
+      <a href="index.html" class="logo"><div class="logo-icon">A</div> AcmeHealth</a>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="plans.html">Plans</a>
+        <a href="doctors.html">Find a Doctor</a>
+        <a href="pharmacy.html">Pharmacy</a>
+        <a href="appointments.html">Appointments</a>
+      </nav>
+      <a href="login.html" class="header-cta">Member Sign In</a>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" style="padding: 50px 0;">
+    <div class="container">
+      <h1>Plans & Coverage</h1>
+      <p>Choose the plan that fits your life. All plans include preventive care, telehealth, and prescription coverage.</p>
+    </div>
+  </section>
+
+  <!-- Plan Tabs -->
+  <section class="section">
+    <div class="container">
+      <div class="tabs">
+        <div class="tab active" data-tab="individual" data-track-action="plan-tab" data-track-detail="individual">Individual & Family</div>
+        <div class="tab" data-tab="medicare" data-track-action="plan-tab" data-track-detail="medicare">Medicare</div>
+        <div class="tab" data-tab="employer" data-track-action="plan-tab" data-track-detail="employer">Employer</div>
+      </div>
+
+      <!-- Individual Plans -->
+      <div class="tab-content" id="individual">
+        <div class="cards-grid">
+          <div class="plan-card" data-track-action="plan-view" data-track-section="plans" data-track-detail="bronze">
+            <h3>Bronze</h3>
+            <p style="color: var(--gray-400); font-size: 0.9rem;">Lower premiums, higher out-of-pocket</p>
+            <div class="price">$189<span>/mo</span></div>
+            <ul>
+              <li>$6,500 deductible</li>
+              <li>$45 primary care copay</li>
+              <li>$75 specialist copay</li>
+              <li>Generic Rx: $15 copay</li>
+              <li>Preventive care: $0</li>
+            </ul>
+            <a href="#" class="btn btn-outline" data-track-action="plan-select" data-track-detail="bronze" style="width: 100%; text-align: center;">Select Plan</a>
+          </div>
+
+          <div class="plan-card featured" data-track-action="plan-view" data-track-section="plans" data-track-detail="silver">
+            <h3>Silver</h3>
+            <p style="color: var(--gray-400); font-size: 0.9rem;">Balanced coverage for most families</p>
+            <div class="price">$349<span>/mo</span></div>
+            <ul>
+              <li>$3,000 deductible</li>
+              <li>$30 primary care copay</li>
+              <li>$55 specialist copay</li>
+              <li>Generic Rx: $10 copay</li>
+              <li>Preventive care: $0</li>
+              <li>Telehealth: $0 copay</li>
+            </ul>
+            <a href="#" class="btn btn-primary" data-track-action="plan-select" data-track-detail="silver" style="width: 100%; text-align: center;">Select Plan</a>
+          </div>
+
+          <div class="plan-card" data-track-action="plan-view" data-track-section="plans" data-track-detail="gold">
+            <h3>Gold</h3>
+            <p style="color: var(--gray-400); font-size: 0.9rem;">Comprehensive, low out-of-pocket</p>
+            <div class="price">$529<span>/mo</span></div>
+            <ul>
+              <li>$1,000 deductible</li>
+              <li>$20 primary care copay</li>
+              <li>$40 specialist copay</li>
+              <li>Generic Rx: $5 copay</li>
+              <li>Preventive care: $0</li>
+              <li>Telehealth: $0 copay</li>
+              <li>Vision & dental included</li>
+            </ul>
+            <a href="#" class="btn btn-outline" data-track-action="plan-select" data-track-detail="gold" style="width: 100%; text-align: center;">Select Plan</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Medicare tab content -->
+      <div class="tab-content" id="medicare" style="display: none;">
+        <div class="alert-banner">
+          <strong>Medicare Annual Enrollment</strong> is Oct 15 – Dec 7. Compare Medicare Advantage plans now.
+        </div>
+        <div class="cards-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="plan-card">
+            <h3>Medicare Advantage (HMO)</h3>
+            <div class="price">$0<span>/mo premium</span></div>
+            <ul>
+              <li>$0 primary care copay</li>
+              <li>$35 specialist copay</li>
+              <li>$250 drug deductible</li>
+              <li>Part D Rx included</li>
+              <li>Fitness program included</li>
+            </ul>
+            <a href="#" class="btn btn-outline" data-track-action="plan-select" data-track-detail="ma-hmo" style="width: 100%; text-align: center;">Learn More</a>
+          </div>
+          <div class="plan-card featured">
+            <h3>Medicare Advantage Plus (HMO)</h3>
+            <div class="price">$49<span>/mo premium</span></div>
+            <ul>
+              <li>$0 primary care copay</li>
+              <li>$20 specialist copay</li>
+              <li>$0 drug deductible</li>
+              <li>Part D Rx included</li>
+              <li>Dental, vision, hearing</li>
+              <li>$150/quarter OTC allowance</li>
+            </ul>
+            <a href="#" class="btn btn-primary" data-track-action="plan-select" data-track-detail="ma-plus" style="width: 100%; text-align: center;">Learn More</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employer tab content -->
+      <div class="tab-content" id="employer" style="display: none;">
+        <div style="text-align: center; padding: 60px 0;">
+          <h3 style="color: var(--blue-900); margin-bottom: 12px;">Employer & Group Plans</h3>
+          <p style="color: var(--gray-700); max-width: 500px; margin: 0 auto 24px;">Looking for group coverage for your organization? Contact our employer services team.</p>
+          <a href="#" class="btn btn-primary" data-track-action="employer-inquiry" data-track-detail="contact">Contact Employer Services</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison -->
+  <section class="section section-alt">
+    <div class="container">
+      <h2>Compare Plan Benefits</h2>
+      <p class="subtitle">Side-by-side comparison to help you decide</p>
+      <table class="data-table" style="background: var(--white); border-radius: 12px; overflow: hidden;">
+        <thead>
+          <tr>
+            <th>Benefit</th>
+            <th>Bronze</th>
+            <th>Silver</th>
+            <th>Gold</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Monthly Premium</td><td>$189</td><td>$349</td><td>$529</td></tr>
+          <tr><td>Annual Deductible</td><td>$6,500</td><td>$3,000</td><td>$1,000</td></tr>
+          <tr><td>Primary Care</td><td>$45</td><td>$30</td><td>$20</td></tr>
+          <tr><td>Specialist</td><td>$75</td><td>$55</td><td>$40</td></tr>
+          <tr><td>Emergency Room</td><td>$350</td><td>$250</td><td>$150</td></tr>
+          <tr><td>Telehealth</td><td>$25</td><td>$0</td><td>$0</td></tr>
+          <tr><td>Generic Rx</td><td>$15</td><td>$10</td><td>$5</td></tr>
+          <tr><td>Dental & Vision</td><td>Add-on</td><td>Add-on</td><td>Included</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div><h4>AcmeHealth</h4><a href="plans.html">Plans & Coverage</a><a href="doctors.html">Find a Doctor</a><a href="pharmacy.html">Pharmacy</a><a href="appointments.html">Appointments</a></div>
+        <div><h4>Members</h4><a href="login.html">Sign In</a><a href="#">ID Cards</a><a href="#">Claims</a><a href="#">Benefits</a></div>
+        <div><h4>Support</h4><a href="#">Contact Us</a><a href="#">FAQs</a><a href="#">Billing</a><a href="#">Grievances</a></div>
+        <div><h4>About</h4><a href="#">Our Mission</a><a href="#">Careers</a><a href="#">Newsroom</a><a href="#">Community Health</a></div>
+      </div>
+      <div class="footer-bottom">&copy; 2026 AcmeHealth. Demo site for Adobe testing.</div>
+    </div>
+  </footer>
+
+  <script src="js/site.js"></script>
+</body>
+</html>

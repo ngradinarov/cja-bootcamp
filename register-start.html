@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account — AcmeHealth</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data-layer.js"></script>
+  <script src="js/personalization.js"></script>
+  <script src="https://assets.adobedtm.com/dca8f73c45d4/5200617fa907/launch-a7b11588ffe5-development.min.js" async></script>
+</head>
+<body>
+
+  <div class="utility-bar">
+    <div class="container">
+      <a href="#">Español</a><a href="#">Accessibility</a><a href="#">Contact Us</a><a href="admin-filegenerator.html">File Generator</a><a href="login.html">Sign In</a>
+    </div>
+  </div>
+
+  <header>
+    <div class="container">
+      <a href="index.html" class="logo"><div class="logo-icon">A</div> AcmeHealth</a>
+      <nav>
+        <a href="index.html">Home</a><a href="plans.html">Plans</a><a href="doctors.html">Find a Doctor</a><a href="pharmacy.html">Pharmacy</a><a href="appointments.html">Appointments</a>
+      </nav>
+      <a href="login.html" class="header-cta">Member Sign In</a>
+    </div>
+  </header>
+
+  <section class="section" style="padding: 80px 0; background: var(--gray-100); min-height: 70vh; display: flex; align-items: center;">
+    <div class="container">
+
+      <!-- Progress indicator -->
+      <div style="max-width: 480px; margin: 0 auto 32px;">
+        <div style="display: flex; align-items: center; gap: 0;">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--blue-700); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700;">1</div>
+            <span style="font-size: 0.75rem; font-weight: 600; color: var(--blue-700);">Your Email</span>
+          </div>
+          <div style="flex: 1; height: 2px; background: var(--gray-200); margin: 0 8px; margin-bottom: 20px;"></div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--gray-200); color: var(--gray-400); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700;">2</div>
+            <span style="font-size: 0.75rem; color: var(--gray-400);">Create Password</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card" style="max-width: 480px;">
+        <h2>Create Your Account</h2>
+        <p class="subtitle">Step 1 of 2 — Enter your email address</p>
+
+        <form id="register-start-form" data-track-action="registration-start-submit" data-track-section="registration">
+          <div class="form-group">
+            <label for="reg-email">Email Address</label>
+            <input type="email" id="reg-email" placeholder="name@example.com" required
+              data-track-action="registration-field" data-track-detail="email">
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; text-align: center; margin-top: 8px;"
+            data-track-action="registration-start-continue">
+            Continue
+          </button>
+        </form>
+
+        <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--gray-200); text-align: center;">
+          <p style="font-size: 0.9rem; color: var(--gray-400);">Already have an account? <a href="login.html" data-track-action="registration-switch-to-login">Sign in</a></p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div><h4>AcmeHealth</h4><a href="plans.html">Plans & Coverage</a><a href="doctors.html">Find a Doctor</a><a href="pharmacy.html">Pharmacy</a><a href="appointments.html">Appointments</a></div>
+        <div><h4>Members</h4><a href="login.html">Sign In</a><a href="#">ID Cards</a><a href="#">Claims</a><a href="#">Benefits</a></div>
+        <div><h4>Support</h4><a href="#">Contact Us</a><a href="#">FAQs</a><a href="#">Billing</a><a href="#">Grievances</a></div>
+        <div><h4>About</h4><a href="#">Our Mission</a><a href="#">Careers</a><a href="#">Newsroom</a><a href="#">Community Health</a></div>
+      </div>
+      <div class="footer-bottom">&copy; 2026 AcmeHealth. Demo site for Adobe testing.</div>
+    </div>
+  </footer>
+
+  <script src="js/site.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Prefill from admin file generator link (no tagging)
+      try {
+        var prefill = JSON.parse(localStorage.getItem('ah_reg_prefill') || 'null');
+        if (prefill) {
+          var emailInput = document.getElementById('reg-email');
+          if (emailInput && prefill.email) emailInput.value = prefill.email;
+          var guidEl  = document.getElementById('dbg-guid');
+          var emailEl = document.getElementById('dbg-email');
+          if (guidEl  && prefill.guid)  guidEl.textContent  = prefill.guid;
+          if (emailEl && prefill.email) emailEl.textContent = prefill.email;
+          localStorage.removeItem('ah_reg_prefill');
+        }
+      } catch(e) {}
+
+      var form = document.getElementById('register-start-form');
+      if (!form) return;
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var email = document.getElementById('reg-email').value.trim().toLowerCase();
+        if (!email) return;
+
+        // Persist email across steps
+        sessionStorage.setItem('reg_email', email);
+
+        window.adobeDataLayer = window.adobeDataLayer || [];
+        window.adobeDataLayer.push({ eventType: 'registration-start' });
+
+        console.log('[AcmeHealth] EDDL event fired: registration-start');
+
+        var btn = form.querySelector('button[type="submit"]');
+        if (btn) {
+          btn.textContent = 'Continuing...';
+          btn.style.background = '#2E7D32';
+        }
+
+        setTimeout(function () {
+          window.location.href = 'register-complete.html';
+        }, 500);
+      });
+    });
+  </script>
+
+</body>
+</html>
