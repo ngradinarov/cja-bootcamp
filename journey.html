@@ -487,13 +487,13 @@
 
   function save() {
     localStorage.setItem(SK, JSON.stringify(
-      personas.map(p => ({ ...p, selectedItems: [...p.selectedItems] }))
+      personas.map(p => ({ ...p, selectedItems: [...p.selectedItems], selectedTimestamps: p.selectedTimestamps || {} }))
     ));
   }
   function load() {
     try {
       const raw = JSON.parse(localStorage.getItem(SK) || '[]');
-      personas = raw.map(p => ({ ...p, selectedItems: new Set(p.selectedItems || []) }));
+      personas = raw.map(p => ({ ...p, selectedItems: new Set(p.selectedItems || []), selectedTimestamps: p.selectedTimestamps || {} }));
       if (personas.length) activeId = personas[0].id;
     } catch { personas = []; }
   }
@@ -509,7 +509,13 @@
     const p = active();
     if (!p) { alert('Select or create a persona first (Step 1).'); return; }
     const k = itemKey(nid, metric);
-    p.selectedItems.has(k) ? p.selectedItems.delete(k) : p.selectedItems.add(k);
+    if (p.selectedItems.has(k)) {
+      p.selectedItems.delete(k);
+      delete p.selectedTimestamps[k];
+    } else {
+      p.selectedItems.add(k);
+      p.selectedTimestamps[k] = new Date().toISOString();
+    }
     save(); renderPersonas(); renderMap();
   }
 
@@ -519,8 +525,12 @@
     if (!p) { alert('Select or create a persona first (Step 1).'); return; }
     const metrics = NODE_METRICS[nid] || [];
     const allSelected = metrics.every(m => p.selectedItems.has(itemKey(nid, m)));
-    if (allSelected) metrics.forEach(m => p.selectedItems.delete(itemKey(nid, m)));
-    else             metrics.forEach(m => p.selectedItems.add(itemKey(nid, m)));
+    const now = new Date().toISOString();
+    if (allSelected) {
+      metrics.forEach(m => { p.selectedItems.delete(itemKey(nid, m)); delete p.selectedTimestamps[itemKey(nid, m)]; });
+    } else {
+      metrics.forEach(m => { const k = itemKey(nid, m); if (!p.selectedItems.has(k)) { p.selectedItems.add(k); p.selectedTimestamps[k] = now; } });
+    }
     save(); renderPersonas(); renderMap();
   }
 
@@ -649,17 +659,22 @@
     return codes[h % codes.length] + String(1000000 + h % 9000000).slice(0, 7);
   }
   function buildSeed() {
+    const now = new Date().toISOString();
     const seed = {
-      timestamp: new Date().toISOString(),
+      timestamp: now,
       personas: personas.map(p => {
         const slug   = p.name.toLowerCase().replace(/[^a-z ]/g,'').replace(/\s+/g,'.');
         const email  = slug + '@testmail.com';
         const region = p.region || deriveRegion(p.name);
+        // Fill in "now" for any metric that was selected before timestamp tracking was added
+        const timestamps = Object.assign({}, p.selectedTimestamps || {});
+        [...p.selectedItems].forEach(k => { if (!timestamps[k]) timestamps[k] = now; });
         return { name: p.name, email, guid: p.noGuid ? null : makeGuid(email), region,
           noGuid: p.noGuid || false,
           dob: deriveDob(p.name), phone: derivePhone(p.name, region),
           enrollDate: new Date().toISOString().slice(0,10),
-          selectedItems: [...p.selectedItems] };
+          selectedItems: [...p.selectedItems],
+          selectedTimestamps: timestamps };
       })
     };
     localStorage.setItem('ah_journey_seed', JSON.stringify(seed));
@@ -697,7 +712,7 @@
     const noGuid = document.getElementById('pNoGuid').checked;
     const initials = name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
     const id = 'p' + Date.now();
-    personas.push({ id, name, initials, color: chosenColor, region, noGuid, selectedItems: new Set() });
+    personas.push({ id, name, initials, color: chosenColor, region, noGuid, selectedItems: new Set(), selectedTimestamps: {} });
     activeId = id;
     save(); closeModal(); renderPersonas(); renderMap();
     syncToAhPersonas(name, region, noGuid);

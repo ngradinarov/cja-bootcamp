@@ -172,9 +172,9 @@
     <div class="tab-bar">
       <button class="tab-btn active" onclick="switchTab('person',this)">Person</button>
       <button class="tab-btn" onclick="switchTab('member',this)">Member</button>
-      <button class="tab-btn" onclick="switchTab('callcenter',this)">Call Center</button>
       <button class="tab-btn" onclick="switchTab('im',this)">Interactions</button>
       <button class="tab-btn" onclick="switchTab('survey',this)">Survey</button>
+      <button class="tab-btn" onclick="switchTab('callcenter',this)">Call Center</button>
     </div>
 
     <!-- PERSON TAB -->
@@ -199,6 +199,8 @@
         <span class="save-status" id="save-status"></span>
       </div>
 
+      <button class="btn-dl-primary" onclick="downloadPersonJSON()" style="margin-top:4px;">&#11015;&nbsp; Download PERSON.json</button>
+
     </div>
 
     <!-- MEMBER TAB -->
@@ -216,6 +218,8 @@
       <div class="sec-label" style="margin-top:8px;">Export</div>
       <div class="dl-bar">
         <button class="btn-dl-primary" onclick="downloadMemberCSV()">&#11015;&nbsp; Download MEMBERSHIP.csv</button>
+        <button class="btn-dl-primary" onclick="downloadMemberJSON()">&#11015;&nbsp; Download MEMBERSHIP PROFILE.json</button>
+        <button class="btn-dl-primary" onclick="downloadMembershipEventJSON()">&#11015;&nbsp; Download MEMBERSHIP EVENT.json</button>
       </div>
 
     </div>
@@ -240,6 +244,7 @@
       <div class="sec-label" style="margin-top:8px;">Export</div>
       <div class="dl-bar">
         <button class="btn-dl-primary" onclick="downloadCallCenterCSV()">&#11015;&nbsp; Download CALL_CENTER.csv</button>
+        <button class="btn-dl-primary" onclick="downloadCallCenterJSON()">&#11015;&nbsp; Download CALL_CENTER.json</button>
         <button class="btn-dl-primary" onclick="downloadCallTranscriptCSV()" style="background:rgba(99,102,241,0.18);border-color:rgba(99,102,241,0.5);color:#a5b4fc;">&#11015;&nbsp; Download CALL_TRANSCRIPTS.csv</button>
       </div>
 
@@ -322,6 +327,7 @@
       <div class="sec-label" style="margin-top:8px;">Export</div>
       <div class="dl-bar">
         <button class="btn-dl-primary" onclick="downloadIMCSV()">&#11015;&nbsp; Download INTERACTION_MARKETING.csv</button>
+        <button class="btn-dl-primary" onclick="downloadIMJSON()">&#11015;&nbsp; Download INTERACTION_MARKETING.json</button>
       </div>
 
     </div>
@@ -344,6 +350,7 @@
 
       <div class="actions-row" style="margin-top:14px;">
         <button class="btn-dl-primary" onclick="downloadSurveyCSV()">&#11015;&nbsp; Download SURVEY_RESPONSES.csv</button>
+        <button class="btn-dl-primary" onclick="downloadSurveyJSON()">&#11015;&nbsp; Download SURVEY_RESPONSES.json</button>
       </div>
 
     </div>
@@ -399,17 +406,23 @@
     MA: ['301','240','703','202','443','571'],
     CO: ['303','720','970','719'],
     HI: ['808'],
-    CS: ['213','310','323','424','562','626','818','747','619']
+    CS: ['213','310','323','424','562','626','818','747','619'],
+    NW: ['503','971','206','425','360','541'],
+    GA: ['404','678','770','470','762'],
+    NV: ['702','725','775']
   };
 
-  var REGIONS = ['CN','MA','CO','HI','CS'];
+  var REGIONS = ['CN','MA','CO','HI','CS','NW','GA','NV'];
 
   var REGION_MAP = {
     CN: { serviceArea: 'EAST BAY',           displayName: 'Northern California', suffix: '11' },
     MA: { serviceArea: 'DC AND SUBURBAN MD', displayName: 'Mid-Atlantic',         suffix: 'XX' },
     CO: { serviceArea: 'DENVER/BOULDER',     displayName: 'Colorado',             suffix: 'XX' },
     HI: { serviceArea: 'MAUI',              displayName: 'Hawaii',               suffix: 'XX' },
-    CS: { serviceArea: 'LOS ANGELES',       displayName: 'Southern California',  suffix: '00' }
+    CS: { serviceArea: 'LOS ANGELES',       displayName: 'Southern California',  suffix: '00' },
+    NW: { serviceArea: 'PORTLAND/VANCOUVER', displayName: 'Northwest',           suffix: 'XX' },
+    GA: { serviceArea: 'GEORGIA',           displayName: 'Georgia',              suffix: 'XX' },
+    NV: { serviceArea: 'NEVADA',            displayName: 'Nevada',               suffix: 'XX' }
   };
 
   var PLAN_PRESETS = {
@@ -432,16 +445,34 @@
       { label: 'SENIOR ADVANTAGE CO',  planName: 'SENIOR ADVANTAGE CO',  productCode: 'HMO',  productLineDetail: 'HMO - STANDARD',   lobName: 'MEDICARE ADVANTAGE', lobRollup: 'MEDICARE'   }
     ],
     HI: [
-      { label: 'KPSA W HI',           planName: 'KPSA W HI',           productCode: 'KPSA', productLineDetail: '',                 lobName: 'MEDICARE KPSA DPA',  lobRollup: 'MEDICARE'   },
+      { label: 'KPSA W HI',           planName: 'KPSA W HI',           productCode: 'KPSA', productLineDetail: 'KPSA - STANDARD',  lobName: 'MEDICARE KPSA DPA',  lobRollup: 'MEDICARE'   },
       { label: 'TRADITIONAL HMO HI',  planName: 'TRADITIONAL HMO HI',  productCode: 'HMO',  productLineDetail: 'HMO - STANDARD',   lobName: 'LARGE',              lobRollup: 'COMMERCIAL' },
       { label: 'SILVER HMO HI',       planName: 'SILVER HMO HI',       productCode: 'HMO',  productLineDetail: 'HMO - STANDARD',   lobName: 'SMALL',              lobRollup: 'COMMERCIAL' },
       { label: 'SENIOR ADVANTAGE HI', planName: 'SENIOR ADVANTAGE HI', productCode: 'HMO',  productLineDetail: 'HMO - STANDARD',   lobName: 'MEDICARE ADVANTAGE', lobRollup: 'MEDICARE'   }
     ],
     CS: [
-      { label: 'SBU DHMO SLVR SCR',    planName: 'SBU DHMO SLVR SCR',    productCode: 'DHMO', productLineDetail: '',                 lobName: 'CAL CHOICE',         lobRollup: 'SMALL'      },
+      { label: 'SBU DHMO SLVR SCR',    planName: 'SBU DHMO SLVR SCR',    productCode: 'DHMO', productLineDetail: 'DHMO - CAL CHOICE', lobName: 'CAL CHOICE',         lobRollup: 'SMALL'      },
       { label: 'TRADITIONAL HMO SCR',  planName: 'TRADITIONAL HMO SCR',  productCode: 'HMO',  productLineDetail: 'HMO - STANDARD',   lobName: 'LARGE',              lobRollup: 'COMMERCIAL' },
       { label: 'DHMO SCR',             planName: 'DHMO SCR',             productCode: 'DHMO', productLineDetail: 'DHMO - STANDARD',  lobName: 'NATIONAL',           lobRollup: 'COMMERCIAL' },
       { label: 'SENIOR ADVANTAGE SCR', planName: 'SENIOR ADVANTAGE SCR', productCode: 'HMO',  productLineDetail: 'HMO - STANDARD',   lobName: 'MEDICARE ADVANTAGE', lobRollup: 'MEDICARE'   }
+    ],
+    NW: [
+      { label: 'TRADITIONAL HMO NW',   planName: 'TRADITIONAL HMO NW',   productCode: 'HMO',  productLineDetail: 'HMO - STANDARD',   lobName: 'LARGE',              lobRollup: 'COMMERCIAL' },
+      { label: 'DEDUCTIBLE HMO NW',    planName: 'DEDUCTIBLE HMO NW',    productCode: 'HMO',  productLineDetail: 'HMO - DEDUCTIBLE', lobName: 'NATIONAL',           lobRollup: 'COMMERCIAL' },
+      { label: 'SILVER HMO NW',        planName: 'SILVER HMO NW',        productCode: 'HMO',  productLineDetail: 'HMO - STANDARD',   lobName: 'SMALL',              lobRollup: 'COMMERCIAL' },
+      { label: 'SENIOR ADVANTAGE NW',  planName: 'SENIOR ADVANTAGE NW',  productCode: 'HMO',  productLineDetail: 'HMO - STANDARD',   lobName: 'MEDICARE ADVANTAGE', lobRollup: 'MEDICARE'   }
+    ],
+    GA: [
+      { label: 'TRADITIONAL HMO GA',   planName: 'TRADITIONAL HMO GA',   productCode: 'HMO',  productLineDetail: 'HMO - STANDARD',   lobName: 'LARGE',              lobRollup: 'COMMERCIAL' },
+      { label: 'DEDUCTIBLE HMO GA',    planName: 'DEDUCTIBLE HMO GA',    productCode: 'HMO',  productLineDetail: 'HMO - DEDUCTIBLE', lobName: 'NATIONAL',           lobRollup: 'COMMERCIAL' },
+      { label: 'SILVER HMO GA',        planName: 'SILVER HMO GA',        productCode: 'HMO',  productLineDetail: 'HMO - STANDARD',   lobName: 'SMALL',              lobRollup: 'COMMERCIAL' },
+      { label: 'SENIOR ADVANTAGE GA',  planName: 'SENIOR ADVANTAGE GA',  productCode: 'HMO',  productLineDetail: 'HMO - STANDARD',   lobName: 'MEDICARE ADVANTAGE', lobRollup: 'MEDICARE'   }
+    ],
+    NV: [
+      { label: 'TRADITIONAL HMO NV',   planName: 'TRADITIONAL HMO NV',   productCode: 'HMO',  productLineDetail: 'HMO - STANDARD',   lobName: 'LARGE',              lobRollup: 'COMMERCIAL' },
+      { label: 'DEDUCTIBLE HMO NV',    planName: 'DEDUCTIBLE HMO NV',    productCode: 'HMO',  productLineDetail: 'HMO - DEDUCTIBLE', lobName: 'NATIONAL',           lobRollup: 'COMMERCIAL' },
+      { label: 'SILVER HMO NV',        planName: 'SILVER HMO NV',        productCode: 'HMO',  productLineDetail: 'HMO - STANDARD',   lobName: 'SMALL',              lobRollup: 'COMMERCIAL' },
+      { label: 'SENIOR ADVANTAGE NV',  planName: 'SENIOR ADVANTAGE NV',  productCode: 'HMO',  productLineDetail: 'HMO - STANDARD',   lobName: 'MEDICARE ADVANTAGE', lobRollup: 'MEDICARE'   }
     ]
   };
 
@@ -494,6 +525,19 @@
     return '99' + String((Math.abs(hash) % 800000) + 100000).padStart(6, '0');
   }
 
+  // Deterministic seq derived from email — different hash than emailToGuid so values diverge.
+  // Used to make MRN prefix and DIGITALID consistent across imports and tabs for the same persona.
+  function emailToIdSeq(email) {
+    var e = (email || '').toLowerCase().trim();
+    if (!e) return (Math.floor(Math.random() * 800000) + 100000);
+    var hash = 5381;
+    for (var i = 0; i < e.length; i++) {
+      hash = ((hash << 5) + hash) ^ e.charCodeAt(i);
+      hash = hash & hash;
+    }
+    return (Math.abs(hash) % 800000) + 100000;
+  }
+
   // ── ID BUILDERS ──────────────────────────────────────────────────
 
   var RAND2 = ['50','20','70','90','40','15','63','82','35','54'];
@@ -537,8 +581,8 @@
   var nextSeq = Math.floor(Math.random() * 800000) + 100000;
 
   function makePersona(overrides) {
-    var seq        = nextSeq++;
     var ov         = overrides || {};
+    var seq        = ov.seq !== undefined ? ov.seq : nextSeq++;
     var region     = ov.region     || randRegion();
     var name       = ov.name       || randName();
     var email      = ov.email      || randEmail(name);
@@ -547,7 +591,7 @@
     var noGuid = ov.noGuid || false;
     return {
       seq:               seq,
-      guid:              noGuid ? null : (emailToGuid(email) || buildGuid(seq)),
+      guid:              noGuid ? null : (ov.guid || emailToGuid(email) || buildGuid(seq)),
       noGuid:            noGuid,
       name:              name,
       email:             email,
@@ -566,7 +610,9 @@
       targetEvents:      ov.targetEvents      || [],
       imEvents:          ov.imEvents          || [],
       callEvents:        ov.callEvents        || [],
-      surveySelections:  ov.surveySelections  || null
+      surveySelections:  ov.surveySelections  || null,
+      surveyTimestamps:  ov.surveyTimestamps  || null,
+      seedTimestamp:     ov.seedTimestamp     || null
     };
   }
 
@@ -669,7 +715,7 @@
     div.className = 'persona-card';
 
     var regionOpts = REGIONS.map(function(r){
-      var labels = { CN:'CN — East Bay', MA:'MA — DC & Suburban MD', CO:'CO — Denver/Boulder', HI:'HI — Maui', CS:'CS — Los Angeles' };
+      var labels = { CN:'CN — East Bay', MA:'MA — DC & Suburban MD', CO:'CO — Denver/Boulder', HI:'HI — Maui', CS:'CS — Los Angeles', NW:'NW — Portland/Vancouver', GA:'GA — Georgia', NV:'NV — Nevada' };
       return '<option value="' + r + '"' + (p.region === r ? ' selected' : '') + '>' + labels[r] + '</option>';
     }).join('');
 
@@ -880,6 +926,50 @@
     triggerDownload(buildPersonCSV(), exportPrefix() + 'PERSON_' + today() + '.csv');
   }
 
+  function buildPersonJSON() {
+    return personas.map(function(p) {
+      var birthDate = p.dob || '';
+      var parts     = birthDate.split('-');
+      var birthYear = parts[0] ? parseInt(parts[0], 10) : 0;
+      var monthDay  = (parts[1] && parts[2]) ? parts[1] + '-' + parts[2] : '';
+      return {
+        _kaiser: {
+          person: {
+            region:      p.region || '',
+            serviceArea: (REGION_MAP[p.region] || {}).serviceArea || ''
+          },
+          s26ACMEIdentity: {
+            guid:            p.noGuid ? '' : (p.guid || ''),
+            regionMrnPrefix: buildMrnPrefix(p.region, p.seq)
+          }
+        },
+        person: {
+          birthDate:        birthDate,
+          birthDayAndMonth: monthDay,
+          birthYear:        birthYear,
+          name: {
+            fullName:  p.name || '',
+            firstName: (p.name || '').split(' ')[0] || '',
+            lastName:  (p.name || '').split(' ').slice(1).join(' ') || ''
+          }
+        }
+      };
+    });
+  }
+
+  function downloadPersonJSON() {
+    if (personas.length === 0) { alert('Add at least one persona first.'); return; }
+    var data    = buildPersonJSON();
+    var json    = JSON.stringify(data.length === 1 ? data[0] : data);
+    var blob    = new Blob([json], { type: 'application/json' });
+    var url     = URL.createObjectURL(blob);
+    var a       = document.createElement('a');
+    a.href      = url;
+    a.download  = exportPrefix() + 'PERSON_' + today() + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   function buildMemberCSV() {
     var included = personas.filter(function(p){ return p.includeInMember !== false; });
     var h = [
@@ -914,6 +1004,95 @@
       return;
     }
     triggerDownload(buildMemberCSV(), exportPrefix() + 'MEMBERSHIP_' + today() + '.csv');
+  }
+
+  function buildMemberJSON() {
+    var included = personas.filter(function(p){ return p.includeInMember !== false; });
+    return included.map(function(p) {
+      return {
+        _kaiser: {
+          s26ACMEIdentity: {
+            guid:            p.noGuid ? '' : (p.guid || ''),
+            regionMrnPrefix: buildMrnPrefix(p.region, p.seq)
+          },
+          s26ACMEMemberCoverage: {
+            planName:          p.planName          || '',
+            productCode:       p.productCode       || '',
+            productLineDetail: p.productLineDetail || '',
+            lobName:           p.lobName           || '',
+            lobRollup:         p.lobRollup         || '',
+            enrollmentDate:    p.enrollDate                              || '',
+            effectiveStartDate: p.effectiveStartDate || firstOfNextMonth(p.enrollDate) || '',
+            terminationDate:   p.terminationDate   || '4000-12-31'
+          }
+        }
+      };
+    });
+  }
+
+  function downloadMemberJSON() {
+    var included = personas.filter(function(p){ return p.includeInMember !== false; });
+    if (included.length === 0) {
+      alert('No personas are included in Member. Toggle the "Member" checkbox on personas in the Person tab.');
+      return;
+    }
+    var data = buildMemberJSON();
+    var json = JSON.stringify(data.length === 1 ? data[0] : data);
+    var blob = new Blob([json], { type: 'application/json' });
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a');
+    a.href     = url;
+    a.download = exportPrefix() + 'MEMBERSHIP_' + today() + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function buildMembershipEventJSON() {
+    var included = personas.filter(function(p){ return p.includeInMember !== false; });
+    return included.map(function(p) {
+      var mrn        = buildMrnPrefix(p.region, p.seq);
+      var enrollDate = p.enrollDate || '';
+      var timestamp  = enrollDate ? enrollDate + 'T00:00:00.000Z' : new Date().toISOString().slice(0,23) + 'Z';
+      return {
+        _id: mrn + enrollDate + (p.planName || '').replace(/\s/g, ''),
+        _kaiser: {
+          s26ACMEIdentity: {
+            guid:            p.noGuid ? '' : (p.guid || ''),
+            regionMrnPrefix: mrn
+          },
+          s26ACMEMembershipDetails: {
+            effectiveStartDate: p.effectiveStartDate || firstOfNextMonth(p.enrollDate) || '',
+            enrollmentDate:     enrollDate,
+            lobName:            p.lobName           || '',
+            lobRollup:          p.lobRollup         || '',
+            planName:           p.planName          || '',
+            productCode:        p.productCode       || '',
+            productLineDetail:  p.productLineDetail || '',
+            terminationDate:    p.terminationDate   || '4000-12-31'
+          }
+        },
+        eventType:  'new member enrollment',
+        producedBy: 'self',
+        timestamp:  timestamp
+      };
+    });
+  }
+
+  function downloadMembershipEventJSON() {
+    var included = personas.filter(function(p){ return p.includeInMember !== false; });
+    if (included.length === 0) {
+      alert('No personas are included in Member. Toggle the "Member" checkbox on personas in the Person tab.');
+      return;
+    }
+    var data = buildMembershipEventJSON();
+    var json = JSON.stringify(data.length === 1 ? data[0] : data);
+    var blob = new Blob([json], { type: 'application/json' });
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a');
+    a.href     = url;
+    a.download = exportPrefix() + 'MEMBERSHIP_EVENT_' + today() + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   function today() { return new Date().toISOString().slice(0,10); }
@@ -1423,39 +1602,66 @@
       var teCidParts = getCIDParts(te.tacticId);
       events.push({ evid: newEvid(), tacticId: te.tacticId, campaignName: campName, cidParts: teCidParts,
         channel: 'EM', status: 'MESSAGE_SENT',
-        interactionDate: new Date(sentMs).toISOString().replace(/\.\d{3}Z$/, '.000Z') });
+        interactionDate: new Date(sentMs).toISOString().slice(0,23) + 'Z' });
 
       if (Math.random() > 0.08) {
         var dlvMs = sentMs + randInt(1, 3) * 3600000;
         events.push({ evid: newEvid(), tacticId: te.tacticId, campaignName: campName, cidParts: teCidParts,
           channel: 'EM', status: 'DELIVERED',
-          interactionDate: new Date(dlvMs).toISOString().replace(/\.\d{3}Z$/, '.000Z') });
+          interactionDate: new Date(dlvMs).toISOString().slice(0,23) + 'Z' });
         if (isEM) {
           if (Math.random() > 0.55) {
             var openMs = dlvMs + randInt(2, 48) * 3600000;
             events.push({ evid: newEvid(), tacticId: te.tacticId, campaignName: campName, cidParts: teCidParts,
               channel: 'EM', status: 'OPENED',
-              interactionDate: new Date(openMs).toISOString().replace(/\.\d{3}Z$/, '.000Z') });
+              interactionDate: new Date(openMs).toISOString().slice(0,23) + 'Z' });
             if (Math.random() > 0.70) {
               events.push({ evid: newEvid(), tacticId: te.tacticId, campaignName: campName, cidParts: teCidParts,
                 channel: 'EM', status: 'LINK_CLICKED',
-                interactionDate: new Date(openMs + randInt(2, 20) * 60000).toISOString().replace(/\.\d{3}Z$/, '.000Z') });
+                interactionDate: new Date(openMs + randInt(2, 20) * 60000).toISOString().slice(0,23) + 'Z' });
             }
           }
         } else {
           if (Math.random() > 0.75) {
             events.push({ evid: newEvid(), tacticId: te.tacticId, campaignName: campName, cidParts: teCidParts,
               channel: 'EM', status: 'LINK_CLICKED',
-              interactionDate: new Date(sentMs + randInt(5, 60) * 60000).toISOString().replace(/\.\d{3}Z$/, '.000Z') });
+              interactionDate: new Date(sentMs + randInt(5, 60) * 60000).toISOString().slice(0,23) + 'Z' });
           }
         }
       } else {
         events.push({ evid: newEvid(), tacticId: te.tacticId, campaignName: campName, cidParts: teCidParts,
           channel: 'EM', status: 'UNDELIVERED',
-          interactionDate: new Date(sentMs + randInt(5, 20) * 60000).toISOString().replace(/\.\d{3}Z$/, '.000Z') });
+          interactionDate: new Date(sentMs + randInt(5, 20) * 60000).toISOString().slice(0,23) + 'Z' });
       }
     });
     return events;
+  }
+
+  // Enforce minimum realistic gaps between IM events within each tactic.
+  // Called on the imEvents array from importJourneySeed before persisting.
+  function enforceIMEventOrder(imEvents) {
+    var STATUS_ORDER = { 'MESSAGE_SENT': 0, 'OPENED': 1, 'LINK_CLICKED': 2 };
+    var MIN_GAP_MS   = [1 * 60 * 1000, 30 * 1000]; // sent→opened: 1 min, opened→clicked: 30 sec
+
+    var byTactic = {};
+    imEvents.forEach(function(ev) {
+      if (!byTactic[ev.tacticId]) byTactic[ev.tacticId] = [];
+      byTactic[ev.tacticId].push(ev);
+    });
+
+    Object.keys(byTactic).forEach(function(tacticId) {
+      var group = byTactic[tacticId].sort(function(a, b) {
+        return (STATUS_ORDER[a.status] || 0) - (STATUS_ORDER[b.status] || 0);
+      });
+      for (var i = 1; i < group.length; i++) {
+        var prevMs = new Date(group[i - 1].interactionDate).getTime();
+        var currMs = new Date(group[i].interactionDate).getTime();
+        var minGap = MIN_GAP_MS[i - 1] !== undefined ? MIN_GAP_MS[i - 1] : 1000;
+        if (currMs - prevMs < minGap) {
+          group[i].interactionDate = new Date(prevMs + minGap).toISOString().slice(0, 23) + 'Z';
+        }
+      }
+    });
   }
 
   // ── CALL EVENT CRUD ──────────────────────────────────────────────
@@ -1603,7 +1809,7 @@
     var now = new Date();
     p.imEvents.push({ evid: newEvid(), tacticId: t.tacticId, campaignName: t.campaignName || '',
       channel: 'EM', status: 'MESSAGE_SENT', cidParts: getCIDParts(t.tacticId),
-      interactionDate: now.toISOString().replace(/\.\d{3}Z$/, '.000Z') });
+      interactionDate: now.toISOString().slice(0,23) + 'Z' });
     persistState();
     renderIMTab();
   }
@@ -1954,7 +2160,7 @@
           '</div>' +
         '</div>' +
         '<div class="cc-grid">' +
-          ccField('CALL_DATE', '<input class="fg-input-sm" type="datetime-local" style="width:100%;" value="' + esc((c.callDate || '').slice(0,16)) + '" oninput="' + set('callDate') + '">') +
+          ccField('CALL_DATE', '<input class="fg-input-sm" type="text" style="width:100%;font-family:monospace;" value="' + esc(c.callDate || '') + '" oninput="' + set('callDate') + '">') +
           ccField('DIRECTION', '<select class="fg-select-sm" style="width:100%;" onchange="' + set('direction') + '">' + ccSelectOpts(CC_DIRECTIONS, c.direction) + '</select>') +
           ccField('CHANNEL',   '<select class="fg-select-sm" style="width:100%;" onchange="' + set('channel') + '">' + ccSelectOpts(CC_CHANNELS, c.channel) + '</select>') +
           ccField('QUEUE / SKILL', '<select class="fg-select-sm" style="width:100%;" onchange="' + set('queue') + '">' + ccSelectOpts(CC_QUEUES, c.queue) + '</select>') +
@@ -2022,7 +2228,7 @@
     var REG_TACTIC_IDS = ['40981','40852','40853','40854','40847','40848'];
     var rows = evts.map(function(ev) {
       var eid = ev.evid;
-      var dateVal = esc((ev.interactionDate || '').slice(0,16));
+      var dateVal = esc(ev.interactionDate || '');
       var cidVal = esc(buildCIDFromParts(evCIDParts(ev)));
       var isRegClick = ev.status === 'LINK_CLICKED' && REG_TACTIC_IDS.indexOf(ev.tacticId) >= 0;
       var regLinkBtn = isRegClick
@@ -2033,7 +2239,7 @@
         '<td style="width:14%;font-size:0.65rem;color:#64748b;font-family:monospace;padding:0 6px;" id="im-camp-' + s + '-' + eid + '">' + esc(ev.campaignName || '—') + '</td>' +
         '<td style="width:10%"><select class="fg-select-sm" id="im-chan-' + s + '-' + eid + '" onchange="setIMField(' + s + ',\'' + eid + '\',\'channel\',this.value)">' + channelSelectOpts(ev.channel) + '</select></td>' +
         '<td style="width:18%"><select class="fg-select-sm" style="width:100%;" onchange="setIMField(' + s + ',\'' + eid + '\',\'status\',this.value)">' + statusSelectOpts(ev.status) + '</select></td>' +
-        '<td style="width:24%"><input class="fg-input-sm" type="datetime-local" value="' + dateVal + '" style="width:100%;" oninput="setIMField(' + s + ',\'' + eid + '\',\'interactionDate\',this.value)"></td>' +
+        '<td style="width:24%"><input class="fg-input-sm" type="text" value="' + dateVal + '" style="width:100%;font-family:monospace;" oninput="setIMField(' + s + ',\'' + eid + '\',\'interactionDate\',this.value)"></td>' +
         '<td style="width:12%;text-align:right;white-space:nowrap;">' +
           '<button class="btn-row-remove" onclick="removeIMEvent(' + s + ',\'' + eid + '\')">&#x2715;</button>' +
         '</td>' +
@@ -2075,8 +2281,7 @@
   // ── CALL CENTER AUTO-GENERATE ────────────────────────────────────
 
   function fmtLocal(d) {
-    var p2 = function(n){ return String(n).padStart(2,'0'); };
-    return d.getFullYear() + '-' + p2(d.getMonth()+1) + '-' + p2(d.getDate()) + 'T' + p2(d.getHours()) + ':' + p2(d.getMinutes());
+    return d.toISOString().slice(0,23) + 'Z';
   }
 
   function newCallId() { return 'CALL-' + String(randInt(10000000, 99999999)); }
@@ -2086,14 +2291,15 @@
     var base  = new Date((p.enrollDate || today()) + 'T09:00:00');
     var now   = new Date();
     var count = 1;
+    var overrideDate = p.callDateOverride ? new Date(p.callDateOverride) : null;
     for (var i = 0; i < count; i++) {
       var reason = CC_REASONS[randInt(0, CC_REASONS.length - 1)];
       var oc = pickCallOutcome(reason);
       var abandoned = oc.disposition === 'Abandoned';
       var voicemail = oc.disposition === 'Voicemail';
 
-      var d = new Date(base.getTime() + randInt(3, 60) * 86400000 + randInt(0, 8) * 3600000);
-      if (d > now) { d = new Date(now.getTime() - randInt(1, 45) * 86400000); }
+      var d = overrideDate || new Date(base.getTime() + randInt(3, 60) * 86400000 + randInt(0, 8) * 3600000);
+      if (!overrideDate && d > now) { d = new Date(now.getTime() - randInt(1, 45) * 86400000); }
 
       // Abandoned calls sit in a long queue; everything else is a normal wait.
       var waitSec = abandoned ? randInt(300, 1500) : randInt(5, 400);
@@ -2151,7 +2357,7 @@
     'campaigns':      { tacticId: '565120', channel: 'EM', campaignName: null,                daysAfterEnroll: 45, program: 'nmw', nudge: ''  }
   };
 
-  var REGION_CID_RE = { CN: 'ncal', CS: 'scal', MA: 'mas', CO: 'co', HI: 'hi' };
+  var REGION_CID_RE = { CN: 'ncal', CS: 'scal', MA: 'mas', CO: 'co', HI: 'hi', NW: 'nw', GA: 'ga', NV: 'nv' };
   var METRIC_STATUS_MAP = { 'sent': 'MESSAGE_SENT', 'opened': 'OPENED', 'clicked': 'LINK_CLICKED' };
   var METRIC_HOUR_OFFSET = { 'sent': 0, 'opened': 2, 'clicked': 3 };
 
@@ -2161,15 +2367,17 @@
     if (!raw || !raw.personas || !raw.personas.length) { alert('No journey data found.'); return; }
 
     personas = [];
-    nextSeq  = 1;
+    nextSeq  = Math.floor(Math.random() * 800000) + 100000;
     var importedCount = 0;
     raw.personas.forEach(function(sp) {
-      var region = sp.region || 'CN';
+      var region = (REGION_MAP[sp.region] ? sp.region : 'CN');
       var re     = REGION_CID_RE[region] || 'natl';
       var chLC   = function(ch) { return ch === 'EM' ? 'em' : 'sms'; };
       var enrollDate = sp.enrollDate || new Date().toISOString().slice(0,10);
+      var seedBase   = new Date(raw.timestamp || new Date().toISOString());
 
       var imEvents = [], targetEvents = [], seenTactics = {};
+      var spTs = sp.selectedTimestamps || {};
 
       (sp.selectedItems || []).sort().forEach(function(key) {
         var idx    = key.lastIndexOf(':');
@@ -2179,37 +2387,39 @@
         var nm = NODE_TACTIC_MAP[nodeId];
         if (!nm) return;
 
-        // One target event per unique tactic
+        // One target event per unique tactic — use seed timestamp as base
         if (!seenTactics[nm.tacticId]) {
           seenTactics[nm.tacticId] = true;
-          var td = new Date(enrollDate + 'T08:00:00');
-          td.setDate(td.getDate() + nm.daysAfterEnroll);
           var tCID = { ca: 'mem', pg: tacticProgram(nm.tacticId) || nm.program || '', re: re, ch: chLC(nm.channel), pl: 'mkt', ta: 'rtg', au: 'cm', bo: 'conv', sq: nm.nudge || '', adId: '' };
           targetEvents.push({ evid: newEvid(), tacticId: nm.tacticId, channel: nm.channel,
-            dateTargeted: td.toISOString().slice(0,19) + '.000Z', cidParts: tCID });
+            dateTargeted: seedBase.toISOString().slice(0,23) + 'Z', cidParts: tCID });
         }
 
-        // IM event — base time = enrollDate + daysAfterEnroll + metric hour offset
-        var imBase = new Date(enrollDate + 'T08:00:00');
-        imBase.setDate(imBase.getDate() + nm.daysAfterEnroll);
-        imBase.setHours(imBase.getHours() + (METRIC_HOUR_OFFSET[metric] || 0));
+        // IM event — use actual timestamp when user clicked the metric badge
+        var imDate = spTs[key] ? new Date(spTs[key]) : seedBase;
         var imCID = { ca: 'mem', pg: tacticProgram(nm.tacticId) || nm.program || '', re: re, ch: 'em', pl: 'mkt', ta: 'rtg', au: 'cm', bo: 'conv', sq: nm.nudge || '', adId: '' };
         imEvents.push({ evid: newEvid(), tacticId: nm.tacticId,
           campaignName: nm.campaignName || '', channel: 'EM',
           status: METRIC_STATUS_MAP[metric], cidParts: imCID,
-          interactionDate: imBase.toISOString().slice(0,19) + '.000Z' });
+          interactionDate: imDate.toISOString().slice(0,23) + 'Z' });
       });
 
-      // Chronological order
+      // Enforce minimum realistic gaps per tactic, then sort globally
+      enforceIMEventOrder(imEvents);
       imEvents.sort(function(a,b){ return a.interactionDate.localeCompare(b.interactionDate); });
       targetEvents.sort(function(a,b){ return a.dateTargeted.localeCompare(b.dateTargeted); });
 
       var ushurNodeIds = ['ushur-ben','ushur-care','ushur-soc','ushur-mod'];
       var surveySelections = {};
+      var surveyTimestamps = {};
       ushurNodeIds.forEach(function(nodeId) {
-        var hasStart    = (sp.selectedItems || []).indexOf(nodeId + ':start')    !== -1;
-        var hasComplete = (sp.selectedItems || []).indexOf(nodeId + ':complete') !== -1;
+        var startKey    = nodeId + ':start';
+        var completeKey = nodeId + ':complete';
+        var hasStart    = (sp.selectedItems || []).indexOf(startKey)    !== -1;
+        var hasComplete = (sp.selectedItems || []).indexOf(completeKey) !== -1;
         if (hasStart || hasComplete) surveySelections[nodeId] = { start: hasStart, complete: hasComplete };
+        if (spTs[startKey])    surveyTimestamps[startKey]    = spTs[startKey];
+        if (spTs[completeKey]) surveyTimestamps[completeKey] = spTs[completeKey];
       });
 
       var hasCalls = (sp.selectedItems || []).indexOf('callcenter:calls') !== -1;
@@ -2217,10 +2427,15 @@
       var p = makePersona({ name: sp.name, email: sp.email, region: region,
         dob: sp.dob, phone: sp.phone, enrollDate: enrollDate,
         noGuid: sp.noGuid || false,
-        surveySelections: Object.keys(surveySelections).length ? surveySelections : null,
+        seq: sp.noGuid ? undefined : emailToIdSeq(sp.email),
+        surveySelections:  Object.keys(surveySelections).length  ? surveySelections  : null,
+        surveyTimestamps:  Object.keys(surveyTimestamps).length  ? surveyTimestamps  : null,
+        seedTimestamp:     seedBase.toISOString(),
         targetEvents: targetEvents, imEvents: imEvents });
 
+      if (hasCalls) p.callDateOverride = seedBase.toISOString();
       if (hasCalls) p.callEvents = genCallEventsForPersona(p);
+      delete p.callDateOverride;
 
       personas.push(p);
       importedCount++;
@@ -2263,7 +2478,7 @@
     var rows = [];
     personas.forEach(function(p) {
       (p.callEvents || []).forEach(function(c) {
-        var callDate = (c.callDate || '').length === 16 ? c.callDate + ':00' : c.callDate;
+        var callDate = (c.callDate || '').length === 16 ? c.callDate + ':00.000Z' : c.callDate;
         rows.push([
           p.noGuid ? '' : p.guid,
           p.noGuid ? '' : buildDigitalId(p.enrollDate, p.seq),
@@ -2291,7 +2506,7 @@
     var rows = [];
     personas.forEach(function(p) {
       (p.callEvents || []).forEach(function(c) {
-        var callDate = (c.callDate || '').length === 16 ? c.callDate + ':00' : c.callDate;
+        var callDate = (c.callDate || '').length === 16 ? c.callDate + ':00.000Z' : c.callDate;
         rows.push([
           p.noGuid ? '' : p.guid,
           p.name,
@@ -2306,12 +2521,66 @@
     triggerDownload(toCSV(h, rows), exportPrefix() + 'CALL_TRANSCRIPTS_' + today() + '.csv');
   }
 
+  function buildCallCenterJSON() {
+    var records = [];
+    personas.forEach(function(p) {
+      var mrn = buildMrnPrefix(p.region, p.seq);
+      (p.callEvents || []).forEach(function(c) {
+        var callDate = (c.callDate || '').length === 16 ? c.callDate + ':00.000Z' : (c.callDate || '');
+        records.push({
+          _id: (p.noGuid ? '' : p.guid) + mrn + (c.callId || ''),
+          _kaiser: {
+            s26ACMECallCenter: {
+              agentID:    c.agentId    || '',
+              callID:     c.callId     || '',
+              department: c.queue      || '',
+              direction:  c.direction  || '',
+              outcome: {
+                callFCR:     c.fcr === 'Y',
+                callOutcome: c.disposition || '',
+                callReason:  c.reason      || ''
+              },
+              timeMetrics: {
+                holdTime:  parseInt(c.holdSec,      10) || 0,
+                talkTime:  parseInt(c.talkSec,      10) || 0,
+                transfers: parseInt(c.transferCount,10) || 0,
+                waitTime:  parseInt(c.waitSec,      10) || 0
+              }
+            },
+            s26ACMEIdentity: {
+              guid:            p.noGuid ? '' : (p.guid || ''),
+              regionMrnPrefix: mrn
+            }
+          },
+          eventType:  'member call center interaction',
+          producedBy: 'self',
+          timestamp:  callDate
+        });
+      });
+    });
+    return records;
+  }
+
+  function downloadCallCenterJSON() {
+    var total = personas.reduce(function(s, p){ return s + (p.callEvents ? p.callEvents.length : 0); }, 0);
+    if (total === 0) { alert('No call events to export.'); return; }
+    var data = buildCallCenterJSON();
+    var json = JSON.stringify(data.length === 1 ? data[0] : data);
+    var blob = new Blob([json], { type: 'application/json' });
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a');
+    a.href     = url;
+    a.download = exportPrefix() + 'CALL_CENTER_' + today() + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   // ── INTERACTION MARKETING CSV ─────────────────────────────────────
 
   function buildIMCSV() {
     var h = ['guid','DIGITALID','REGION_MRN_PREFIX','TACTIC_ID','cid','campaign_name','INTERACTION_CHANNEL','INTERACTION_STATUS','INTERACTION_DATE'];
     var rows = [];
-    var exportTime = new Date().toISOString().replace(/\.\d{3}Z$/, '.000Z');
+    var exportTime = new Date().toISOString().slice(0,23) + 'Z';
     personas.forEach(function(p) {
       (p.imEvents || []).forEach(function(ev) {
         var interactionDate = ev.interactionDate > exportTime ? exportTime : ev.interactionDate;
@@ -2325,6 +2594,50 @@
     var total = personas.reduce(function(s, p){ return s + (p.imEvents ? p.imEvents.length : 0); }, 0);
     if (total === 0) { alert('No interaction events to export. Use Auto-generate from Targeting or add rows manually.'); return; }
     triggerDownload(buildIMCSV(), exportPrefix() + 'INTERACTION_MARKETING_' + today() + '.csv');
+  }
+
+  function buildIMJSON() {
+    var exportTime = new Date().toISOString().slice(0,23) + 'Z';
+    var records = [];
+    personas.forEach(function(p) {
+      var mrn = buildMrnPrefix(p.region, p.seq);
+      (p.imEvents || []).forEach(function(ev) {
+        var interactionDate = ev.interactionDate > exportTime ? exportTime : ev.interactionDate;
+        var cid = buildCIDFromParts(evCIDParts(ev));
+        records.push({
+          _id: (p.noGuid ? '' : p.guid) + p.region + (ev.tacticId || '') + (ev.status || '') + interactionDate,
+          _kaiser: {
+            campaign: {
+              channel:  ev.channel  || '',
+              cid:      cid,
+              tacticID: ev.tacticId || ''
+            },
+            s26ACMEIdentity: {
+              guid:            p.noGuid ? '' : (p.guid || ''),
+              regionMrnPrefix: mrn
+            }
+          },
+          eventType:  ev.status || '',
+          producedBy: 'self',
+          timestamp:  interactionDate
+        });
+      });
+    });
+    return records;
+  }
+
+  function downloadIMJSON() {
+    var total = personas.reduce(function(s, p){ return s + (p.imEvents ? p.imEvents.length : 0); }, 0);
+    if (total === 0) { alert('No interaction events to export.'); return; }
+    var data = buildIMJSON();
+    var json = JSON.stringify(data.length === 1 ? data[0] : data);
+    var blob = new Blob([json], { type: 'application/json' });
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a');
+    a.href     = url;
+    a.download = exportPrefix() + 'INTERACTION_MARKETING_' + today() + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   // ── SURVEY RESPONSES ─────────────────────────────────────────────
@@ -2350,6 +2663,7 @@
   }
 
   function surveyStartDatetime(p, topicId) {
+    if (p.seedTimestamp) return p.seedTimestamp.slice(0, 19);
     var daysAfterEnroll = (surveyHash(p.name, 'dt' + topicId) % 21) + 7;
     var hourSeed = surveyHash(p.name, 'hr' + topicId);
     var hour = 8 + (hourSeed % 10);
@@ -2357,15 +2671,32 @@
     var d = new Date((p.enrollDate || today()) + 'T12:00:00');
     d.setDate(d.getDate() + daysAfterEnroll);
     return d.toISOString().slice(0, 10) + 'T' +
-      String(hour).padStart(2,'0') + ':' + String(min).padStart(2,'0') + ':00';
+      String(hour).padStart(2,'0') + ':' + String(min).padStart(2,'0') + ':00.000Z';
   }
 
   function surveyCompleteDatetime(p, topicId) {
+    if (p.seedTimestamp) {
+      var d = new Date(p.seedTimestamp);
+      d.setMinutes(d.getMinutes() + 10);
+      return d.toISOString().slice(0, 19);
+    }
     var startStr = surveyStartDatetime(p, topicId);
     var durationMin = (surveyHash(p.name, 'dur' + topicId) % 11) + 5;
     var d = new Date(startStr);
     d.setMinutes(d.getMinutes() + durationMin);
     return d.toISOString().slice(0, 19);
+  }
+
+  function surveyTimestamps(p, topicId) {
+    function norm(ts) { return ts ? (ts.indexOf('Z') < 0 ? ts + '.000Z' : ts) : ''; }
+    var start    = norm(surveyStartDatetime(p, topicId));
+    var complete = norm(surveyCompleteDatetime(p, topicId));
+    if (start && complete && new Date(complete) <= new Date(start)) {
+      var d = new Date(start);
+      d.setSeconds(d.getSeconds() + 1);
+      complete = d.toISOString().slice(0, 23) + 'Z';
+    }
+    return { start: start, complete: complete };
   }
 
   function switchSurveyTopic(btn) {
@@ -2427,13 +2758,14 @@
       if (!sel) return;
       membersShown++;
 
+      var ts = surveyTimestamps(p, tid);
       if (sel.start) {
         totalEvents++;
         trs.push('<tr>' +
           '<td class="cell-name">' + p.name + '</td>' +
           '<td class="cell-guid">' + (p.guid || '') + '</td>' +
           '<td>' + START_BADGE + '</td>' +
-          '<td class="cell-date">' + surveyStartDatetime(p, tid) + '</td>' +
+          '<td class="cell-date">' + ts.start + '</td>' +
           '<td style="color:#334155;">—</td></tr>');
       }
       if (sel.complete) {
@@ -2442,7 +2774,7 @@
           '<td class="cell-name">' + (sel.start ? '' : p.name) + '</td>' +
           '<td class="cell-guid">' + (sel.start ? '' : (p.guid || '')) + '</td>' +
           '<td>' + COMPLETE_BADGE + '</td>' +
-          '<td class="cell-date">' + surveyCompleteDatetime(p, tid) + '</td>' +
+          '<td class="cell-date">' + ts.complete + '</td>' +
           '<td>' + 'Q:' + q0.q + ' A:' + surveyResponse(p, tid, 0) + '</td></tr>');
       }
     });
@@ -2469,16 +2801,73 @@
         if (!sel) return;
         var base = [p.guid, buildMrnPrefix(p.region, p.seq), p.name, SURVEY_TOPICS[tid].label];
         var q0   = SURVEY_TOPICS[tid].questions[0];
+        var ts   = surveyTimestamps(p, tid);
         if (sel.start) {
-          csvRows.push(base.concat(['start', surveyStartDatetime(p, tid), '']));
+          csvRows.push(base.concat(['start', ts.start, '']));
         }
         if (sel.complete) {
-          csvRows.push(base.concat(['complete', surveyCompleteDatetime(p, tid), 'Q:' + q0.q + ' A:' + surveyResponse(p, tid, 0)]));
+          csvRows.push(base.concat(['complete', ts.complete, 'Q:' + q0.q + ' A:' + surveyResponse(p, tid, 0)]));
         }
       });
     });
     if (csvRows.length === 0) { alert('No survey events to export. Select Ushur metrics in the Journey Simulator first.'); return; }
     triggerDownload(toCSV(h, csvRows), exportPrefix() + 'SURVEY_RESPONSES_' + today() + '.csv');
+  }
+
+  function buildSurveyJSON() {
+    var records = [];
+    var topicIds = Object.keys(SURVEY_TOPICS);
+
+    personas.filter(function(p){ return !p.noGuid; }).forEach(function(p) {
+      var mrn = buildMrnPrefix(p.region, p.seq);
+      topicIds.forEach(function(tid) {
+        var sel = surveyEventsForPersonaTopic(p, tid);
+        if (!sel) return;
+        var q0 = SURVEY_TOPICS[tid].questions[0];
+        var ts = surveyTimestamps(p, tid);
+        var startTs    = ts.start;
+        var completeTs = ts.complete;
+
+        if (sel.start) {
+          records.push({
+            _id: (p.guid || '') + mrn + tid + 'start' + startTs,
+            _kaiser: {
+              s26ACMEIdentity: { guid: p.guid || '', regionMrnPrefix: mrn },
+              survey: { questionAnswer: 'Q:' + q0.q }
+            },
+            eventType:  'survey section started',
+            producedBy: 'self',
+            timestamp:  startTs
+          });
+        }
+        if (sel.complete) {
+          records.push({
+            _id: (p.guid || '') + mrn + tid + 'complete' + completeTs,
+            _kaiser: {
+              s26ACMEIdentity: { guid: p.guid || '', regionMrnPrefix: mrn },
+              survey: { questionAnswer: 'Q:' + q0.q + ' A:' + surveyResponse(p, tid, 0) }
+            },
+            eventType:  'survey section completed',
+            producedBy: 'self',
+            timestamp:  completeTs
+          });
+        }
+      });
+    });
+    return records;
+  }
+
+  function downloadSurveyJSON() {
+    var data = buildSurveyJSON();
+    if (data.length === 0) { alert('No survey events to export. Select Ushur metrics in the Journey Simulator first.'); return; }
+    var json = JSON.stringify(data.length === 1 ? data[0] : data);
+    var blob = new Blob([json], { type: 'application/json' });
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a');
+    a.href     = url;
+    a.download = exportPrefix() + 'SURVEY_RESPONSES_' + today() + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   // ── INIT ─────────────────────────────────────────────────────────
@@ -2513,16 +2902,10 @@
     } catch(e) {}
     renderList();
 
-    // Check for journey seed from Journey Simulator
+    // Auto-import journey seed if present
     try {
       var seed = JSON.parse(localStorage.getItem('ah_journey_seed') || 'null');
-      if (seed && seed.personas && seed.personas.length) {
-        var names = seed.personas.map(function(p){ return p.name; }).join(', ');
-        var desc  = document.getElementById('journey-import-desc');
-        if (desc) desc.textContent = seed.personas.length + ' persona' + (seed.personas.length !== 1 ? 's' : '') + ' from Journey Simulator (' + names + ') — import with pre-generated interactions?';
-        var banner = document.getElementById('journey-import-banner');
-        if (banner) banner.style.display = '';
-      }
+      if (seed && seed.personas && seed.personas.length) importJourneySeed();
     } catch(e) {}
 
     document.addEventListener('click', function(e) {

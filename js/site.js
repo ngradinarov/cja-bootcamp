@@ -309,54 +309,73 @@ document.addEventListener('DOMContentLoaded', function () {
    ============================================ */
 (function () {
   var NO_DEBUG_PAGES = ['journey'];
+  var CARD_STYLE = 'background:rgba(15,23,42,0.95);border:1px solid #334155;border-radius:10px;padding:10px 14px;font-family:monospace;font-size:11px;color:#e2e8f0;backdrop-filter:blur(8px);min-width:360px;box-shadow:0 4px 20px rgba(0,0,0,0.4);';
+  var SECTION_LABEL = 'font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;';
+
   document.addEventListener('DOMContentLoaded', function () {
     var pg = window.location.pathname.split('/').pop().replace('.html', '') || 'home';
     if (NO_DEBUG_PAGES.indexOf(pg) >= 0) return;
-    var box = document.createElement('div');
-    box.id = 'ah-debug';
-    box.innerHTML =
-      '<div id="ah-debug-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;cursor:pointer;">' +
-        '<span style="font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;">Identity</span>' +
-        '<span id="ah-debug-toggle" style="font-size:14px;color:#475569;">−</span>' +
-      '</div>' +
-      '<div id="ah-debug-body">' +
-        '<div class="hf-dbg-row"><span class="hf-dbg-label">ECID</span><span class="hf-dbg-val" id="dbg-ecid">loading...</span></div>' +
-        '<div class="hf-dbg-row"><span class="hf-dbg-label">GUID</span><span class="hf-dbg-val" id="dbg-guid">—</span></div>' +
-        '<div class="hf-dbg-row"><span class="hf-dbg-label">Email</span><span class="hf-dbg-val" id="dbg-email">anonymous</span></div>' +
-        '<div class="hf-dbg-row"><span class="hf-dbg-label">Page</span><span class="hf-dbg-val" id="dbg-page">—</span></div>' +
-      '</div>';
-    box.style.cssText = 'position:fixed;bottom:12px;left:12px;background:rgba(15,23,42,0.95);border:1px solid #334155;border-radius:10px;padding:10px 14px;font-family:monospace;font-size:11px;color:#e2e8f0;z-index:99999;backdrop-filter:blur(8px);min-width:360px;box-shadow:0 4px 20px rgba(0,0,0,0.4);';
-    document.body.appendChild(box);
 
-    // Add row styles
+    // Shared row styles
     var style = document.createElement('style');
     style.textContent = '.hf-dbg-row{display:flex;justify-content:space-between;gap:12px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04);}.hf-dbg-row:last-child{border:none;}.hf-dbg-label{color:#64748b;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;min-width:36px;}.hf-dbg-val{color:#cbd5e1;font-size:10px;text-align:right;word-break:break-all;max-width:300px;white-space:nowrap;}';
     document.head.appendChild(style);
 
-    // Toggle collapse
+    // Wrapper — fixed position, flex column, gap between cards
+    var wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position:fixed;bottom:12px;left:12px;display:flex;flex-direction:column;gap:6px;z-index:99999;';
+
+    // ── IDENTITY card (ECID + GUID when authenticated) ──────────────
+    var idBox = document.createElement('div');
+    idBox.id = 'ah-debug';
+    idBox.style.cssText = CARD_STYLE;
+    idBox.innerHTML =
+      '<div id="ah-debug-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;cursor:pointer;">' +
+        '<span style="' + SECTION_LABEL + '">Identity</span>' +
+        '<span id="ah-debug-toggle" style="font-size:14px;color:#475569;">−</span>' +
+      '</div>' +
+      '<div id="ah-debug-body">' +
+        '<div class="hf-dbg-row"><span class="hf-dbg-label">ECID</span><span class="hf-dbg-val" id="dbg-ecid">loading...</span></div>' +
+        '<div class="hf-dbg-row" id="dbg-guid-row" style="display:none;"><span class="hf-dbg-label">GUID</span><span class="hf-dbg-val" id="dbg-guid"></span></div>' +
+      '</div>';
+
+    // ── CONTEXT card (Email + Page — session/event context, not identityMap) ──
+    var ctxBox = document.createElement('div');
+    ctxBox.id = 'ah-debug-ctx';
+    ctxBox.style.cssText = CARD_STYLE;
+    ctxBox.innerHTML =
+      '<div style="margin-bottom:6px;"><span style="' + SECTION_LABEL + '">Context</span></div>' +
+      '<div class="hf-dbg-row"><span class="hf-dbg-label">User</span><span class="hf-dbg-val" id="dbg-email">anonymous</span></div>' +
+      '<div class="hf-dbg-row"><span class="hf-dbg-label">View</span><span class="hf-dbg-val" id="dbg-page">—</span></div>';
+
+    wrapper.appendChild(idBox);
+    wrapper.appendChild(ctxBox);
+    document.body.appendChild(wrapper);
+
+    // Toggle collapses both cards together
     document.getElementById('ah-debug-header').addEventListener('click', function () {
-      var body = document.getElementById('ah-debug-body');
+      var body   = document.getElementById('ah-debug-body');
       var toggle = document.getElementById('ah-debug-toggle');
-      if (body.style.display === 'none') {
-        body.style.display = '';
-        toggle.textContent = '−';
-      } else {
-        body.style.display = 'none';
-        toggle.textContent = '+';
-      }
+      var isCollapsed = body.style.display === 'none';
+      body.style.display    = isCollapsed ? '' : 'none';
+      ctxBox.style.display  = isCollapsed ? '' : 'none';
+      toggle.textContent    = isCollapsed ? '−' : '+';
     });
 
-    // Populate session info
+    // Populate session info — GUID row only shown when authenticated (GUID fires in identityMap)
     try {
       var sess = JSON.parse(localStorage.getItem('ah_session') || 'null');
       if (sess) {
-        document.getElementById('dbg-guid').textContent = sess.guid || 'not set';
+        if (sess.guid) {
+          var guidRow = document.getElementById('dbg-guid-row');
+          if (guidRow) guidRow.style.display = '';
+          document.getElementById('dbg-guid').textContent = sess.guid;
+        }
         document.getElementById('dbg-email').textContent = sess.email || 'anonymous';
       }
     } catch (e) {}
 
-    // Page name
-    var pg = window.location.pathname.split('/').pop().replace('.html', '') || 'home';
+    // Page/view name
     document.getElementById('dbg-page').textContent = pg;
 
     // Get ECID via alloy
