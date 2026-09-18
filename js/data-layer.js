@@ -12,7 +12,7 @@ window.adobeDataLayer = window.adobeDataLayer || [];
     'login': 'Member Sign In',
     'appointments': 'Appointments',
     'dashboard': 'Member Dashboard',
-    'register-start': 'Registration - Step 1',
+    'register-start': Math.random() < 0.5 ? 'Registration - Step 1' : 'Registration -- Step 1',
     'register-complete': 'Registration - Step 2',
     'journey': 'New Member Welcome Journey',
     'wellness': 'Wellness Hub',
