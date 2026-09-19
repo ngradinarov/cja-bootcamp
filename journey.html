@@ -633,8 +633,13 @@
     return '99' + String((Math.abs(h) % 800000) + 100000).padStart(6, '0');
   }
   function launchRegStart(p) {
-    const re    = REGION_CID_RE[p.region] || 'natl';
-    const cid   = 'ca-mem|pg-nmwOSR|re-' + re + '|ch-em|pl-mkt|ta-rtg|au-cm|bo-conv|sq-|ad_id-';
+    const re  = REGION_CID_RE[p.region] || 'natl';
+    // Inherit sq from the highest-numbered nudge the persona clicked, empty if none
+    let sq = '';
+    for (let n = 5; n >= 1; n--) {
+      if (p.selectedItems.has('reg-nudge-' + n + ':clicked')) { sq = String(n); break; }
+    }
+    const cid   = 'ca-mem|pg-nmwOSR|re-' + re + '|ch-em|pl-mkt|ta-rtg|au-cm|bo-conv|sq-' + sq + '|ad_id-';
     const slug  = p.name.toLowerCase().replace(/[^a-z ]/g,'').replace(/\s+/g,'.');
     const email = slug + '@testmail.com';
     const guid  = p.noGuid ? null : makeGuid(email);
