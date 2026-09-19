@@ -515,6 +515,7 @@
     } else {
       p.selectedItems.add(k);
       p.selectedTimestamps[k] = new Date().toISOString();
+      if (nid === 'reg' && metric === 'complete') launchRegStart(p);
     }
     save(); renderPersonas(); renderMap();
   }
@@ -631,6 +632,16 @@
     for (var i = 0; i < e.length; i++) { h = ((h << 5) - h) + e.charCodeAt(i); h = h & h; }
     return '99' + String((Math.abs(h) % 800000) + 100000).padStart(6, '0');
   }
+  function launchRegStart(p) {
+    const re    = REGION_CID_RE[p.region] || 'natl';
+    const cid   = 'ca-mem|pg-nmwOSR|re-' + re + '|ch-em|pl-mkt|ta-rtg|au-cm|bo-conv|sq-|ad_id-';
+    const slug  = p.name.toLowerCase().replace(/[^a-z ]/g,'').replace(/\s+/g,'.');
+    const email = slug + '@testmail.com';
+    const guid  = p.noGuid ? null : makeGuid(email);
+    localStorage.setItem('ah_reg_prefill', JSON.stringify({ guid, email, name: p.name }));
+    window.open('register-start.html?cid=' + encodeURIComponent(cid), '_blank');
+  }
+
   function hashStr(s) {
     var h = 0;
     for (var i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h = h & h; }
@@ -639,6 +650,7 @@
   const REGION_LIST_SEED = ['CN','MA','CO','HI','CS','NW','GA','NV'];
   const REGION_PHONES_SEED = { CN:['510','925','415','650'], MA:['301','240','703'], CO:['303','720'], HI:['808'], CS:['213','310','323','562'], NW:['503','971','206','425'], GA:['404','678','770'], NV:['702','725'] };
   const MRN_SUFFIX_MAP = { CN:'11', CS:'00', MA:'XX', CO:'XX', HI:'XX', NW:'XX', GA:'XX', NV:'XX' };
+  const REGION_CID_RE  = { CN:'ncal', CS:'scal', MA:'mas', CO:'co', HI:'hi', NW:'nw', GA:'ga', NV:'nv' };
   function deriveRegion(name)  { return REGION_LIST_SEED[hashStr(name) % REGION_LIST_SEED.length]; }
   function deriveMrnPrefix(name, region) {
     const seq = (hashStr(name) % 800000) + 100000;
