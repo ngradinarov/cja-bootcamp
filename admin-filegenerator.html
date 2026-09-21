@@ -2663,9 +2663,11 @@
   }
 
   function surveyStartDatetime(p, topicId) {
-    // Use the exact second the user clicked the Start badge in the journey map
-    if (p.surveyTimestamps && p.surveyTimestamps[topicId + ':start'])
-      return p.surveyTimestamps[topicId + ':start'].slice(0, 19);
+    // Use the exact second the user clicked the Start badge in the journey map.
+    // surveyTimestamps keys use the full node-id form ("ushur-ben:start").
+    var tsKey = 'ushur-' + topicId + ':start';
+    if (p.surveyTimestamps && p.surveyTimestamps[tsKey])
+      return p.surveyTimestamps[tsKey].slice(0, 19);
     if (p.seedTimestamp) return p.seedTimestamp.slice(0, 19);
     var daysAfterEnroll = (surveyHash(p.name, 'dt' + topicId) % 21) + 7;
     var hourSeed = surveyHash(p.name, 'hr' + topicId);
@@ -2678,9 +2680,10 @@
   }
 
   function surveyCompleteDatetime(p, topicId) {
-    // Use the exact second the user clicked the Complete badge in the journey map
-    if (p.surveyTimestamps && p.surveyTimestamps[topicId + ':complete'])
-      return p.surveyTimestamps[topicId + ':complete'].slice(0, 19);
+    // Use the exact second the user clicked the Complete badge in the journey map.
+    var tsKey = 'ushur-' + topicId + ':complete';
+    if (p.surveyTimestamps && p.surveyTimestamps[tsKey])
+      return p.surveyTimestamps[tsKey].slice(0, 19);
     if (p.seedTimestamp) {
       var d = new Date(p.seedTimestamp);
       d.setMinutes(d.getMinutes() + 10);
