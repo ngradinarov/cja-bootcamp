@@ -2404,8 +2404,7 @@
           interactionDate: imDate.toISOString().slice(0,23) + 'Z' });
       });
 
-      // Enforce minimum realistic gaps per tactic, then sort globally
-      enforceIMEventOrder(imEvents);
+      // Sort by the exact click timestamp recorded in the journey simulator
       imEvents.sort(function(a,b){ return a.interactionDate.localeCompare(b.interactionDate); });
       targetEvents.sort(function(a,b){ return a.dateTargeted.localeCompare(b.dateTargeted); });
 
