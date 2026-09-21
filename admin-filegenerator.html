@@ -2433,7 +2433,7 @@
         seedTimestamp:     seedBase.toISOString(),
         targetEvents: targetEvents, imEvents: imEvents });
 
-      if (hasCalls) p.callDateOverride = seedBase.toISOString();
+      if (hasCalls) p.callDateOverride = spTs['callcenter:calls'] || seedBase.toISOString();
       if (hasCalls) p.callEvents = genCallEventsForPersona(p);
       delete p.callDateOverride;
 
@@ -2663,6 +2663,9 @@
   }
 
   function surveyStartDatetime(p, topicId) {
+    // Use the exact second the user clicked the Start badge in the journey map
+    if (p.surveyTimestamps && p.surveyTimestamps[topicId + ':start'])
+      return p.surveyTimestamps[topicId + ':start'].slice(0, 19);
     if (p.seedTimestamp) return p.seedTimestamp.slice(0, 19);
     var daysAfterEnroll = (surveyHash(p.name, 'dt' + topicId) % 21) + 7;
     var hourSeed = surveyHash(p.name, 'hr' + topicId);
@@ -2675,6 +2678,9 @@
   }
 
   function surveyCompleteDatetime(p, topicId) {
+    // Use the exact second the user clicked the Complete badge in the journey map
+    if (p.surveyTimestamps && p.surveyTimestamps[topicId + ':complete'])
+      return p.surveyTimestamps[topicId + ':complete'].slice(0, 19);
     if (p.seedTimestamp) {
       var d = new Date(p.seedTimestamp);
       d.setMinutes(d.getMinutes() + 10);
