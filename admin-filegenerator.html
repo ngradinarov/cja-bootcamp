@@ -140,7 +140,7 @@
     .survey-tbl tr:hover td { background: rgba(255,255,255,0.02); }
     .survey-tbl .cell-name { font-weight: 600; color: #e2e8f0; white-space: nowrap; }
     .survey-tbl .cell-guid { font-family: monospace; font-size: 0.72rem; color: #a5b4fc; white-space: nowrap; }
-    .survey-tbl .cell-date { color: #475569; font-size: 0.72rem; white-space: nowrap; }
+    .survey-tbl .cell-date { color: #94a3b8; font-size: 0.72rem; white-space: nowrap; font-family: monospace; }
   </style>
 </head>
 <body>
@@ -2667,7 +2667,7 @@
     // surveyTimestamps keys use the full node-id form ("ushur-ben:start").
     var tsKey = 'ushur-' + topicId + ':start';
     if (p.surveyTimestamps && p.surveyTimestamps[tsKey])
-      return p.surveyTimestamps[tsKey].slice(0, 19);
+      return p.surveyTimestamps[tsKey];
     if (p.seedTimestamp) return p.seedTimestamp.slice(0, 19);
     var daysAfterEnroll = (surveyHash(p.name, 'dt' + topicId) % 21) + 7;
     var hourSeed = surveyHash(p.name, 'hr' + topicId);
@@ -2683,7 +2683,7 @@
     // Use the exact second the user clicked the Complete badge in the journey map.
     var tsKey = 'ushur-' + topicId + ':complete';
     if (p.surveyTimestamps && p.surveyTimestamps[tsKey])
-      return p.surveyTimestamps[tsKey].slice(0, 19);
+      return p.surveyTimestamps[tsKey];
     if (p.seedTimestamp) {
       var d = new Date(p.seedTimestamp);
       d.setMinutes(d.getMinutes() + 10);
